@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConstructionSitePlanner.API", "ConstructionSitePlanner.API\ConstructionSitePlanner.API.csproj", "{29838358-D9C0-4082-BF58-F1B0DF0F8526}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConstructionSitePlanner.Core", "ConstructionSitePlanner.Core\ConstructionSitePlanner.Core.csproj", "{F0B69334-84DE-4A19-AE86-04C363C29D05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConstructionSitePlanner.Infrastructure", "ConstructionSitePlanner.Infrastructure\ConstructionSitePlanner.Infrastructure.csproj", "{DE54F87C-9F23-435C-A724-C013B4027962}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29838358-D9C0-4082-BF58-F1B0DF0F8526}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29838358-D9C0-4082-BF58-F1B0DF0F8526}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29838358-D9C0-4082-BF58-F1B0DF0F8526}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29838358-D9C0-4082-BF58-F1B0DF0F8526}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0B69334-84DE-4A19-AE86-04C363C29D05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0B69334-84DE-4A19-AE86-04C363C29D05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0B69334-84DE-4A19-AE86-04C363C29D05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0B69334-84DE-4A19-AE86-04C363C29D05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE54F87C-9F23-435C-A724-C013B4027962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE54F87C-9F23-435C-A724-C013B4027962}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE54F87C-9F23-435C-A724-C013B4027962}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE54F87C-9F23-435C-A724-C013B4027962}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
