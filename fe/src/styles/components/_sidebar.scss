@@ -1,0 +1,35 @@
+.site-sidebar {
+  transition-property: all;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  border-right-width: 1px;
+  background-color: var(--background);
+  
+  &--expanded {
+    width: 16rem;
+  }
+  
+  &--collapsed {
+    width: 4rem;
+  }
+  
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    
+    &--active {
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+    }
+  }
+}
