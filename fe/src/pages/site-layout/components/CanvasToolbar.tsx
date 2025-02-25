@@ -1,6 +1,7 @@
 // src/pages/site-layout/components/CanvasToolbar.tsx
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Button, Space } from 'antd';
+import { PlusOutlined, UndoOutlined, RedoOutlined } from '@ant-design/icons';
 import { CanvasToolbarProps, ShapeType } from '../types';
 
 export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
@@ -14,33 +15,33 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 
   return (
     <div className="flex justify-between p-4 border-b">
-      <div className="flex gap-2">
+      <Space size="small">
         {shapeTypes.map(type => (
           <Button
             key={type}
             onClick={() => onAddShape(type)}
-            variant="outline"
+            icon={<PlusOutlined />}
           >
-            Add {type.charAt(0).toUpperCase() + type.slice(1)}
+            {type.charAt(0).toUpperCase() + type.slice(1)}
           </Button>
         ))}
-      </div>
-      <div className="flex gap-2">
+      </Space>
+      <Space size="small">
         <Button
           onClick={onUndo}
           disabled={!canUndo}
-          variant="ghost"
+          icon={<UndoOutlined />}
         >
           Undo
         </Button>
         <Button
           onClick={onRedo}
           disabled={!canRedo}
-          variant="ghost"
+          icon={<RedoOutlined />}
         >
           Redo
         </Button>
-      </div>
+      </Space>
     </div>
   );
 };

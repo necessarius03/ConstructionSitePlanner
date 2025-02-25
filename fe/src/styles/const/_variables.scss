@@ -1,20 +1,49 @@
-:root {
-  // Border Radius
-  --radius: 0.5rem;
-  
-  // Spacing
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 0.75rem;
-  --spacing-4: 1rem;
-  
-  // Font sizes
-  --font-xs: 0.75rem;
-  --font-sm: 0.875rem;
-  --font-base: 1rem;
-  --font-lg: 1.125rem;
-  --font-xl: 1.25rem;
-  
-  // Transitions
-  --transition-base: 0.3s ease-in-out;
-}
+// src/styles/const/_variables.scss
+
+// Colors
+$primary-color: #1677ff;
+$primary-color-hover: #4096ff;
+$primary-color-active: #0958d9;
+$primary-color-outline: rgba(22, 119, 255, 0.2);
+
+$success-color: #52c41a;
+$warning-color: #faad14;
+$error-color: #f5222d;
+$info-color: #1677ff;
+
+$text-primary: rgba(0, 0, 0, 0.88);
+$text-secondary: rgba(0, 0, 0, 0.65);
+$text-disabled: rgba(0, 0, 0, 0.25);
+
+$bg-color: #f5f5f5;
+$component-bg: #ffffff;
+$border-color: #d9d9d9;
+
+// Shadows
+$shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+$shadow-2: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+// Layout
+$header-height: 64px;
+$sidebar-width: 250px;
+$sidebar-collapsed-width: 80px;
+
+// Breakpoints
+$screen-xs: 480px;
+$screen-sm: 576px;
+$screen-md: 768px;
+$screen-lg: 992px;
+$screen-xl: 1200px;
+$screen-xxl: 1600px;
+
+// Typography
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+$font-size-base: 14px;
+$font-size-lg: 16px;
+$font-size-sm: 12px;
+$font-size-xs: 10px;
+
+// Border radius
+$border-radius-base: 6px;
+$border-radius-sm: 4px;
+$border-radius-lg: 8px;

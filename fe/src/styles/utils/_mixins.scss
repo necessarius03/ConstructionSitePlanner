@@ -1,17 +1,91 @@
+// src/styles/utils/_mixins.scss
+
+// Responsive mixins
+@mixin mobile {
+  @media (max-width: #{$screen-sm - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$screen-sm}) and (max-width: #{$screen-lg - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$screen-lg}) {
+    @content;
+  }
+}
+
+// Flexbox mixins
 @mixin flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-@mixin responsive($breakpoint) {
-  @if $breakpoint == sm {
-    @media (min-width: 640px) { @content; }
-  } @else if $breakpoint == md {
-    @media (min-width: 768px) { @content; }
-  } @else if $breakpoint == lg {
-    @media (min-width: 1024px) { @content; }
-  } @else if $breakpoint == xl {
-    @media (min-width: 1280px) { @content; }
-  }
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Typography mixins
+@mixin text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin multi-line-ellipsis($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Shadow mixins
+@mixin box-shadow-1 {
+  box-shadow: $shadow-1;
+}
+
+@mixin box-shadow-2 {
+  box-shadow: $shadow-2;
+}
+
+// Animation mixins
+@mixin transition($property: all, $duration: 0.3s, $timing: ease-in-out) {
+  transition: $property $duration $timing;
+}
+
+// Border mixins
+@mixin border-top {
+  border-top: 1px solid $border-color;
+}
+
+@mixin border-bottom {
+  border-bottom: 1px solid $border-color;
+}
+
+@mixin border-left {
+  border-left: 1px solid $border-color;
+}
+
+@mixin border-right {
+  border-right: 1px solid $border-color;
 }

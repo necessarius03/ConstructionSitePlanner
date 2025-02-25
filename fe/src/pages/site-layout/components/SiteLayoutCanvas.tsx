@@ -1,6 +1,10 @@
 // src/pages/site-layout/components/SiteLayoutCanvas.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Transformer } from 'react-konva';
+import type { KonvaEventObject } from 'konva/lib/Node';
+import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
+import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
+import type { Stage as KonvaStage } from 'konva/lib/Stage';
 import {
   Shape,
   ShapeType,
@@ -62,20 +66,27 @@ const DraggableRect: React.FC<DraggableRectProps> = ({
   onChange,
   onContextMenu 
 }) => {
-  const shapeRef = useRef<any>(null);
-  const transformerRef = useRef<any>(null);
+  const shapeRef = useRef<KonvaRect>(null);
+  const transformerRef = useRef<KonvaTransformer>(null);
 
   useEffect(() => {
     if (shapeProps.isSelected && transformerRef.current && shapeRef.current) {
       transformerRef.current.nodes([shapeRef.current]);
-      transformerRef.current.getLayer().batchDraw();
+      transformerRef.current.getLayer()?.batchDraw();
     }
   }, [shapeProps.isSelected]);
+
+  // Loại bỏ thuộc tính 'id' kiểu number và chuyển đổi nó sang string
+  const { id, ...otherShapeProps } = shapeProps;
+  const rectProps = {
+    ...otherShapeProps,
+    id: id.toString() // Chuyển id từ number sang string
+  };
 
   return (
     <>
       <Rect
-        {...shapeProps}
+        {...rectProps}
         ref={shapeRef}
         draggable={!isLocked}
         onClick={onSelect}
@@ -142,14 +153,14 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
 }) => {
   const [shapes, setShapes] = useState<Shape[]>(initialShapes);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const stageRef = useRef<any>(null);
+  const stageRef = useRef<KonvaStage>(null);
 
   const handleShapesChange = (newShapes: Shape[]) => {
     setShapes(newShapes);
     onShapesChange?.(newShapes);
   };
 
-  const checkDeselect = (e: any) => {
+  const checkDeselect = (e: KonvaEventObject<MouseEvent>) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
       setSelectedId(null);
@@ -199,7 +210,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
             width={window.innerWidth - 350}
             height={window.innerHeight - 200}
             onClick={checkDeselect}
-            onTap={checkDeselect}
+            onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
           >
             <Layer>
               <CanvasGrid 

@@ -1,4 +1,11 @@
 // src/pages/site-layout/types.ts
+import type { KonvaEventObject } from 'konva/lib/Node';
+
+// Chỉ định nghĩa kiểu dữ liệu mà không import
+type KonvaRect = any;
+type KonvaTransformer = any;
+type KonvaStage = any;
+
 export interface Point {
   x: number;
   y: number;
@@ -23,7 +30,7 @@ export interface Shape extends BaseShape {
   name?: string;
   description?: string;
   rotation?: number;
-  attributes?: Record<string, any>;
+  attributes?: Record<string, unknown>;
 }
 
 export interface CanvasGridProps extends Size {
@@ -37,7 +44,7 @@ export interface DraggableRectProps {
   isLocked?: boolean;
   onSelect: () => void;
   onChange: (newAttrs: Shape) => void;
-  onContextMenu?: (e: any) => void;
+  onContextMenu?: (e: KonvaEventObject<PointerEvent>) => void;
 }
 
 export interface SiteLayoutCanvasProps {
@@ -61,3 +68,6 @@ export interface ShapePropertiesProps {
   onUpdate: (shape: Shape) => void;
   onDelete: (shapeId: number) => void;
 }
+
+// Export các kiểu đã định nghĩa để sử dụng ở các file khác
+export type { KonvaRect, KonvaTransformer, KonvaStage };

@@ -1,8 +1,6 @@
 // src/pages/site-layout/components/ShapeProperties.tsx
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Button, Form, Input, InputNumber } from 'antd';
 import { ShapePropertiesProps } from '../types';
 
 export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
@@ -16,50 +14,49 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
     <div className="w-64 p-4 border-l">
       <h3 className="font-semibold mb-4">Properties</h3>
       
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Name</Label>
+      <Form layout="vertical" className="space-y-4">
+        <Form.Item label="Name">
           <Input
             value={shape.name || ''}
             onChange={(e) => onUpdate({ ...shape, name: e.target.value })}
           />
-        </div>
+        </Form.Item>
 
-        <div className="space-y-2">
-          <Label>Width</Label>
-          <Input
-            type="number"
+        <Form.Item label="Width">
+          <InputNumber
             value={shape.width}
-            onChange={(e) => onUpdate({ ...shape, width: Number(e.target.value) })}
+            onChange={(value) => onUpdate({ ...shape, width: Number(value) })}
+            style={{ width: '100%' }}
           />
-        </div>
+        </Form.Item>
 
-        <div className="space-y-2">
-          <Label>Height</Label>
-          <Input
-            type="number"
+        <Form.Item label="Height">
+          <InputNumber
             value={shape.height}
-            onChange={(e) => onUpdate({ ...shape, height: Number(e.target.value) })}
+            onChange={(value) => onUpdate({ ...shape, height: Number(value) })}
+            style={{ width: '100%' }}
           />
-        </div>
+        </Form.Item>
 
-        <div className="space-y-2">
-          <Label>Rotation</Label>
-          <Input
-            type="number"
+        <Form.Item label="Rotation">
+          <InputNumber
             value={shape.rotation || 0}
-            onChange={(e) => onUpdate({ ...shape, rotation: Number(e.target.value) })}
+            onChange={(value) => onUpdate({ ...shape, rotation: Number(value) })}
+            style={{ width: '100%' }}
           />
-        </div>
+        </Form.Item>
 
-        <Button
-          variant="destructive"
-          onClick={() => onDelete(shape.id)}
-          className="w-full"
-        >
-          Delete Shape
-        </Button>
-      </div>
+        <Form.Item>
+          <Button
+            danger
+            type="primary"
+            onClick={() => onDelete(shape.id)}
+            style={{ width: '100%' }}
+          >
+            Delete Shape
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

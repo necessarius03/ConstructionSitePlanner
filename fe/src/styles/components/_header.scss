@@ -1,22 +1,55 @@
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  width: 100%;
-  border-bottom-width: 1px;
-  background-color: var(--background);
+// src/styles/components/_header.scss
+@import '../const/variables';
+
+.ant-layout-header {
+  height: 64px;
+  padding: 0 16px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  z-index: 1;
   
-  &__container {
-    display: flex;
-    height: 3.5rem;
-    align-items: center;
-    padding-left: 1rem;
-    padding-right: 1rem;
+  .site-logo {
+    height: 32px;
+    
+    a {
+      color: $primary-color;
+      font-weight: 600;
+      font-size: 18px;
+      text-decoration: none;
+      
+      &:hover {
+        color: darken($primary-color, 10%);
+      }
+    }
   }
   
-  &__title {
-    margin-left: 1rem;
-    font-size: 1.125rem;
-    font-weight: 600;
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .ant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notification-badge {
+      .ant-badge-count {
+        box-shadow: none;
+      }
+    }
+    
+    .user-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .user-name {
+        @media (max-width: 768px) {
+          display: none;
+        }
+      }
+    }
   }
 }
