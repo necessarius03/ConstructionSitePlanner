@@ -17,7 +17,7 @@ interface SidebarProps {
   collapsed: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   const location = useLocation();
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 

@@ -1,10 +1,8 @@
 // src/pages/site-layout/types.ts
 import type { KonvaEventObject } from 'konva/lib/Node';
-
-// Chỉ định nghĩa kiểu dữ liệu mà không import
-type KonvaRect = any;
-type KonvaTransformer = any;
-type KonvaStage = any;
+import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
+import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
+import type { Stage as KonvaStage } from 'konva/lib/Stage';
 
 export interface Point {
   x: number;

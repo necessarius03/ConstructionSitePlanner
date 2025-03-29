@@ -76,11 +76,11 @@ const DraggableRect: React.FC<DraggableRectProps> = ({
     }
   }, [shapeProps.isSelected]);
 
-  // Loại bỏ thuộc tính 'id' kiểu number và chuyển đổi nó sang string
+  // Extract id and convert it to string for Konva compatibility
   const { id, ...otherShapeProps } = shapeProps;
   const rectProps = {
     ...otherShapeProps,
-    id: id.toString() // Chuyển id từ number sang string
+    id: id.toString() // Convert id to string for Konva
   };
 
   return (

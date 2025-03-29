@@ -7,7 +7,7 @@ import App from './App';
 
 // Import styles
 import 'antd/dist/reset.css';
-import './styles/styles.scss';
+import './styles/main.scss';
 import './index.css';
 
 // Cấu hình theme cho Ant Design

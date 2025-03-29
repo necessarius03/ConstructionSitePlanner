@@ -18,7 +18,7 @@ interface HeaderProps {
   toggleCollapsed: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) => {
+export const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) => {
   // Dropdown items for user menu
   const userMenuItems = [
     {
@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) => {
       label: 'Cài đặt',
     },
     {
-      type: 'divider',
+      type: 'divider' as const,
     },
     {
       key: 'logout',
