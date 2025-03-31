@@ -1,5 +1,4 @@
-// src/styles/components/_header.scss
-@import '../const/variables';
+@use '../const/variables' as *;
 
 .ant-layout-header {
   height: 64px;

@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { Layout } from 'antd';
 import { Header } from './Header';
-import { Sidebar } from './Sidebar';
+// import { Sidebar } from './Sidebar';
+// import Sider from 'antd/lib/layout/Sider';
 
 const { Content } = Layout;
 
@@ -19,7 +20,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sidebar collapsed={collapsed} />
+      {/* <Sider width={250} collapsed={collapsed} className="site-layout-background" theme="light">
+        <Sidebar collapsed={collapsed} />
+      </Sider> */}
       <Layout>
         <Header collapsed={collapsed} toggleCollapsed={toggleSidebar} />
         <Content className="site-layout-content">

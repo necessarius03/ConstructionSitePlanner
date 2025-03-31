@@ -2,7 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -14,8 +13,8 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-          @import "@/styles/const/_variables.scss";
-          @import "@/styles/utils/_mixins.scss";
+          @use "@/styles/const/_variables.scss";
+          @use "@/styles/utils/_mixins.scss";
         `
       }
     }
