@@ -1,4 +1,3 @@
-// src/pages/site-layout/SiteLayoutPage.tsx
 import React from 'react';
 import { Card, Typography } from 'antd';
 import SiteLayoutCanvas from './components/SiteLayoutCanvas';

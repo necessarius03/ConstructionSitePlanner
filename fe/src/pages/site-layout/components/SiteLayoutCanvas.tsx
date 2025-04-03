@@ -76,11 +76,10 @@ const DraggableRect: React.FC<DraggableRectProps> = ({
     }
   }, [shapeProps.isSelected]);
 
-  // Extract id and convert it to string for Konva compatibility
   const { id, ...otherShapeProps } = shapeProps;
   const rectProps = {
     ...otherShapeProps,
-    id: id.toString() // Convert id to string for Konva
+    id: id.toString()
   };
 
   return (

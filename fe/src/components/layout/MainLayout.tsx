@@ -1,4 +1,3 @@
-// src/components/layout/MainLayout.tsx
 import React, { useState } from 'react';
 import { Layout } from 'antd';
 import { Header } from './Header';

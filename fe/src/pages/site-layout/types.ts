@@ -1,4 +1,3 @@
-// src/pages/site-layout/types.ts
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
 import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
@@ -67,5 +66,4 @@ export interface ShapePropertiesProps {
   onDelete: (shapeId: number) => void;
 }
 
-// Export các kiểu đã định nghĩa để sử dụng ở các file khác
 export type { KonvaRect, KonvaTransformer, KonvaStage };
