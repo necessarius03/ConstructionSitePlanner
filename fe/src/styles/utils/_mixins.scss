@@ -1,6 +1,5 @@
 @use '../const/variables' as *;
 
-// Responsive mixins
 @mixin mobile {
   @media (max-width: #{$screen-sm - 1px}) {
     @content;
@@ -19,7 +18,6 @@
   }
 }
 
-// Flexbox mixins
 @mixin flex-center {
   display: flex;
   align-items: center;
@@ -44,7 +42,6 @@
   justify-content: flex-end;
 }
 
-// Typography mixins
 @mixin text-ellipsis {
   white-space: nowrap;
   overflow: hidden;
@@ -59,7 +56,6 @@
   text-overflow: ellipsis;
 }
 
-// Shadow mixins
 @mixin box-shadow-1 {
   box-shadow: $shadow-1;
 }
@@ -68,12 +64,10 @@
   box-shadow: $shadow-2;
 }
 
-// Animation mixins
 @mixin transition($property: all, $duration: 0.3s, $timing: ease-in-out) {
   transition: $property $duration $timing;
 }
 
-// Border mixins
 @mixin border-top {
   border-top: 1px solid $border-color;
 }

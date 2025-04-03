@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/ShapeProperties.tsx
 import React from 'react';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { ShapePropertiesProps } from '../types';

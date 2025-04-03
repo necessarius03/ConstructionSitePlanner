@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/CanvasToolbar.tsx
 import React from 'react';
 import { Button, Space } from 'antd';
 import { PlusOutlined, UndoOutlined, RedoOutlined } from '@ant-design/icons';

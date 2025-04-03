@@ -1,16 +1,13 @@
-// src/main.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/lib/locale/vi_VN';
 import App from './App';
 
-// Import styles
 import 'antd/dist/reset.css';
 import './styles/main.scss';
 import './index.css';
 
-// Cấu hình theme cho Ant Design
 const theme = {
   token: {
     colorPrimary: '#1677ff',

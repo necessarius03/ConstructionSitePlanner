@@ -1,4 +1,3 @@
-// src/components/layout/Sidebar.tsx
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Tooltip } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
@@ -24,7 +23,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   useEffect(() => {
     const pathname = location.pathname;
     const mainPath = pathname.split('/')[1];
-    // If we are at root path, select dashboard
     const key = mainPath || 'dashboard';
     
     setSelectedKeys([key]);

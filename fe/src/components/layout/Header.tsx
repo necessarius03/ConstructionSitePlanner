@@ -19,7 +19,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) => {
-  // Dropdown items for user menu
   const userMenuItems = [
     {
       key: 'profile',
