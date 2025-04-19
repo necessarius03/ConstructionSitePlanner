@@ -1,4 +1,3 @@
-// src/components/layout/Sidebar.tsx
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Tooltip } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
