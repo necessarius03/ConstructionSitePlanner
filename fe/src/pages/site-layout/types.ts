@@ -23,11 +23,37 @@ export interface BaseShape extends Point, Size {
 export type ShapeType = 'equipment' | 'material' | 'zone' | 'storage' | 'path';
 
 export interface Shape extends BaseShape {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fill: string;
+  opacity: number;
   type: ShapeType;
+  isSelected: boolean;
   name?: string;
-  description?: string;
   rotation?: number;
-  attributes?: Record<string, unknown>;
+  equipmentId?: string; // ID của thiết bị nếu type là 'equipment'
+  icon?: string; // Icon cho thiết bị
+}
+
+// export interface Shape extends BaseShape {
+//   type: ShapeType;
+//   name?: string;
+//   description?: string;
+//   rotation?: number;
+//   attributes?: Record<string, unknown>;
+// }
+
+export interface Equipment {
+  id: string;
+  name: string;
+  icon: string;
+  width: number;
+  height: number;
+  color: string;
+  description?: string;
 }
 
 export interface CanvasGridProps extends Size {
@@ -54,6 +80,7 @@ export interface SiteLayoutCanvasProps {
 
 export interface CanvasToolbarProps {
   onAddShape: (type: ShapeType) => void;
+  onAddEquipment?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;

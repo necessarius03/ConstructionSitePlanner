@@ -1,6 +1,6 @@
 // src/pages/site-layout/components/SiteLayoutCanvas.tsx
 import React, { useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Rect, Transformer } from 'react-konva';
+import { Stage, Layer, Rect, Transformer, Text, Group } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
 import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
@@ -10,10 +10,12 @@ import {
   ShapeType,
   CanvasGridProps,
   DraggableRectProps,
-  SiteLayoutCanvasProps
+  SiteLayoutCanvasProps,
+  Equipment
 } from '../types';
-import { CanvasToolbar } from './CanvasToolbar';
+import CanvasToolbar from './CanvasToolbar';
 import { ShapeProperties } from './ShapeProperties';
+import EquipmentSelectionModal from './EquipmentSelectionModal';
 
 const GRID_SIZE = 20;
 
@@ -59,7 +61,7 @@ const CanvasGrid: React.FC<CanvasGridProps> = ({
   return <>{gridComponents}</>;
 };
 
-const DraggableRect: React.FC<DraggableRectProps> = ({ 
+const ShapeComponent: React.FC<DraggableRectProps> = ({ 
   shapeProps, 
   isLocked = false,
   onSelect, 
@@ -84,40 +86,66 @@ const DraggableRect: React.FC<DraggableRectProps> = ({
 
   return (
     <>
-      <Rect
-        {...rectProps}
-        ref={shapeRef}
-        draggable={!isLocked}
-        onClick={onSelect}
-        onTap={onSelect}
-        onContextMenu={onContextMenu}
-        onDragEnd={(e) => {
-          onChange({
-            ...shapeProps,
-            x: e.target.x(),
-            y: e.target.y(),
-          });
-        }}
-        onTransformEnd={() => {
-          if (!shapeRef.current) return;
-          
-          const node = shapeRef.current;
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-          const rotation = node.rotation();
+      <Group>
+        <Rect
+          {...rectProps}
+          ref={shapeRef}
+          draggable={!isLocked}
+          onClick={onSelect}
+          onTap={onSelect}
+          onContextMenu={onContextMenu}
+          onDragEnd={(e) => {
+            onChange({
+              ...shapeProps,
+              x: e.target.x(),
+              y: e.target.y(),
+            });
+          }}
+          onTransformEnd={() => {
+            if (!shapeRef.current) return;
+            
+            const node = shapeRef.current;
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            const rotation = node.rotation();
 
-          node.scaleX(1);
-          node.scaleY(1);
-          onChange({
-            ...shapeProps,
-            x: node.x(),
-            y: node.y(),
-            rotation: rotation,
-            width: Math.max(5, node.width() * scaleX),
-            height: Math.max(5, node.height() * scaleY),
-          });
-        }}
-      />
+            node.scaleX(1);
+            node.scaleY(1);
+            onChange({
+              ...shapeProps,
+              x: node.x(),
+              y: node.y(),
+              rotation: rotation,
+              width: Math.max(5, node.width() * scaleX),
+              height: Math.max(5, node.height() * scaleY),
+            });
+          }}
+        />
+        
+        {/* Hiển thị icon nếu là thiết bị */}
+        {shapeProps.type === 'equipment' && shapeProps.icon && (
+          <Text
+            x={shapeProps.x + shapeProps.width / 2 - 10}
+            y={shapeProps.y + shapeProps.height / 2 - 10}
+            text={shapeProps.icon}
+            fontSize={20}
+            align="center"
+            verticalAlign="middle"
+          />
+        )}
+        
+        {/* Hiển thị tên */}
+        {shapeProps.name && (
+          <Text
+            x={shapeProps.x}
+            y={shapeProps.y - 20}
+            text={shapeProps.name}
+            fontSize={12}
+            fill="#333"
+          />
+        )}
+      </Group>
+      
       {shapeProps.isSelected && !isLocked && (
         <Transformer
           ref={transformerRef}
@@ -152,6 +180,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
 }) => {
   const [shapes, setShapes] = useState<Shape[]>(initialShapes);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [equipmentModalVisible, setEquipmentModalVisible] = useState(false);
   const stageRef = useRef<KonvaStage>(null);
 
   const handleShapesChange = (newShapes: Shape[]) => {
@@ -168,18 +197,42 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const addShape = (type: ShapeType) => {
+    if (type === 'equipment') {
+      setEquipmentModalVisible(true);
+      return;
+    }
+    
     const newShape: Shape = {
       id: Date.now(),
       x: 100,
       y: 100,
       width: 100,
       height: 100,
-      fill: '#0066ff',
+      fill: getDefaultColor(type),
       opacity: 0.6,
       type,
       isSelected: false,
       name: `New ${type}`,
       rotation: 0
+    };
+    handleShapesChange([...shapes, newShape]);
+  };
+  
+  const addEquipment = (equipment: Equipment) => {
+    const newShape: Shape = {
+      id: Date.now(),
+      x: 100,
+      y: 100,
+      width: equipment.width,
+      height: equipment.height,
+      fill: equipment.color,
+      opacity: 0.7,
+      type: 'equipment',
+      isSelected: false,
+      name: equipment.name,
+      rotation: 0,
+      equipmentId: equipment.id,
+      icon: equipment.icon
     };
     handleShapesChange([...shapes, newShape]);
   };
@@ -196,11 +249,27 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setSelectedId(null);
     onSelectShape?.(null);
   };
+  
+  // Lấy màu mặc định cho từng loại hình
+  const getDefaultColor = (type: ShapeType): string => {
+    const colorMap: Record<ShapeType, string> = {
+      equipment: '#0066ff',
+      material: '#e67e22',
+      zone: '#27ae60',
+      storage: '#8e44ad',
+      path: '#e74c3c'
+    };
+    return colorMap[type];
+  };
 
   return (
     <div className="flex flex-col h-full">
       <CanvasToolbar 
         onAddShape={addShape}
+        onUndo={() => {}}
+        onRedo={() => {}}
+        canUndo={false}
+        canRedo={false}
       />
       <div className="flex gap-4 h-full">
         <div className="flex-1 relative border rounded-lg bg-white">
@@ -218,7 +287,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                 gridSize={gridSize}
               />
               {shapes.map((shape) => (
-                <DraggableRect
+                <ShapeComponent
                   key={shape.id}
                   shapeProps={{
                     ...shape,
@@ -243,6 +312,16 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
           />
         )}
       </div>
+      
+      {/* Modal chọn thiết bị */}
+      <EquipmentSelectionModal
+        visible={equipmentModalVisible}
+        onClose={() => setEquipmentModalVisible(false)}
+        onSelectEquipment={(equipment) => {
+          addEquipment(equipment);
+          setEquipmentModalVisible(false);
+        }}
+      />
     </div>
   );
 };
