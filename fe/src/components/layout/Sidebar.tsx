@@ -1,3 +1,4 @@
+// src/components/layout/Sidebar.tsx
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Tooltip } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
@@ -64,9 +65,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
   return (
     <Sider
       width={250}
+      collapsedWidth={80}
       collapsed={collapsed}
-      className="site-layout-background"
       theme="light"
+      style={{
+        overflow: 'auto',
+        height: '100vh',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        bottom: 0,
+      }}
     >
       <div className="flex justify-center py-4">
         {collapsed ? (
