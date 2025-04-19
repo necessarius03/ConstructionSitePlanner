@@ -1,5 +1,4 @@
-// src/styles/components/_sidebar.scss
-@import '../const/variables';
+@use '../const/variables' as *;
 
 .ant-layout-sider {
   background: #fff;

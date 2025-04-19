@@ -1,6 +1,6 @@
 // src/components/layout/Header.tsx
 import React from 'react';
-import { Layout, Button, Avatar, Badge, Dropdown } from 'antd';
+import { Layout, Button, Avatar, Badge, Dropdown, Row, Col } from 'antd';
 import { 
   BellOutlined, 
   UserOutlined, 
@@ -19,7 +19,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) => {
-  // Dropdown items for user menu
   const userMenuItems = [
     {
       key: 'profile',
@@ -58,41 +57,53 @@ export const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) =>
   ];
 
   return (
-    <AntHeader className="flex justify-between items-center px-4 bg-white">
-      <div className="flex items-center">
-        <Button
-          type="text"
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={toggleCollapsed}
-          className="mr-4"
-        />
-        <Link to="/" className="font-bold text-xl text-blue-600">
-          Site Layout Planning
-        </Link>
-      </div>
+    <AntHeader style={{ padding: 0, background: 'white' }}>
+      <Row justify="space-between" align="middle" style={{ width: '100%' }}>
+        <Col>
+          <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={toggleCollapsed}
+              style={{ marginLeft: 16, marginRight: 16 }}
+            />
+            <Link to="/" style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#2563eb' }}>
+              Site Layout Planning
+            </Link>
+          </div>
+        </Col>
+        <Col>
+          <div style={{ display: 'flex', alignItems: 'center', paddingRight: 16 }}>
+            <Dropdown
+              menu={{ items: notificationItems }}
+              placement="bottomRight"
+              arrow
+            >
+              <Badge count={3} size="small">
+                <Button 
+                  type="text" 
+                  icon={<BellOutlined />} 
+                  shape="circle" 
+                  style={{ marginLeft: 8, marginRight: 8 }}
+                />
+              </Badge>
+            </Dropdown>
 
-      <div className="flex items-center space-x-4">
-        <Dropdown
-          menu={{ items: notificationItems }}
-          placement="bottomRight"
-          arrow
-        >
-          <Badge count={3} size="small">
-            <Button type="text" icon={<BellOutlined />} shape="circle" />
-          </Badge>
-        </Dropdown>
-
-        <Dropdown 
-          menu={{ items: userMenuItems }} 
-          placement="bottomRight" 
-          arrow
-        >
-          <Button type="text" className="flex items-center">
-            <Avatar icon={<UserOutlined />} className="mr-2" />
-            <span className="hidden md:inline">Quản trị viên</span>
-          </Button>
-        </Dropdown>
-      </div>
+            <Dropdown 
+              menu={{ items: userMenuItems }} 
+              placement="bottomRight" 
+              arrow
+            >
+              <Button type="text" style={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar icon={<UserOutlined />} style={{ marginRight: 8 }} />
+                <span className="hidden md:inline">
+                  Quản trị viên
+                </span>
+              </Button>
+            </Dropdown>
+          </div>
+        </Col>
+      </Row>
     </AntHeader>
   );
 };

@@ -1,14 +1,8 @@
-// src/styles/styles.scss
+@use './const/_variables.scss' as *;
+@use './utils/_mixins.scss' as *;
+@use './components/header';
+@use './components/sidebar';
 
-// Import variables and mixins first
-@import './const/variables';
-@import './utils/mixins';
-
-// Import component styles
-@import './components/header';
-@import './components/sidebar';
-
-// Global styles
 html, body {
   margin: 0;
   padding: 0;
@@ -34,7 +28,6 @@ html, body {
   }
 }
 
-// Utility classes
 .section-title {
   margin-bottom: 24px;
   font-weight: 600;
