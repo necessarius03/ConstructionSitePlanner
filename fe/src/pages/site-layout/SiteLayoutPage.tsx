@@ -1,9 +1,8 @@
 // src/pages/site-layout/SiteLayoutPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Button, Space, message, Modal, Form, Input } from 'antd';
+import { Card, Typography, Button, Space, message, Modal } from 'antd';
 import { 
   SaveOutlined, 
-  DownloadOutlined, 
   FileImageOutlined, 
   FolderOpenOutlined,
   ExclamationCircleOutlined
@@ -88,6 +87,7 @@ const SiteLayoutPage: React.FC = () => {
       setIsSaveModalVisible(false);
     } catch (error) {
       message.error('Lỗi khi lưu bản thiết kế');
+      console.error('Error saving layout:', error);
     }
   };
 

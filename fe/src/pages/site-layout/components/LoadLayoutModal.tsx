@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Modal, List, Button, Empty, Space, Popconfirm, Input, Tooltip } from 'antd';
 import { 
   DeleteOutlined, 
-  EditOutlined, 
   SearchOutlined,
   InfoCircleOutlined,
   CalendarOutlined
