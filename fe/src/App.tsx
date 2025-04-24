@@ -20,7 +20,6 @@ function App() {
           
           {/* Site Layout Management */}
           <Route path="/site-layout" element={<SiteLayoutPage />} />
-          <Route path="/site-layout/new" element={<SiteLayoutPage />} />
           <Route path="/site-layout/:id" element={<SiteLayoutPage />} />
           
           {/* Equipment Management */}
