@@ -23,14 +23,24 @@ export interface BaseShape extends Point, Size {
 export type ShapeType = 'equipment' | 'material' | 'zone' | 'storage' | 'path';
 
 export interface Shape extends BaseShape {
+  id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fill: string;
+  opacity: number;
   type: ShapeType;
+  isSelected: boolean;
   name?: string;
-  description?: string;
   rotation?: number;
-  attributes?: Record<string, unknown>;
+  equipmentId?: string; // ID của thiết bị nếu type là 'equipment'
+  iconComponent?: React.ComponentType; // Component icon để render
 }
 
 export interface CanvasGridProps extends Size {
+  width: number;
+  height: number;
   gridSize?: number;
   color?: string;
   opacity?: number;
@@ -54,6 +64,7 @@ export interface SiteLayoutCanvasProps {
 
 export interface CanvasToolbarProps {
   onAddShape: (type: ShapeType) => void;
+  onShowEquipmentModal?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;

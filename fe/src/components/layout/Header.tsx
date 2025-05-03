@@ -1,4 +1,3 @@
-// src/components/layout/Header.tsx
 import React from 'react';
 import { Layout, Button, Avatar, Badge, Dropdown, Row, Col } from 'antd';
 import { 
@@ -40,7 +39,6 @@ export const Header: React.FC<HeaderProps> = ({ collapsed, toggleCollapsed }) =>
     },
   ];
 
-  // Dropdown items for notifications
   const notificationItems = [
     {
       key: '1',

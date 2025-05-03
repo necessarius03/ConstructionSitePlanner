@@ -1,27 +1,70 @@
+// src/pages/site-layout/components/CanvasToolbar.tsx
 import React from 'react';
 import { Button, Space } from 'antd';
-import { PlusOutlined, UndoOutlined, RedoOutlined } from '@ant-design/icons';
+import { 
+  // PlusOutlined, 
+  UndoOutlined, 
+  RedoOutlined, 
+  BuildOutlined,
+  InboxOutlined,
+  PartitionOutlined,
+  DatabaseOutlined,
+  NodeIndexOutlined
+} from '@ant-design/icons';
 import { CanvasToolbarProps, ShapeType } from '../types';
 
 export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onAddShape,
+  onShowEquipmentModal,
   onUndo,
   onRedo,
   canUndo = false,
   canRedo = false
 }) => {
-  const shapeTypes: ShapeType[] = ['equipment', 'material', 'zone', 'storage', 'path'];
+  // Định nghĩa các nút cho các loại hình khác nhau
+  const shapeButtons = [
+    { 
+      type: 'equipment' as ShapeType, 
+      label: 'Thiết bị', 
+      icon: <BuildOutlined />,
+      onClick: () => onShowEquipmentModal?.()
+    },
+    { 
+      type: 'material' as ShapeType, 
+      label: 'Vật liệu', 
+      icon: <InboxOutlined />,
+      onClick: () => onAddShape('material')
+    },
+    { 
+      type: 'zone' as ShapeType, 
+      label: 'Khu vực', 
+      icon: <PartitionOutlined />,
+      onClick: () => onAddShape('zone')
+    },
+    { 
+      type: 'storage' as ShapeType, 
+      label: 'Kho chứa', 
+      icon: <DatabaseOutlined />,
+      onClick: () => onAddShape('storage')
+    },
+    { 
+      type: 'path' as ShapeType, 
+      label: 'Đường đi', 
+      icon: <NodeIndexOutlined />,
+      onClick: () => onAddShape('path')
+    }
+  ];
 
   return (
     <div className="flex justify-between p-4 border-b">
       <Space size="small">
-        {shapeTypes.map(type => (
+        {shapeButtons.map(button => (
           <Button
-            key={type}
-            onClick={() => onAddShape(type)}
-            icon={<PlusOutlined />}
+            key={button.type}
+            onClick={button.onClick}
+            icon={button.icon}
           >
-            {type.charAt(0).toUpperCase() + type.slice(1)}
+            {button.label}
           </Button>
         ))}
       </Space>
@@ -44,3 +87,5 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
     </div>
   );
 };
+
+export default CanvasToolbar;
