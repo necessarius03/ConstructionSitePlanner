@@ -1,4 +1,3 @@
-// src/pages/site-layout/SiteLayoutPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Space, message, Modal } from 'antd';
 import { 
@@ -28,7 +27,6 @@ const SiteLayoutPage: React.FC = () => {
   const [isLoadModalVisible, setIsLoadModalVisible] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Tải layout khi có ID
   useEffect(() => {
     if (id) {
       const layout = SiteLayoutService.getLayoutById(id);
@@ -59,7 +57,6 @@ const SiteLayoutPage: React.FC = () => {
   const handleSaveConfirm = (values: { name: string; description: string }) => {
     try {
       if (currentLayout) {
-        // Cập nhật layout hiện tại
         const updated = SiteLayoutService.updateLayout(currentLayout.id, {
           name: values.name,
           description: values.description,
@@ -71,7 +68,6 @@ const SiteLayoutPage: React.FC = () => {
           message.success('Đã cập nhật bản thiết kế');
         }
       } else {
-        // Tạo layout mới
         const newLayout = SiteLayoutService.createLayout(
           values.name,
           values.description,
@@ -96,7 +92,6 @@ const SiteLayoutPage: React.FC = () => {
   };
 
   const handleLoadConfirm = (selectedLayoutId: string) => {
-    // Kiểm tra nếu có thay đổi chưa lưu
     if (hasUnsavedChanges) {
       confirm({
         title: 'Bạn có thay đổi chưa lưu',
@@ -108,7 +103,6 @@ const SiteLayoutPage: React.FC = () => {
           setIsSaveModalVisible(true); // Mở modal lưu
         },
         onCancel() {
-          // Tiếp tục tải mà không lưu
           navigateToLayout(selectedLayoutId);
         }
       });
@@ -130,7 +124,6 @@ const SiteLayoutPage: React.FC = () => {
     try {
       const canvas = await html2canvas(element);
       
-      // Tạo link tải xuống
       const link = document.createElement('a');
       const layoutName = currentLayout?.name || 'site-layout';
       link.download = `${layoutName}-${new Date().toISOString().slice(0, 10)}.png`;
@@ -145,7 +138,6 @@ const SiteLayoutPage: React.FC = () => {
   };
 
   const createNewLayout = () => {
-    // Kiểm tra nếu có thay đổi chưa lưu
     if (hasUnsavedChanges) {
       confirm({
         title: 'Bạn có thay đổi chưa lưu',

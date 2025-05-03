@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/EquipmentSelectModal.tsx
 import React, { useState } from 'react';
 import { Modal, List, Card, Radio, Input, Empty, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';

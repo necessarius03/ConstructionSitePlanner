@@ -1,5 +1,5 @@
-// src/services/SiteLayoutService.ts
 import { Shape } from '../pages/site-layout/types';
+import { equipmentData, getEquipmentById } from '../data/equipment-data';
 
 export interface SiteLayout {
   id: string;
@@ -12,30 +12,61 @@ export interface SiteLayout {
 
 const STORAGE_KEY = 'site_layouts';
 
-// Helper để lấy layout từ local storage
-const getLayouts = (): SiteLayout[] => {
-  const layouts = localStorage.getItem(STORAGE_KEY);
-  return layouts ? JSON.parse(layouts) : [];
+const prepareShapesForStorage = (shapes: Shape[]): any[] => {
+  return shapes.map(shape => {
+    if (shape.type === 'equipment' && shape.equipmentId) {
+      const { iconComponent, ...shapeWithoutIcon } = shape;
+      return shapeWithoutIcon;
+    }
+    return shape;
+  });
 };
 
-// Helper để lưu layout vào local storage
+const prepareShapesFromStorage = (shapes: any[]): Shape[] => {
+  return shapes.map(shape => {
+    // Nếu là thiết bị, khôi phục iconComponent từ equipmentId
+    if (shape.type === 'equipment' && shape.equipmentId) {
+      const equipment = getEquipmentById(shape.equipmentId);
+      if (equipment) {
+        return {
+          ...shape,
+          iconComponent: equipment.icon
+        };
+      }
+    }
+    return shape;
+  });
+};
+
+const getLayouts = (): SiteLayout[] => {
+  const layouts = localStorage.getItem(STORAGE_KEY);
+  const parsedLayouts = layouts ? JSON.parse(layouts) : [];
+  
+  return parsedLayouts.map((layout: any) => ({
+    ...layout,
+    shapes: prepareShapesFromStorage(layout.shapes || [])
+  }));
+};
+
 const saveLayouts = (layouts: SiteLayout[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(layouts));
+  const preparedLayouts = layouts.map(layout => ({
+    ...layout,
+    shapes: prepareShapesForStorage(layout.shapes)
+  }));
+  
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(preparedLayouts));
 };
 
 export const SiteLayoutService = {
-  // Lấy tất cả layout
   getAllLayouts: (): SiteLayout[] => {
     return getLayouts();
   },
 
-  // Lấy layout theo ID
   getLayoutById: (id: string): SiteLayout | null => {
     const layouts = getLayouts();
     return layouts.find(layout => layout.id === id) || null;
   },
 
-  // Tạo layout mới
   createLayout: (name: string, description: string = '', shapes: Shape[] = []): SiteLayout => {
     const layouts = getLayouts();
     const now = new Date().toISOString();
@@ -55,7 +86,6 @@ export const SiteLayoutService = {
     return newLayout;
   },
 
-  // Cập nhật layout
   updateLayout: (id: string, updates: Partial<SiteLayout>): SiteLayout | null => {
     const layouts = getLayouts();
     const index = layouts.findIndex(layout => layout.id === id);
@@ -74,7 +104,6 @@ export const SiteLayoutService = {
     return updatedLayout;
   },
 
-  // Xóa layout
   deleteLayout: (id: string): boolean => {
     const layouts = getLayouts();
     const filteredLayouts = layouts.filter(layout => layout.id !== id);

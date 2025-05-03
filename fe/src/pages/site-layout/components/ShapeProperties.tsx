@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/ShapeProperties.tsx
 import React from 'react';
 import { Button, Form, Input, InputNumber, Select, Slider } from 'antd';
 import { ShapePropertiesProps } from '../types';
@@ -11,7 +10,6 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
 }) => {
   if (!shape) return null;
 
-  // Xác định màu sắc dựa vào loại
   const getShapeTypeLabel = (type: string) => {
     switch (type) {
       case 'equipment': return 'Thiết bị';

@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/SiteLayoutCanvas.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Stage, Layer, Rect, Transformer } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
@@ -29,7 +28,6 @@ const CanvasGrid: React.FC<CanvasGridProps> = ({
 }) => {
   const gridComponents = [];
   
-  // Create vertical lines
   for (let i = 0; i <= width; i += gridSize) {
     gridComponents.push(
       <Rect
@@ -44,7 +42,6 @@ const CanvasGrid: React.FC<CanvasGridProps> = ({
     );
   }
   
-  // Create horizontal lines
   for (let i = 0; i <= height; i += gridSize) {
     gridComponents.push(
       <Rect
@@ -158,36 +155,29 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [isEquipmentModalVisible, setIsEquipmentModalVisible] = useState(false);
   const stageRef = useRef<KonvaStage>(null);
   
-  // Lịch sử thao tác để hỗ trợ undo/redo
   const [history, setHistory] = useState<Shape[][]>([initialShapes]);
   const [historyStep, setHistoryStep] = useState(0);
   
-  // Đồng bộ shapes ban đầu
   useEffect(() => {
-    if (initialShapes.length > 0 && shapes.length === 0) {
-      setShapes(initialShapes);
-      setHistory([initialShapes]);
-    }
+    setShapes(initialShapes);
+    setHistory([initialShapes]);
+    setHistoryStep(0);
+    setSelectedId(null);
   }, [initialShapes]);
 
   const handleShapesChange = (newShapes: Shape[]) => {
-    // Cập nhật shapes
     setShapes(newShapes);
     
-    // Cập nhật lịch sử nếu là thao tác mới
     if (historyStep < history.length - 1) {
-      // Cắt bỏ phần lịch sử phía sau vị trí hiện tại
       const newHistory = history.slice(0, historyStep + 1);
       newHistory.push([...newShapes]);
       setHistory(newHistory);
       setHistoryStep(newHistory.length - 1);
     } else {
-      // Thêm trạng thái mới vào lịch sử
       setHistory([...history, [...newShapes]]);
       setHistoryStep(history.length);
     }
     
-    // Gọi callback nếu có
     onShapesChange?.(newShapes);
   };
 
@@ -218,7 +208,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const addShape = (type: ShapeType) => {
-    // Khi thêm các loại hình khác thiết bị
     if (type !== 'equipment') {
       const newShape: Shape = {
         id: Date.now(),
@@ -273,7 +262,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const handleEquipmentSelect = (equipment: Equipment) => {
-    // Tạo một shape mới với thông tin từ thiết bị đã chọn
     const newShape: Shape = {
       id: Date.now(),
       x: 100,
@@ -294,7 +282,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setIsEquipmentModalVisible(false);
   };
 
-  // Xử lý thay đổi kích thước cửa sổ
   useEffect(() => {
     const handleResize = () => {
       if (stageRef.current) {
@@ -352,7 +339,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                   );
                 }
                 
-                // Các loại hình khác thì sử dụng DraggableRect
                 return (
                   <DraggableRect
                     key={shape.id}
@@ -381,7 +367,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         )}
       </div>
       
-      {/* Modal chọn thiết bị */}
       <EquipmentSelectModal
         visible={isEquipmentModalVisible}
         onCancel={() => setIsEquipmentModalVisible(false)}

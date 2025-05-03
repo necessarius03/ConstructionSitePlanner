@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/EquipmentIconShape.tsx
 import React, { useRef, useEffect } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
@@ -28,7 +27,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
 
   useEffect(() => {
     if (isSelected && groupRef.current) {
-      // Kích hoạt transformer nếu cần
+      // active transformer if needed
     }
   }, [isSelected]);
 
@@ -40,7 +39,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
     });
   };
 
-  // Tính toán vị trí của icon và văn bản
   const iconSize = Math.min(shape.width, shape.height) * 0.5;
   const iconX = shape.width / 2 - iconSize / 2;
   const iconY = shape.height / 2 - iconSize / 2 - 10;

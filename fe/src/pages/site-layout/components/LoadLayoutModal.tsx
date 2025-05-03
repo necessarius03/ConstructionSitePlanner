@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/LoadLayoutModal.tsx
 import React, { useState, useEffect } from 'react';
 import { Modal, List, Button, Empty, Space, Popconfirm, Input, Tooltip } from 'antd';
 import { 
@@ -25,7 +24,6 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
   const [layouts, setLayouts] = useState<SiteLayout[]>([]);
   const [searchText, setSearchText] = useState('');
 
-  // Tải danh sách layout khi modal mở
   useEffect(() => {
     if (visible) {
       loadLayouts();
@@ -34,7 +32,6 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
 
   const loadLayouts = () => {
     const allLayouts = SiteLayoutService.getAllLayouts();
-    // Sắp xếp theo thời gian cập nhật mới nhất
     allLayouts.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
     setLayouts(allLayouts);
   };
