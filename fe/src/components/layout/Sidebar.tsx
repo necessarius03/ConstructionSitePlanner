@@ -16,9 +16,16 @@ interface SidebarProps {
   collapsed: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) => {
   const location = useLocation();
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [isHovered, setIsHovered] = useState(false);
+  const [collapsed, setCollapsed] = useState(propCollapsed);
+
+  // When prop changes, update state
+  useEffect(() => {
+    setCollapsed(propCollapsed && !isHovered);
+  }, [propCollapsed, isHovered]);
 
   useEffect(() => {
     const pathname = location.pathname;
@@ -27,6 +34,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
     
     setSelectedKeys([key]);
   }, [location]);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    setCollapsed(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setCollapsed(propCollapsed);
+  };
 
   const menuItems = [
     {
@@ -74,7 +91,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed }) => {
         left: 0,
         top: 0,
         bottom: 0,
+        transition: 'all 0.2s',
+        zIndex: 1000,
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="flex justify-center py-4">
         {collapsed ? (

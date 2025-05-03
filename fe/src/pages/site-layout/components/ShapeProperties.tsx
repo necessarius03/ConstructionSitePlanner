@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, Form, Input, InputNumber, Select, Slider } from 'antd';
+import { Button, Form, Input, InputNumber, Slider, message, Divider } from 'antd';
 import { ShapePropertiesProps } from '../types';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 
 export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
   shape,
@@ -9,6 +9,18 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
   onDelete
 }) => {
   if (!shape) return null;
+
+  const handleDelete = () => {
+    try {
+      if (shape && shape.id) {
+        onDelete(shape.id);
+        message.success('Đã xóa đối tượng thành công');
+      }
+    } catch (error) {
+      console.error('Error deleting shape:', error);
+      message.error('Lỗi khi xóa đối tượng');
+    }
+  };
 
   const getShapeTypeLabel = (type: string) => {
     switch (type) {
@@ -22,43 +34,67 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
   };
 
   return (
-    <div className="w-64 p-4 border-l">
-      <h3 className="font-semibold mb-4">Thuộc tính đối tượng</h3>
+    <div className="p-3 h-full overflow-auto">
+      <h3 className="text-base font-medium mb-3">Thuộc tính đối tượng</h3>
       
-      <Form layout="vertical" className="space-y-4">
-        <Form.Item label="Tên">
+      <Form layout="vertical" size="small">
+        <Form.Item label="Tên" className="mb-2">
           <Input
             value={shape.name || ''}
             onChange={(e) => onUpdate({ ...shape, name: e.target.value })}
           />
         </Form.Item>
 
-        <Form.Item label="Loại">
+        <Form.Item label="Loại" className="mb-2">
           <Input 
             value={getShapeTypeLabel(shape.type)} 
             readOnly 
             disabled
+            prefix={<InfoCircleOutlined />}
           />
         </Form.Item>
-
-        <Form.Item label="Kích thước">
-          <div className="flex gap-2">
+        
+        <Divider className="my-2" />
+        
+        <Form.Item label="Vị trí" className="mb-2">
+          <div className="flex gap-1">
             <InputNumber
-              addonBefore="W"
-              value={shape.width}
-              onChange={(value) => onUpdate({ ...shape, width: Number(value) })}
+              addonBefore="X"
+              value={Math.round(shape.x)}
+              onChange={(value) => onUpdate({ ...shape, x: Number(value) })}
               style={{ width: '100%' }}
+              size="small"
             />
             <InputNumber
-              addonBefore="H"
-              value={shape.height}
-              onChange={(value) => onUpdate({ ...shape, height: Number(value) })}
+              addonBefore="Y"
+              value={Math.round(shape.y)}
+              onChange={(value) => onUpdate({ ...shape, y: Number(value) })}
               style={{ width: '100%' }}
+              size="small"
             />
           </div>
         </Form.Item>
 
-        <Form.Item label="Góc xoay">
+        <Form.Item label="Kích thước" className="mb-2">
+          <div className="flex gap-1">
+            <InputNumber
+              addonBefore="W"
+              value={Math.round(shape.width)}
+              onChange={(value) => onUpdate({ ...shape, width: Number(value) })}
+              style={{ width: '100%' }}
+              size="small"
+            />
+            <InputNumber
+              addonBefore="H"
+              value={Math.round(shape.height)}
+              onChange={(value) => onUpdate({ ...shape, height: Number(value) })}
+              style={{ width: '100%' }}
+              size="small"
+            />
+          </div>
+        </Form.Item>
+
+        <Form.Item label="Góc xoay" className="mb-2">
           <Slider
             min={0}
             max={360}
@@ -68,11 +104,12 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
           <InputNumber
             value={shape.rotation || 0}
             onChange={(value) => onUpdate({ ...shape, rotation: Number(value) })}
-            style={{ width: '100%', marginTop: '8px' }}
+            style={{ width: '100%' }}
+            size="small"
           />
         </Form.Item>
 
-        <Form.Item label="Độ mờ">
+        <Form.Item label="Độ mờ" className="mb-2">
           <Slider
             min={0.1}
             max={1}
@@ -82,42 +119,52 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
           />
         </Form.Item>
 
-        <Form.Item label="Màu sắc">
-          <div className="flex items-center gap-2">
+        <Form.Item label="Màu sắc" className="mb-3">
+          <div className="flex items-center gap-1">
             <div
-              className="w-6 h-6 rounded-full border"
+              className="w-5 h-5 rounded-full border"
               style={{ backgroundColor: shape.fill }}
             />
             <Input
               value={shape.fill}
               onChange={(e) => onUpdate({ ...shape, fill: e.target.value })}
+              size="small"
             />
           </div>
         </Form.Item>
-
-        <Form.Item>
-          <div className="flex gap-2">
-            <Button
-              danger
-              type="default"
-              icon={<DeleteOutlined />}
-              onClick={() => onDelete(shape.id)}
-              style={{ width: '100%' }}
-            >
-              Xóa
-            </Button>
-            {shape.type === 'equipment' && (
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                style={{ width: '100%' }}
-              >
-                Thay đổi
-              </Button>
-            )}
-          </div>
-        </Form.Item>
       </Form>
+      
+      <div className="mt-2">
+        <div className="flex gap-1">
+          <Button
+            danger
+            type="primary"
+            icon={<DeleteOutlined />}
+            onClick={handleDelete}
+            style={{ width: '100%' }}
+            size="small"
+          >
+            Xóa
+          </Button>
+          
+          {shape.type === 'equipment' && (
+            <Button
+              type="default"
+              icon={<EditOutlined />}
+              style={{ width: '100%' }}
+              size="small"
+            >
+              Thay đổi
+            </Button>
+          )}
+        </div>
+        
+        <div className="text-xs text-gray-400 mt-1 text-center">
+          Phím tắt: Delete
+        </div>
+      </div>
     </div>
   );
 };
+
+export default ShapeProperties;

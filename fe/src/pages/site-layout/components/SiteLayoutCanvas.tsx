@@ -18,6 +18,7 @@ import { Equipment } from '../../../data/equipment-data';
 import EquipmentIconShape from './EquipmentIconShape';
 
 const GRID_SIZE = 20;
+const PROPERTIES_PANEL_WIDTH = 280; // Giảm chiều rộng panel thuộc tính
 
 const CanvasGrid: React.FC<CanvasGridProps> = ({ 
   width, 
@@ -158,6 +159,49 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [history, setHistory] = useState<Shape[][]>([initialShapes]);
   const [historyStep, setHistoryStep] = useState(0);
   
+  // Tính toán kích thước canvas dựa trên kích thước cửa sổ và panel thuộc tính
+  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth - 350);
+  const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 200);
+  
+  // Xử lý phím Delete
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete' && selectedId) {
+        deleteShape(selectedId);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedId]);
+
+  // Cập nhật kích thước canvas khi cửa sổ thay đổi kích thước
+  useEffect(() => {
+    const handleResize = () => {
+      // Tính toán lại kích thước canvas khi có panel thuộc tính
+      const propertiesPanelWidth = selectedId ? PROPERTIES_PANEL_WIDTH : 0;
+      const newWidth = window.innerWidth - 350 - propertiesPanelWidth;
+      const newHeight = window.innerHeight - 200;
+      
+      setCanvasWidth(newWidth);
+      setCanvasHeight(newHeight);
+      
+      if (stageRef.current) {
+        stageRef.current.width(newWidth);
+        stageRef.current.height(newHeight);
+      }
+    };
+
+    handleResize(); // Gọi ngay khi component mount hoặc selectedId thay đổi
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [selectedId]);
+
   useEffect(() => {
     setShapes(initialShapes);
     setHistory([initialShapes]);
@@ -256,9 +300,13 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const deleteShape = (shapeId: number) => {
-    handleShapesChange(shapes.filter(shape => shape.id !== shapeId));
-    setSelectedId(null);
-    onSelectShape?.(null);
+    const filteredShapes = shapes.filter(shape => shape.id !== shapeId);
+    handleShapesChange(filteredShapes);
+    
+    if (selectedId === shapeId) {
+      setSelectedId(null);
+      onSelectShape?.(null);
+    }
   };
 
   const handleEquipmentSelect = (equipment: Equipment) => {
@@ -282,22 +330,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setIsEquipmentModalVisible(false);
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (stageRef.current) {
-        stageRef.current.width(window.innerWidth - 350);
-        stageRef.current.height(window.innerHeight - 200);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   return (
-    <div className="flex flex-col h-full">
+    <div className="h-full" style={{ display: 'flex', flexDirection: 'column' }}>
       <CanvasToolbar 
         onAddShape={addShape}
         onShowEquipmentModal={() => setIsEquipmentModalVisible(true)}
@@ -306,19 +340,21 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         canUndo={historyStep > 0}
         canRedo={historyStep < history.length - 1}
       />
-      <div className="flex gap-4 h-full">
-        <div className="flex-1 relative border rounded-lg bg-white">
+      
+      {/* Sử dụng display: flex và flexDirection: row để đảm bảo nó hiển thị ngang */}
+      <div className="h-full" style={{ display: 'flex', flexDirection: 'row' }}>
+        <div className="relative border rounded-lg bg-white" style={{ flex: 1 }}>
           <Stage
             ref={stageRef}
-            width={window.innerWidth - 350}
-            height={window.innerHeight - 200}
+            width={canvasWidth}
+            height={canvasHeight}
             onClick={checkDeselect}
             onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
           >
             <Layer>
               <CanvasGrid 
-                width={window.innerWidth - 350} 
-                height={window.innerHeight - 200}
+                width={canvasWidth} 
+                height={canvasHeight}
                 gridSize={gridSize}
               />
               {shapes.map((shape) => {
@@ -358,12 +394,23 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
             </Layer>
           </Stage>
         </div>
+        
+        {/* Panel thuộc tính bên phải với chiều rộng cố định */}
         {selectedId && (
-          <ShapeProperties
-            shape={shapes.find(s => s.id === selectedId) || null}
-            onUpdate={updateShape}
-            onDelete={deleteShape}
-          />
+          <div 
+            className="border-l bg-white" 
+            style={{ 
+              width: `${PROPERTIES_PANEL_WIDTH}px`,
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}
+          >
+            <ShapeProperties
+              shape={shapes.find(s => s.id === selectedId) || null}
+              onUpdate={updateShape}
+              onDelete={deleteShape}
+            />
+          </div>
         )}
       </div>
       

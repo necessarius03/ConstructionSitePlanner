@@ -6,11 +6,17 @@
   position: fixed;
   height: 100vh;
   z-index: 999;
+  transition: all 0.2s ease-in-out;
   
   &.ant-layout-sider-collapsed {
     .logo-text {
       display: none;
     }
+  }
+  
+  // Add hover effect for better user experience
+  &:hover {
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
   }
   
   .site-logo {
@@ -32,6 +38,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: opacity 0.2s ease-in-out;
     }
   }
   
@@ -52,6 +59,7 @@
     
     .ant-menu-item {
       margin: 4px 0;
+      transition: all 0.2s ease-in-out;
       
       &.ant-menu-item-selected {
         background-color: rgba($primary-color, 0.1);
@@ -64,6 +72,15 @@
           color: $primary-color;
         }
       }
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.05);
+      }
+    }
+    
+    // Improve text transitions when expanding/collapsing
+    .ant-menu-title-content {
+      transition: opacity 0.1s ease-in-out;
     }
   }
   
@@ -74,6 +91,7 @@
     width: 100%;
     padding: 0 16px;
     text-align: center;
+    transition: opacity 0.2s ease-in-out;
     
     .version-info {
       font-size: 11px;
