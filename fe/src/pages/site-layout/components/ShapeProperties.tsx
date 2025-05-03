@@ -1,12 +1,15 @@
 import React from 'react';
-import { Button, Form, Input, InputNumber, Slider, message, Divider } from 'antd';
+import { Button, Form, Input, InputNumber, Slider, message, Divider, Typography } from 'antd';
 import { ShapePropertiesProps } from '../types';
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined, CloseOutlined } from '@ant-design/icons';
+
+const { Title } = Typography;
 
 export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
   shape,
   onUpdate,
-  onDelete
+  onDelete,
+  onClose
 }) => {
   if (!shape) return null;
 
@@ -32,16 +35,92 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
       default: return type;
     }
   };
+  
+  // Tạo các hàm xử lý sự kiện riêng biệt và ổn định
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    onUpdate({
+      ...shape,
+      name: newValue
+    });
+  };
+  
+  const handleXChange = (value: number | null) => {
+    if (value !== null) {
+      onUpdate({
+        ...shape,
+        x: value
+      });
+    }
+  };
+  
+  const handleYChange = (value: number | null) => {
+    if (value !== null) {
+      onUpdate({
+        ...shape,
+        y: value
+      });
+    }
+  };
+  
+  const handleWidthChange = (value: number | null) => {
+    if (value !== null) {
+      onUpdate({
+        ...shape,
+        width: value
+      });
+    }
+  };
+  
+  const handleHeightChange = (value: number | null) => {
+    if (value !== null) {
+      onUpdate({
+        ...shape,
+        height: value
+      });
+    }
+  };
+  
+  const handleRotationChange = (value: number | null) => {
+    if (value !== null) {
+      onUpdate({
+        ...shape,
+        rotation: value
+      });
+    }
+  };
+  
+  const handleOpacityChange = (value: number) => {
+    onUpdate({
+      ...shape,
+      opacity: value
+    });
+  };
+  
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onUpdate({
+      ...shape,
+      fill: e.target.value
+    });
+  };
 
   return (
     <div className="p-3 h-full overflow-auto">
-      <h3 className="text-base font-medium mb-3">Thuộc tính đối tượng</h3>
+      <div className="flex justify-between items-center mb-3">
+        <Title level={5} className="m-0">Thuộc tính đối tượng</Title>
+        <Button 
+          type="text" 
+          icon={<CloseOutlined />} 
+          onClick={onClose}
+          size="small"
+        />
+      </div>
       
       <Form layout="vertical" size="small">
         <Form.Item label="Tên" className="mb-2">
           <Input
             value={shape.name || ''}
-            onChange={(e) => onUpdate({ ...shape, name: e.target.value })}
+            onChange={handleNameChange}
           />
         </Form.Item>
 
@@ -61,14 +140,14 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
             <InputNumber
               addonBefore="X"
               value={Math.round(shape.x)}
-              onChange={(value) => onUpdate({ ...shape, x: Number(value) })}
+              onChange={handleXChange}
               style={{ width: '100%' }}
               size="small"
             />
             <InputNumber
               addonBefore="Y"
               value={Math.round(shape.y)}
-              onChange={(value) => onUpdate({ ...shape, y: Number(value) })}
+              onChange={handleYChange}
               style={{ width: '100%' }}
               size="small"
             />
@@ -80,14 +159,14 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
             <InputNumber
               addonBefore="W"
               value={Math.round(shape.width)}
-              onChange={(value) => onUpdate({ ...shape, width: Number(value) })}
+              onChange={handleWidthChange}
               style={{ width: '100%' }}
               size="small"
             />
             <InputNumber
               addonBefore="H"
               value={Math.round(shape.height)}
-              onChange={(value) => onUpdate({ ...shape, height: Number(value) })}
+              onChange={handleHeightChange}
               style={{ width: '100%' }}
               size="small"
             />
@@ -99,11 +178,11 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
             min={0}
             max={360}
             value={shape.rotation || 0}
-            onChange={(value) => onUpdate({ ...shape, rotation: Number(value) })}
+            onChange={handleRotationChange}
           />
           <InputNumber
             value={shape.rotation || 0}
-            onChange={(value) => onUpdate({ ...shape, rotation: Number(value) })}
+            onChange={handleRotationChange}
             style={{ width: '100%' }}
             size="small"
           />
@@ -115,7 +194,7 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
             max={1}
             step={0.1}
             value={shape.opacity}
-            onChange={(value) => onUpdate({ ...shape, opacity: Number(value) })}
+            onChange={handleOpacityChange}
           />
         </Form.Item>
 
@@ -127,7 +206,7 @@ export const ShapeProperties: React.FC<ShapePropertiesProps> = ({
             />
             <Input
               value={shape.fill}
-              onChange={(e) => onUpdate({ ...shape, fill: e.target.value })}
+              onChange={handleColorChange}
               size="small"
             />
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Stage, Layer, Rect, Transformer } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
@@ -12,13 +12,12 @@ import {
   SiteLayoutCanvasProps
 } from '../types';
 import { CanvasToolbar } from './CanvasToolbar';
-import { ShapeProperties } from './ShapeProperties';
+import ShapePropertiesModal from './ShapePropertiesModal';
 import EquipmentSelectModal from './EquipmentSelectModal';
 import { Equipment } from '../../../data/equipment-data';
 import EquipmentIconShape from './EquipmentIconShape';
 
 const GRID_SIZE = 20;
-const PROPERTIES_PANEL_WIDTH = 280; // Giảm chiều rộng panel thuộc tính
 
 const CanvasGrid: React.FC<CanvasGridProps> = ({ 
   width, 
@@ -151,38 +150,36 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   onShapesChange,
   onSelectShape
 }) => {
+  // Basic state
   const [shapes, setShapes] = useState<Shape[]>(initialShapes);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [isPropertiesModalVisible, setIsPropertiesModalVisible] = useState(false);
   const [isEquipmentModalVisible, setIsEquipmentModalVisible] = useState(false);
+  
+  // References
   const stageRef = useRef<KonvaStage>(null);
   
+  // History state for undo/redo
   const [history, setHistory] = useState<Shape[][]>([initialShapes]);
   const [historyStep, setHistoryStep] = useState(0);
   
-  // Tính toán kích thước canvas dựa trên kích thước cửa sổ và panel thuộc tính
+  // Canvas dimensions
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth - 350);
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 200);
   
-  // Xử lý phím Delete
+  // Reset states when initialShapes changes (e.g., loading a new layout)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Delete' && selectedId) {
-        deleteShape(selectedId);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedId]);
-
-  // Cập nhật kích thước canvas khi cửa sổ thay đổi kích thước
+    setShapes(initialShapes);
+    setHistory([initialShapes]);
+    setHistoryStep(0);
+    setSelectedId(null);
+    setIsPropertiesModalVisible(false);
+  }, [initialShapes]);
+  
+  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      // Tính toán lại kích thước canvas khi có panel thuộc tính
-      const propertiesPanelWidth = selectedId ? PROPERTIES_PANEL_WIDTH : 0;
-      const newWidth = window.innerWidth - 350 - propertiesPanelWidth;
+      const newWidth = window.innerWidth - 350;
       const newHeight = window.innerHeight - 200;
       
       setCanvasWidth(newWidth);
@@ -194,55 +191,90 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       }
     };
 
-    handleResize(); // Gọi ngay khi component mount hoặc selectedId thay đổi
-    
+    handleResize();
     window.addEventListener('resize', handleResize);
+    
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [selectedId]);
-
+  }, []);
+  
+  // Handle keyboard shortcuts
   useEffect(() => {
-    setShapes(initialShapes);
-    setHistory([initialShapes]);
-    setHistoryStep(0);
-    setSelectedId(null);
-  }, [initialShapes]);
-
-  const handleShapesChange = (newShapes: Shape[]) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Delete the selected shape when pressing Delete key
+      if (e.key === 'Delete' && selectedId) {
+        deleteShape(selectedId);
+      }
+      
+      // Open properties modal when pressing Enter on a selected shape
+      if (e.key === 'Enter' && selectedId) {
+        setIsPropertiesModalVisible(true);
+      }
+      
+      // Close properties modal when pressing Escape
+      if (e.key === 'Escape') {
+        setIsPropertiesModalVisible(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedId]);
+  
+  // Handle shapes change with history tracking
+  const handleShapesChange = useCallback((newShapes: Shape[]) => {
     setShapes(newShapes);
     
+    // Update history for undo/redo
     if (historyStep < history.length - 1) {
+      // If we're in the middle of the history, truncate it
       const newHistory = history.slice(0, historyStep + 1);
       newHistory.push([...newShapes]);
       setHistory(newHistory);
       setHistoryStep(newHistory.length - 1);
     } else {
-      setHistory([...history, [...newShapes]]);
+      // Just add to the end of history
+      setHistory(prev => [...prev, [...newShapes]]);
       setHistoryStep(history.length);
     }
     
-    onShapesChange?.(newShapes);
-  };
-
-  const handleUndo = () => {
+    // Notify parent component
+    if (onShapesChange) {
+      onShapesChange(newShapes);
+    }
+  }, [history, historyStep, onShapesChange]);
+  
+  // Undo/redo functions
+  const handleUndo = useCallback(() => {
     if (historyStep > 0) {
       const newStep = historyStep - 1;
       setHistoryStep(newStep);
-      setShapes([...history[newStep]]);
-      onShapesChange?.([...history[newStep]]);
+      const updatedShapes = [...history[newStep]];
+      setShapes(updatedShapes);
+      
+      if (onShapesChange) {
+        onShapesChange(updatedShapes);
+      }
     }
-  };
+  }, [history, historyStep, onShapesChange]);
 
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     if (historyStep < history.length - 1) {
       const newStep = historyStep + 1;
       setHistoryStep(newStep);
-      setShapes([...history[newStep]]);
-      onShapesChange?.([...history[newStep]]);
+      const updatedShapes = [...history[newStep]];
+      setShapes(updatedShapes);
+      
+      if (onShapesChange) {
+        onShapesChange(updatedShapes);
+      }
     }
-  };
-
+  }, [history, historyStep, onShapesChange]);
+  
+  // Handle shape selection
   const checkDeselect = (e: KonvaEventObject<MouseEvent>) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
@@ -250,7 +282,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       onSelectShape?.(null);
     }
   };
-
+  
+  // Create a new shape
   const addShape = (type: ShapeType) => {
     if (type !== 'equipment') {
       const newShape: Shape = {
@@ -269,7 +302,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       handleShapesChange([...shapes, newShape]);
     }
   };
-
+  
+  // Helper functions for shape creation
   const getShapeName = (type: ShapeType): string => {
     switch (type) {
       case 'equipment': return 'Thiết bị mới';
@@ -291,25 +325,28 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       default: return '#0066ff';
     }
   };
-
-  const updateShape = (updatedShape: Shape) => {
+  
+  // Handle shape modifications
+  const updateShape = useCallback((updatedShape: Shape) => {
     const newShapes = shapes.map(shape => 
       shape.id === updatedShape.id ? updatedShape : shape
     );
     handleShapesChange(newShapes);
-  };
+  }, [shapes, handleShapesChange]);
 
-  const deleteShape = (shapeId: number) => {
+  const deleteShape = useCallback((shapeId: number) => {
     const filteredShapes = shapes.filter(shape => shape.id !== shapeId);
     handleShapesChange(filteredShapes);
     
     if (selectedId === shapeId) {
       setSelectedId(null);
+      setIsPropertiesModalVisible(false);
       onSelectShape?.(null);
     }
-  };
-
-  const handleEquipmentSelect = (equipment: Equipment) => {
+  }, [shapes, selectedId, handleShapesChange, onSelectShape]);
+  
+  // Handle equipment selection
+  const handleEquipmentSelect = useCallback((equipment: Equipment) => {
     const newShape: Shape = {
       id: Date.now(),
       x: 100,
@@ -328,7 +365,13 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     
     handleShapesChange([...shapes, newShape]);
     setIsEquipmentModalVisible(false);
-  };
+  }, [shapes, handleShapesChange]);
+  
+  // Get the selected shape
+  const getSelectedShape = useCallback(() => {
+    if (!selectedId) return null;
+    return shapes.find(shape => shape.id === selectedId) || null;
+  }, [shapes, selectedId]);
 
   return (
     <div className="h-full" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -341,79 +384,78 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         canRedo={historyStep < history.length - 1}
       />
       
-      {/* Sử dụng display: flex và flexDirection: row để đảm bảo nó hiển thị ngang */}
-      <div className="h-full" style={{ display: 'flex', flexDirection: 'row' }}>
-        <div className="relative border rounded-lg bg-white" style={{ flex: 1 }}>
-          <Stage
-            ref={stageRef}
-            width={canvasWidth}
-            height={canvasHeight}
-            onClick={checkDeselect}
-            onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
-          >
-            <Layer>
-              <CanvasGrid 
-                width={canvasWidth} 
-                height={canvasHeight}
-                gridSize={gridSize}
-              />
-              {shapes.map((shape) => {
-                // Nếu là thiết bị, sử dụng component EquipmentIconShape
-                if (shape.type === 'equipment' && shape.iconComponent) {
-                  return (
-                    <EquipmentIconShape
-                      key={shape.id}
-                      shape={shape}
-                      isSelected={shape.id === selectedId}
-                      isLocked={isReadOnly}
-                      onSelect={() => {
-                        setSelectedId(shape.id);
-                        onSelectShape?.(shape);
-                      }}
-                      onChange={updateShape}
-                    />
-                  );
-                }
-                
+      <div className="h-full flex-1 border rounded-lg bg-white">
+        <Stage
+          ref={stageRef}
+          width={canvasWidth}
+          height={canvasHeight}
+          onClick={checkDeselect}
+          onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
+        >
+          <Layer>
+            <CanvasGrid 
+              width={canvasWidth} 
+              height={canvasHeight}
+              gridSize={gridSize}
+            />
+            {shapes.map((shape) => {
+              // Nếu là thiết bị, sử dụng component EquipmentIconShape
+              if (shape.type === 'equipment' && shape.iconComponent) {
                 return (
-                  <DraggableRect
+                  <EquipmentIconShape
                     key={shape.id}
-                    shapeProps={{
-                      ...shape,
-                      isSelected: shape.id === selectedId,
-                    }}
+                    shape={shape}
+                    isSelected={shape.id === selectedId}
                     isLocked={isReadOnly}
                     onSelect={() => {
                       setSelectedId(shape.id);
                       onSelectShape?.(shape);
+                      
+                      // Double click to open properties modal (simulated with timeout)
+                      if (selectedId === shape.id) {
+                        setIsPropertiesModalVisible(true);
+                      }
                     }}
                     onChange={updateShape}
                   />
                 );
-              })}
-            </Layer>
-          </Stage>
-        </div>
-        
-        {/* Panel thuộc tính bên phải với chiều rộng cố định */}
-        {selectedId && (
-          <div 
-            className="border-l bg-white" 
-            style={{ 
-              width: `${PROPERTIES_PANEL_WIDTH}px`,
-              overflowY: 'auto',
-              overflowX: 'hidden'
-            }}
-          >
-            <ShapeProperties
-              shape={shapes.find(s => s.id === selectedId) || null}
-              onUpdate={updateShape}
-              onDelete={deleteShape}
-            />
-          </div>
-        )}
+              }
+              
+              return (
+                <DraggableRect
+                  key={shape.id}
+                  shapeProps={{
+                    ...shape,
+                    isSelected: shape.id === selectedId,
+                  }}
+                  isLocked={isReadOnly}
+                  onSelect={() => {
+                    setSelectedId(shape.id);
+                    onSelectShape?.(shape);
+                    
+                    // Double click to open properties modal (simulated with timeout)
+                    if (selectedId === shape.id) {
+                      setIsPropertiesModalVisible(true);
+                    }
+                  }}
+                  onChange={updateShape}
+                />
+              );
+            })}
+          </Layer>
+        </Stage>
       </div>
       
+      {/* Modal for shape properties */}
+      <ShapePropertiesModal
+        visible={isPropertiesModalVisible}
+        shape={getSelectedShape()}
+        onUpdate={updateShape}
+        onDelete={deleteShape}
+        onCancel={() => setIsPropertiesModalVisible(false)}
+      />
+      
+      {/* Modal for equipment selection */}
       <EquipmentSelectModal
         visible={isEquipmentModalVisible}
         onCancel={() => setIsEquipmentModalVisible(false)}

@@ -75,6 +75,15 @@ export interface ShapePropertiesProps {
   shape: Shape | null;
   onUpdate: (shape: Shape) => void;
   onDelete: (shapeId: number) => void;
+  onClose?: () => void;
+}
+
+export interface ShapePropertiesModalProps {
+  visible: boolean;
+  shape: Shape | null;
+  onUpdate: (shape: Shape) => void;
+  onDelete: (shapeId: number) => void;
+  onCancel: () => void;
 }
 
 export type { KonvaRect, KonvaTransformer, KonvaStage };
