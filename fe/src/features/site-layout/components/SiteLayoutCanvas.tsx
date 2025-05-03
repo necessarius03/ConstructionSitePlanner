@@ -155,6 +155,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isPropertiesModalVisible, setIsPropertiesModalVisible] = useState(false);
   const [isEquipmentModalVisible, setIsEquipmentModalVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // References
   const stageRef = useRef<KonvaStage>(null);
@@ -179,26 +180,31 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      const newWidth = window.innerWidth - 350;
-      const newHeight = window.innerHeight - 200;
-      
-      setCanvasWidth(newWidth);
-      setCanvasHeight(newHeight);
-      
-      if (stageRef.current) {
-        stageRef.current.width(newWidth);
-        stageRef.current.height(newHeight);
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        
+        setCanvasWidth(containerWidth);
+        setCanvasHeight(containerHeight);
+        
+        if (stageRef.current) {
+          stageRef.current.width(containerWidth);
+          stageRef.current.height(containerHeight);
+        }
       }
     };
 
+    // Initial calculation
     handleResize();
+    
+    // Add event listener
     window.addEventListener('resize', handleResize);
     
     return () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-  
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -384,7 +390,11 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         canRedo={historyStep < history.length - 1}
       />
       
-      <div className="h-full flex-1 border rounded-lg bg-white">
+      <div 
+        ref={containerRef}
+        className="h-full flex-1 border rounded-lg bg-white"
+        style={{ width: '100%', position: 'relative' }}
+      >
         <Stage
           ref={stageRef}
           width={canvasWidth}
