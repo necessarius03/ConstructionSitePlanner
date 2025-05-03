@@ -34,8 +34,8 @@ export interface Shape extends BaseShape {
   isSelected: boolean;
   name?: string;
   rotation?: number;
-  equipmentId?: string; // ID của thiết bị nếu type là 'equipment'
-  iconComponent?: React.ComponentType; // Component icon để render
+  equipmentId?: string; 
+  iconComponent?: React.ComponentType;
 }
 
 export interface CanvasGridProps extends Size {

@@ -7,12 +7,12 @@ import {
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import SiteLayoutCanvas from './components/SiteLayoutCanvas';
-import { Shape } from './types';
+import SiteLayoutCanvas from '../components/SiteLayoutCanvas';
+import { Shape } from '../types';
 import html2canvas from 'html2canvas';
-import SiteLayoutService, { SiteLayout } from '../../services/SiteLayoutService';
-import SaveLayoutModal from './components/SaveLayoutModal';
-import LoadLayoutModal from './components/LoadLayoutModal';
+import SiteLayoutService, { SiteLayout} from '../../../services/SiteLayoutService';
+import SaveLayoutModal from '../components/SaveLayoutModal';
+import LoadLayoutModal from '../components/LoadLayoutModal';
 
 const { Title } = Typography;
 const { confirm } = Modal;

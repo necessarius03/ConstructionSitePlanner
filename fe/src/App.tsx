@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './components/layout';
-import SiteLayoutPage from './pages/site-layout/SiteLayoutPage';
+import SiteLayoutPage from './features/site-layout/pages/SiteLayoutPage';
 
 // Import pages
 // Uncomment as they become available

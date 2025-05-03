@@ -1,4 +1,4 @@
-import { Shape } from '../pages/site-layout/types';
+import { Shape } from '../features/site-layout/types';
 import { equipmentData, getEquipmentById } from '../data/equipment-data';
 
 export interface SiteLayout {
