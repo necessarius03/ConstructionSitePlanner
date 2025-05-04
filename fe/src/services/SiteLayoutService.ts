@@ -1,5 +1,7 @@
+import axios from 'axios';
 import { Shape } from '../features/site-layout/types';
-import { equipmentData, getEquipmentById } from '../data/equipment-data';
+
+const API_URL = 'http://localhost:5051/api';
 
 export interface SiteLayout {
   id: string;
@@ -10,111 +12,73 @@ export interface SiteLayout {
   updatedAt: string;
 }
 
-const STORAGE_KEY = 'site_layouts';
+export interface CreateSiteLayoutRequest {
+  name: string;
+  description?: string;
+  shapes: Shape[];
+}
 
-const prepareShapesForStorage = (shapes: Shape[]): any[] => {
-  return shapes.map(shape => {
-    if (shape.type === 'equipment' && shape.equipmentId) {
-      const { iconComponent, ...shapeWithoutIcon } = shape;
-      return shapeWithoutIcon;
+export interface UpdateSiteLayoutRequest {
+  name: string;
+  description?: string;
+  shapes: Shape[];
+}
+
+class SiteLayoutService {
+  // Get all layouts
+  async getAllLayouts(): Promise<SiteLayout[]> {
+    try {
+      const response = await axios.get<SiteLayout[]>(`${API_URL}/site-layouts`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching all layouts:', error);
+      throw error;
     }
-    return shape;
-  });
-};
-
-const prepareShapesFromStorage = (shapes: any[]): Shape[] => {
-  return shapes.map(shape => {
-    // Nếu là thiết bị, khôi phục iconComponent từ equipmentId
-    if (shape.type === 'equipment' && shape.equipmentId) {
-      const equipment = getEquipmentById(shape.equipmentId);
-      if (equipment) {
-        return {
-          ...shape,
-          iconComponent: equipment.icon
-        };
-      }
-    }
-    return shape;
-  });
-};
-
-const getLayouts = (): SiteLayout[] => {
-  const layouts = localStorage.getItem(STORAGE_KEY);
-  const parsedLayouts = layouts ? JSON.parse(layouts) : [];
-  
-  return parsedLayouts.map((layout: any) => ({
-    ...layout,
-    shapes: prepareShapesFromStorage(layout.shapes || [])
-  }));
-};
-
-const saveLayouts = (layouts: SiteLayout[]) => {
-  const preparedLayouts = layouts.map(layout => ({
-    ...layout,
-    shapes: prepareShapesForStorage(layout.shapes)
-  }));
-  
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(preparedLayouts));
-};
-
-export const SiteLayoutService = {
-  getAllLayouts: (): SiteLayout[] => {
-    return getLayouts();
-  },
-
-  getLayoutById: (id: string): SiteLayout | null => {
-    const layouts = getLayouts();
-    return layouts.find(layout => layout.id === id) || null;
-  },
-
-  createLayout: (name: string, description: string = '', shapes: Shape[] = []): SiteLayout => {
-    const layouts = getLayouts();
-    const now = new Date().toISOString();
-    
-    const newLayout: SiteLayout = {
-      id: Date.now().toString(),
-      name,
-      description,
-      shapes,
-      createdAt: now,
-      updatedAt: now
-    };
-    
-    layouts.push(newLayout);
-    saveLayouts(layouts);
-    
-    return newLayout;
-  },
-
-  updateLayout: (id: string, updates: Partial<SiteLayout>): SiteLayout | null => {
-    const layouts = getLayouts();
-    const index = layouts.findIndex(layout => layout.id === id);
-    
-    if (index === -1) return null;
-    
-    const updatedLayout = {
-      ...layouts[index],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    
-    layouts[index] = updatedLayout;
-    saveLayouts(layouts);
-    
-    return updatedLayout;
-  },
-
-  deleteLayout: (id: string): boolean => {
-    const layouts = getLayouts();
-    const filteredLayouts = layouts.filter(layout => layout.id !== id);
-    
-    if (filteredLayouts.length === layouts.length) {
-      return false; // Không có thay đổi
-    }
-    
-    saveLayouts(filteredLayouts);
-    return true;
   }
-};
 
-export default SiteLayoutService;
+  // Get layout by ID
+  async getLayoutById(id: string): Promise<SiteLayout> {
+    try {
+      const response = await axios.get<SiteLayout>(`${API_URL}/site-layouts/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching layout with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // Create a new layout
+  async createLayout(data: CreateSiteLayoutRequest): Promise<SiteLayout> {
+    try {
+      const response = await axios.post<SiteLayout>(`${API_URL}/site-layouts`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating layout:', error);
+      throw error;
+    }
+  }
+
+  // Update an existing layout
+  async updateLayout(id: string, data: UpdateSiteLayoutRequest): Promise<SiteLayout> {
+    try {
+      const response = await axios.put<SiteLayout>(`${API_URL}/site-layouts/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating layout with ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // Delete a layout
+  async deleteLayout(id: string): Promise<boolean> {
+    try {
+      await axios.delete(`${API_URL}/site-layouts/${id}`);
+      return true;
+    } catch (error) {
+      console.error(`Error deleting layout with ID ${id}:`, error);
+      throw error;
+    }
+  }
+}
+
+export default new SiteLayoutService();
