@@ -1,10 +1,12 @@
+// src/features/site-layout/components/LoadLayoutModal.tsx
 import React, { useState, useEffect } from 'react';
-import { Modal, List, Button, Empty, Space, Popconfirm, Input, Tooltip } from 'antd';
+import { Modal, List, Button, Empty, Space, Popconfirm, Input, Tooltip, Spin } from 'antd';
 import { 
   DeleteOutlined, 
   SearchOutlined,
   InfoCircleOutlined,
-  CalendarOutlined
+  CalendarOutlined,
+  LoadingOutlined
 } from '@ant-design/icons';
 import SiteLayoutService, { SiteLayout } from '../../../services/SiteLayoutService';
 
@@ -23,6 +25,9 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
 }) => {
   const [layouts, setLayouts] = useState<SiteLayout[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible) {
@@ -30,15 +35,38 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
     }
   }, [visible]);
 
-  const loadLayouts = () => {
-    const allLayouts = SiteLayoutService.getAllLayouts();
-    allLayouts.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-    setLayouts(allLayouts);
+  const loadLayouts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const allLayouts = await SiteLayoutService.getAllLayouts();
+      // Sort by updated date, newest first
+      allLayouts.sort((a, b) => 
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      setLayouts(allLayouts);
+    } catch (error) {
+      console.error('Error loading layouts:', error);
+      setError('Không thể tải danh sách mặt bằng. Vui lòng thử lại sau.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    SiteLayoutService.deleteLayout(id);
-    loadLayouts();
+  const handleDelete = async (id: string) => {
+    try {
+      setIsDeleting(id);
+      await SiteLayoutService.deleteLayout(id);
+      await loadLayouts();
+    } catch (error) {
+      console.error('Error deleting layout:', error);
+      Modal.error({
+        title: 'Lỗi khi xóa mặt bằng',
+        content: 'Không thể xóa mặt bằng. Vui lòng thử lại sau.'
+      });
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const filteredLayouts = layouts.filter(layout => 
@@ -69,7 +97,19 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
         />
       </div>
 
-      {filteredLayouts.length > 0 ? (
+      {error && (
+        <div className="mb-4 text-red-500 p-4 bg-red-50 rounded-md">
+          <InfoCircleOutlined className="mr-2" />
+          {error}
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex justify-center items-center py-10">
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+          <span className="ml-2">Đang tải danh sách mặt bằng...</span>
+        </div>
+      ) : filteredLayouts.length > 0 ? (
         <List
           dataSource={filteredLayouts}
           renderItem={(layout) => (
@@ -94,6 +134,7 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
                         danger
                         icon={<DeleteOutlined />}
                         onClick={(e) => e.stopPropagation()}
+                        loading={isDeleting === layout.id}
                       />
                     </Popconfirm>
                   </Tooltip>
@@ -131,6 +172,7 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
         />
       ) : (
         <Empty 
+          className="py-10"
           description={
             searchText 
               ? "Không tìm thấy mặt bằng phù hợp" 

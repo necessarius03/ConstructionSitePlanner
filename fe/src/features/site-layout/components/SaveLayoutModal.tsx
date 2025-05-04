@@ -1,3 +1,4 @@
+// src/features/site-layout/components/SaveLayoutModal.tsx
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Button } from 'antd';
 
@@ -13,13 +14,15 @@ interface SaveLayoutModalProps {
   initialValues: SaveLayoutValues;
   onCancel: () => void;
   onSave: (values: SaveLayoutValues) => void;
+  isLoading?: boolean;
 }
 
 const SaveLayoutModal: React.FC<SaveLayoutModalProps> = ({
   visible,
   initialValues,
   onCancel,
-  onSave
+  onSave,
+  isLoading = false
 }) => {
   const [form] = Form.useForm<SaveLayoutValues>();
 
@@ -33,7 +36,6 @@ const SaveLayoutModal: React.FC<SaveLayoutModalProps> = ({
     form.validateFields()
       .then((values) => {
         onSave(values);
-        form.resetFields();
       })
       .catch((info) => {
         console.log('Validate Failed:', info);
@@ -46,10 +48,15 @@ const SaveLayoutModal: React.FC<SaveLayoutModalProps> = ({
       open={visible}
       onCancel={onCancel}
       footer={[
-        <Button key="back" onClick={onCancel}>
+        <Button key="back" onClick={onCancel} disabled={isLoading}>
           Hủy
         </Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button 
+          key="submit" 
+          type="primary" 
+          onClick={handleSubmit} 
+          loading={isLoading}
+        >
           Lưu
         </Button>,
       ]}
@@ -62,18 +69,27 @@ const SaveLayoutModal: React.FC<SaveLayoutModalProps> = ({
         <Form.Item
           name="name"
           label="Tên mặt bằng"
-          rules={[{ required: true, message: 'Vui lòng nhập tên mặt bằng' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập tên mặt bằng' },
+            { max: 100, message: 'Tên không được vượt quá 100 ký tự' }
+          ]}
         >
-          <Input placeholder="Nhập tên mặt bằng" />
+          <Input 
+            placeholder="Nhập tên mặt bằng" 
+            disabled={isLoading}
+            autoFocus
+          />
         </Form.Item>
         
         <Form.Item
           name="description"
           label="Mô tả"
+          rules={[{ max: 500, message: 'Mô tả không được vượt quá 500 ký tự' }]}
         >
           <TextArea 
             rows={4} 
             placeholder="Nhập mô tả về mặt bằng (nếu có)" 
+            disabled={isLoading}
           />
         </Form.Item>
       </Form>
