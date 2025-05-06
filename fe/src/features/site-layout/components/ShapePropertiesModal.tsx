@@ -105,7 +105,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
         
         <Divider className="my-3" />
         
-        <Form.Item label="Vị trí" className="mb-3">
+        {/* <Form.Item label="Vị trí" className="mb-3">
           <div className="flex gap-2">
             <InputNumber
               addonBefore="X"
@@ -120,7 +120,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
               style={{ width: '100%' }}
             />
           </div>
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item label="Kích thước" className="mb-3">
           <div className="flex gap-2">
@@ -139,7 +139,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
           </div>
         </Form.Item>
 
-        <Form.Item label="Góc xoay" className="mb-3">
+        {/* <Form.Item label="Góc xoay" className="mb-3">
           <Slider
             min={0}
             max={360}
@@ -161,7 +161,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
             value={editedShape.opacity}
             onChange={(value) => updateLocalShape({ opacity: Number(value) })}
           />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item label="Màu sắc" className="mb-3">
           <div className="flex items-center gap-2">
@@ -186,7 +186,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
           />
         </Form.Item>
         
-        {editedShape.type === 'equipment' && (
+        {/* {editedShape.type === 'equipment' && (
           <Form.Item className="mb-0">
             <Button
               type="default"
@@ -196,7 +196,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
               Thay đổi thiết bị
             </Button>
           </Form.Item>
-        )}
+        )} */}
       </Form>
     </Modal>
   );
