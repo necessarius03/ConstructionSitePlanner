@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './components/layout';
 import SiteLayoutPage from './features/site-layout/pages/SiteLayoutPage';
+import EquipmentPage from './features/equipment/pages/EquipmentPage';
 
 // Import pages
 // Uncomment as they become available
@@ -23,7 +24,7 @@ function App() {
           <Route path="/site-layout/:id" element={<SiteLayoutPage />} />
           
           {/* Equipment Management */}
-          <Route path="/equipment" element={<div>Equipment Management (Coming Soon)</div>} />
+          <Route path="/equipment" element={<EquipmentPage/>} />
           
           {/* Materials Management */}
           <Route path="/materials" element={<div>Materials Management (Coming Soon)</div>} />
