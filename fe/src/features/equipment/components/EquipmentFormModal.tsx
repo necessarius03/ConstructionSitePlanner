@@ -1,9 +1,9 @@
-// src/features/equipment/components/EquipmentFormModal.tsx
+// fe/src/features/equipment/components/EquipmentFormModal.tsx
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Select, InputNumber, ColorPicker, Button } from 'antd';
-import { Equipment } from '../../../data/equipment-data';
-import * as AntdIcons from '@ant-design/icons';
 import { Space } from 'antd';
+import * as AntdIcons from '@ant-design/icons';
+import { Equipment } from '../../../services/EquipmentService';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -11,7 +11,7 @@ const { TextArea } = Input;
 interface EquipmentFormModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (values: Equipment) => void;
+  onSave: (values: any) => void;
   equipment: Equipment | null;
   mode: 'add' | 'edit';
 }
@@ -39,12 +39,18 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
     if (visible) {
       if (mode === 'edit' && equipment) {
         // For edit mode, set form values from the selected equipment
-        const iconName = equipment.icon.name || '';
+        const iconName = equipment.iconName || '';
         setSelectedIcon(iconName);
         
         form.setFieldsValue({
-          ...equipment,
+          name: equipment.name,
           icon: iconName,
+          width: equipment.width,
+          height: equipment.height,
+          description: equipment.description,
+          category: equipment.category,
+          color: equipment.color,
+          notes: equipment.notes || ''
         });
       } else {
         // For add mode, reset the form
@@ -55,22 +61,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
   }, [visible, equipment, form, mode]);
 
   const handleFinish = (values: any) => {
-    // Convert icon string to component
-    const IconComponent = AntdIcons[values.icon as keyof typeof AntdIcons] as React.ComponentType;
-    
-    const equipmentData: Equipment = {
-      id: equipment?.id || '',
-      name: values.name,
-      icon: IconComponent,
-      width: values.width,
-      height: values.height,
-      description: values.description,
-      category: values.category,
-      color: values.color,
-      notes: values.notes
-    };
-    
-    onSave(equipmentData);
+    onSave(values);
   };
 
   const renderIconPreview = () => {

@@ -1,8 +1,9 @@
-// src/features/equipment/pages/EquipmentPage.tsx
+// fe/src/features/equipment/pages/EquipmentPage.tsx
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Space, Typography, Popconfirm, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { equipmentData, Equipment } from '../../../data/equipment-data';
+import * as AntdIcons from '@ant-design/icons';
+import EquipmentService, { Equipment } from '../../../services/EquipmentService';
 import EquipmentFormModal from '../components/EquipmentFormModal';
 
 const { Title } = Typography;
@@ -15,9 +16,21 @@ const EquipmentPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Load equipment data
-    setEquipment([...equipmentData]);
+    fetchEquipment();
   }, []);
+
+  const fetchEquipment = async () => {
+    try {
+      setLoading(true);
+      const data = await EquipmentService.getAllEquipment();
+      setEquipment(data);
+    } catch (error) {
+      console.error('Error fetching equipment:', error);
+      message.error('Không thể tải danh sách thiết bị');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const showAddModal = () => {
     setModalMode('add');
@@ -31,13 +44,12 @@ const EquipmentPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleDeleteEquipment = (record: Equipment) => {
+  const handleDeleteEquipment = async (record: Equipment) => {
     try {
       setLoading(true);
-      // Filter out the equipment with the matching ID
-      const updatedEquipment = equipment.filter(item => item.id !== record.id);
-      setEquipment(updatedEquipment);
+      await EquipmentService.deleteEquipment(record.id);
       message.success('Thiết bị đã được xóa thành công');
+      fetchEquipment();
     } catch (error) {
       console.error('Error deleting equipment:', error);
       message.error('Có lỗi xảy ra khi xóa thiết bị');
@@ -46,27 +58,31 @@ const EquipmentPage: React.FC = () => {
     }
   };
 
-  const handleSaveEquipment = (values: Equipment) => {
+  const handleSaveEquipment = async (values: any) => {
     try {
       setLoading(true);
+      
+      const equipmentData = {
+        name: values.name,
+        iconName: values.icon,
+        width: values.width,
+        height: values.height,
+        description: values.description || '',
+        category: values.category,
+        color: values.color,
+        notes: values.notes || ''
+      };
+      
       if (modalMode === 'add') {
-        // Generate a unique ID for new equipment
-        const newId = `equipment-${Date.now()}`;
-        const newEquipment = {
-          ...values,
-          id: newId,
-        };
-        setEquipment([...equipment, newEquipment]);
+        await EquipmentService.createEquipment(equipmentData);
         message.success('Thiết bị đã được thêm thành công');
-      } else {
-        // Update existing equipment
-        const updatedEquipment = equipment.map(item => 
-          item.id === values.id ? values : item
-        );
-        setEquipment(updatedEquipment);
+      } else if (selectedEquipment) {
+        await EquipmentService.updateEquipment(selectedEquipment.id, equipmentData);
         message.success('Thiết bị đã được cập nhật thành công');
       }
+      
       setIsModalVisible(false);
+      fetchEquipment();
     } catch (error) {
       console.error('Error saving equipment:', error);
       message.error('Có lỗi xảy ra khi lưu thiết bị');
@@ -75,13 +91,18 @@ const EquipmentPage: React.FC = () => {
     }
   };
 
+  // Function to get the icon component based on the iconName string
+  const getIconComponent = (iconName: string) => {
+    return AntdIcons[iconName as keyof typeof AntdIcons] as React.ComponentType || AntdIcons.ToolOutlined;
+  };
+
   const columns = [
     {
       title: 'Tên thiết bị',
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: Equipment) => {
-        const IconComponent = record.icon;
+        const IconComponent = getIconComponent(record.iconName);
         return (
           <Space>
             {IconComponent && <IconComponent style={{ color: record.color }} />}
@@ -178,4 +199,4 @@ const EquipmentPage: React.FC = () => {
   );
 };
 
-export default EquipmentPage;
+export default EquipmentPage;// src/features/equipment/pages/EquipmentPage.tsx

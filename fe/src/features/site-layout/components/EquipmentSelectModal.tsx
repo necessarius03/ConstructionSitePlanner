@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+// fe/src/features/site-layout/components/EquipmentSelectModal.tsx
+import React, { useState, useEffect } from 'react';
 import { Modal, List, Card, Radio, Input, Empty, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { Equipment, equipmentData } from '../../../data/equipment-data';
+import * as AntdIcons from '@ant-design/icons';
+import EquipmentService, { Equipment } from '../../../services/EquipmentService';
 
 interface EquipmentSelectModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSelect: (equipment: Equipment) => void;
+  onSelect: (equipment: any) => void;
 }
 
 const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
@@ -16,6 +18,8 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
 }) => {
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const categories = [
     { label: 'Tất cả', value: 'all' },
@@ -26,10 +30,28 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
     { label: 'Khác', value: 'other' },
   ];
 
-  const filteredEquipment = equipmentData.filter((equipment) => {
-    const matchesSearch = equipment.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                         equipment.description.toLowerCase().includes(searchText.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || equipment.category === selectedCategory;
+  useEffect(() => {
+    if (visible) {
+      fetchEquipment();
+    }
+  }, [visible]);
+
+  const fetchEquipment = async () => {
+    try {
+      setLoading(true);
+      const data = await EquipmentService.getAllEquipment();
+      setEquipment(data);
+    } catch (error) {
+      console.error('Error fetching equipment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredEquipment = equipment.filter((item) => {
+    const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchText.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -41,6 +63,26 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
       case 'concrete': return 'green';
       default: return 'default';
     }
+  };
+
+  const handleSelectEquipment = (item: Equipment) => {
+    // Get the icon component from the icon name
+    const IconComponent = AntdIcons[item.iconName as keyof typeof AntdIcons] as React.ComponentType;
+    
+    const selectedEquipment = {
+      id: Date.now(),
+      name: item.name,
+      icon: IconComponent,
+      width: item.width,
+      height: item.height,
+      description: item.description,
+      category: item.category,
+      color: item.color,
+      notes: item.notes,
+      equipmentId: item.id
+    };
+    
+    onSelect(selectedEquipment);
   };
 
   return (
@@ -78,14 +120,15 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
         <List
           grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 3 }}
           dataSource={filteredEquipment}
+          loading={loading}
           renderItem={(item) => {
-            const Icon = item.icon;
+            const IconComponent = AntdIcons[item.iconName as keyof typeof AntdIcons] as React.ComponentType;
             return (
               <List.Item>
                 <Card
                   hoverable
                   className="cursor-pointer"
-                  onClick={() => onSelect(item)}
+                  onClick={() => handleSelectEquipment(item)}
                   style={{ borderLeft: `3px solid ${item.color}` }}
                 >
                   <div className="flex items-center">
@@ -98,9 +141,11 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
                         marginRight: '12px',
                       }}
                     >
-                      <Icon
-                        style={{ color: item.color, fontSize: '24px' }}
-                      />
+                      {IconComponent && (
+                        <IconComponent
+                          style={{ color: item.color, fontSize: '24px' }}
+                        />
+                      )}
                     </div>
                     <div>
                       <div className="font-medium">{item.name}</div>
@@ -115,7 +160,7 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
           }}
         />
       ) : (
-        <Empty description="Không tìm thấy thiết bị phù hợp" />
+        <Empty description={loading ? "Đang tải..." : "Không tìm thấy thiết bị phù hợp"} />
       )}
     </Modal>
   );
