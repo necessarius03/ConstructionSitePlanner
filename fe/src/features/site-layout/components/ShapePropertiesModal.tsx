@@ -3,6 +3,8 @@ import { Modal, Form, Input, InputNumber, Slider, message, Divider, Button, Spac
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { Shape } from '../types';
 
+const { TextArea } = Input;
+
 interface ShapePropertiesModalProps {
   visible: boolean;
   shape: Shape | null;
@@ -172,6 +174,16 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
               onChange={(e) => updateLocalShape({ fill: e.target.value })}
             />
           </div>
+        </Form.Item>
+        
+        {/* Add the notes field here */}
+        <Form.Item label="Ghi chú" className="mb-3">
+          <TextArea
+            value={editedShape.notes || ''}
+            onChange={(e) => updateLocalShape({ notes: e.target.value })}
+            rows={4}
+            placeholder="Nhập ghi chú cho đối tượng này"
+          />
         </Form.Item>
         
         {editedShape.type === 'equipment' && (

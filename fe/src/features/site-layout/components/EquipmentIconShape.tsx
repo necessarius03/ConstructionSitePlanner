@@ -4,6 +4,7 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Group as KonvaGroup } from 'konva/lib/Group';
 import { Shape } from '../types';
 import { Html } from 'react-konva-utils';
+import { FileTextOutlined } from '@ant-design/icons';
 
 interface EquipmentIconShapeProps {
   shape: Shape;
@@ -43,6 +44,8 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
   const iconX = shape.width / 2 - iconSize / 2;
   const iconY = shape.height / 2 - iconSize / 2 - 10;
   const textY = shape.height / 2 + iconSize / 2 - 5;
+
+  const hasNotes = shape.notes && shape.notes.trim().length > 0;
 
   return (
     <Group
@@ -86,6 +89,29 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
           }}
         >
           <IconComponent style={{ fontSize: iconSize, color: '#ffffff' }} />
+        </Html>
+      )}
+      
+      {/* Notes indicator */}
+      {hasNotes && (
+        <Html
+          divProps={{
+            style: {
+              position: 'absolute',
+              top: '5px',
+              right: '5px',
+              width: '16px',
+              height: '16px',
+              background: '#fff',
+              borderRadius: '50%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 10,
+            }
+          }}
+        >
+          <FileTextOutlined style={{ fontSize: '12px', color: shape.fill }} />
         </Html>
       )}
       

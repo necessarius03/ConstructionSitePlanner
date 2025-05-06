@@ -14,4 +14,5 @@ public class ShapeDto
     public string? Name { get; set; }
     public double? Rotation { get; set; }
     public string? EquipmentId { get; set; }
+    public string? Notes { get; set; }
 }
