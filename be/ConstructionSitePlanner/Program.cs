@@ -59,6 +59,7 @@ app.UseCors("AllowSpecificOrigin");
 
 // Define API routes
 var apiGroup = app.MapGroup("/api");
+var equipmentGroup = apiGroup.MapGroup("/equipment");
 
 // Site Layout endpoints
 var siteLayoutGroup = apiGroup.MapGroup("/site-layouts");
@@ -95,6 +96,42 @@ siteLayoutGroup.MapPut("/{id}", async (Guid id, UpdateSiteLayoutDto updateDto, I
 siteLayoutGroup.MapDelete("/{id}", async (Guid id, ISiteLayoutService siteLayoutService) =>
 {
     var result = await siteLayoutService.DeleteAsync(id);
+    return result ? Results.NoContent() : Results.NotFound();
+});
+
+// Equipment endpoints
+// GET: api/equipment
+equipmentGroup.MapGet("/", async (IEquipmentService equipmentService) =>
+{
+    var equipment = await equipmentService.GetAllAsync();
+    return Results.Ok(equipment);
+});
+
+// GET: api/equipment/{id}
+equipmentGroup.MapGet("/{id}", async (Guid id, IEquipmentService equipmentService) =>
+{
+    var equipment = await equipmentService.GetByIdAsync(id);
+    return equipment != null ? Results.Ok(equipment) : Results.NotFound();
+});
+
+// POST: api/equipment
+equipmentGroup.MapPost("/", async (CreateEquipmentDto createDto, IEquipmentService equipmentService) =>
+{
+    var equipment = await equipmentService.CreateAsync(createDto);
+    return Results.Created($"/api/equipment/{equipment.Id}", equipment);
+});
+
+// PUT: api/equipment/{id}
+equipmentGroup.MapPut("/{id}", async (Guid id, UpdateEquipmentDto updateDto, IEquipmentService equipmentService) =>
+{
+    var equipment = await equipmentService.UpdateAsync(id, updateDto);
+    return equipment != null ? Results.Ok(equipment) : Results.NotFound();
+});
+
+// DELETE: api/equipment/{id}
+equipmentGroup.MapDelete("/{id}", async (Guid id, IEquipmentService equipmentService) =>
+{
+    var result = await equipmentService.DeleteAsync(id);
     return result ? Results.NoContent() : Results.NotFound();
 });
 

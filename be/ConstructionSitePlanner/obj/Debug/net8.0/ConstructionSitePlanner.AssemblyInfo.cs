@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConstructionSitePlanner")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+36718d3192064c879a0fc1fc442d645b42734864")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7eaba831e7c91cbbda7cd1950a686e69555cd7ea")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConstructionSitePlanner")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConstructionSitePlanner")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -16,8 +16,10 @@ public static class ServiceCollectionExtensions
 
         // Register repositories
         services.AddScoped<ISiteLayoutRepository, SiteLayoutRepository>();
+        services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 
         // Register services
+        services.AddScoped<IEquipmentService, EquipmentService>();
         services.AddScoped<ISiteLayoutService, SiteLayoutService>();
 
         return services;

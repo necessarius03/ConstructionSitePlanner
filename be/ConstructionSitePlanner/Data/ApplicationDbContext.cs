@@ -11,6 +11,7 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<SiteLayout> SiteLayouts { get; set; } = null!;
+    public DbSet<Equipment> Equipment { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
