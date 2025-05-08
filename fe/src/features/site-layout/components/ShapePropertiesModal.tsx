@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Slider, message, Divider, Button, Space } from 'antd';
+import { Modal, Form, Input, InputNumber, Slider, message, Divider, Button, Space, Switch } from 'antd';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { Shape } from '../types';
+import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -163,6 +164,23 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
             onChange={(value) => updateLocalShape({ opacity: Number(value) })}
           />
         </Form.Item> */}
+
+      {editedShape.type === 'boundary' && (
+          <>
+            <Divider className="my-3" />
+            <Form.Item label="Khóa vị trí" className="mb-3">
+              <Switch
+                checkedChildren={<LockOutlined />}
+                unCheckedChildren={<UnlockOutlined />}
+                checked={editedShape.isLocked}
+                onChange={(checked) => updateLocalShape({ isLocked: checked })}
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                Khi khóa, ranh giới sẽ không thể di chuyển vô tình
+              </div>
+            </Form.Item>
+          </>
+        )}
 
         <Form.Item label="Màu sắc" className="mb-3">
           <div className="flex items-center gap-2">

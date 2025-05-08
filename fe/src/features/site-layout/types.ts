@@ -38,6 +38,7 @@ export interface Shape extends BaseShape {
   equipmentId?: string; 
   iconComponent?: React.ComponentType;
   notes?: string;  // Thêm field notes
+  isLocked?: boolean; // Thêm field isLocked
 }
 
 export interface CanvasGridProps extends Size {

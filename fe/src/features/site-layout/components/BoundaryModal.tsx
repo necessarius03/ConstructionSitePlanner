@@ -1,11 +1,11 @@
-// src/features/site-layout/components/BoundaryModal.tsx
+// Cập nhật BoundaryModal.tsx
 import React from 'react';
-import { Modal, Form, InputNumber, Button } from 'antd';
+import { Modal, Form, InputNumber, Input, Button, Checkbox } from 'antd';
 
 interface BoundaryModalProps {
   visible: boolean;
   onCancel: () => void;
-  onConfirm: (width: number, height: number) => void;
+  onConfirm: (width: number, height: number, name: string, isLocked: boolean) => void;
 }
 
 const BoundaryModal: React.FC<BoundaryModalProps> = ({
@@ -17,14 +17,19 @@ const BoundaryModal: React.FC<BoundaryModalProps> = ({
 
   const handleSubmit = () => {
     form.validateFields().then(values => {
-      onConfirm(values.width, values.height);
+      onConfirm(
+        values.width, 
+        values.height, 
+        values.name, 
+        values.isLocked
+      );
       form.resetFields();
     });
   };
 
   return (
     <Modal
-      title="Kích thước ranh giới công trường"
+      title="Thiết lập ranh giới công trường"
       open={visible}
       onCancel={onCancel}
       footer={[
@@ -39,8 +44,21 @@ const BoundaryModal: React.FC<BoundaryModalProps> = ({
       <Form
         form={form}
         layout="vertical"
-        initialValues={{ width: 800, height: 600 }}
+        initialValues={{ 
+          width: 800, 
+          height: 600, 
+          name: 'Ranh giới công trường',
+          isLocked: true
+        }}
       >
+        <Form.Item
+          name="name"
+          label="Tên ranh giới"
+          rules={[{ required: true, message: 'Vui lòng nhập tên ranh giới' }]}
+        >
+          <Input placeholder="Nhập tên ranh giới" />
+        </Form.Item>
+        
         <Form.Item
           name="width"
           label="Chiều rộng (px)"
@@ -48,12 +66,20 @@ const BoundaryModal: React.FC<BoundaryModalProps> = ({
         >
           <InputNumber min={200} max={2000} style={{ width: '100%' }} />
         </Form.Item>
+        
         <Form.Item
           name="height"
           label="Chiều dài (px)"
           rules={[{ required: true, message: 'Vui lòng nhập chiều dài' }]}
         >
           <InputNumber min={200} max={2000} style={{ width: '100%' }} />
+        </Form.Item>
+        
+        <Form.Item 
+          name="isLocked" 
+          valuePropName="checked"
+        >
+          <Checkbox>Khóa vị trí (tránh di chuyển vô tình)</Checkbox>
         </Form.Item>
       </Form>
     </Modal>

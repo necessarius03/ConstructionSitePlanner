@@ -200,7 +200,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setIsBoundaryModalVisible(true);
   };
 
-  const createBoundary = (width: number, height: number) => {
+  const createBoundary = (width: number, height: number, name: string, isLocked: boolean) => {
     const newShape: Shape = {
       id: Date.now(),
       x: 50,
@@ -211,8 +211,9 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       opacity: 1,
       type: 'boundary',
       isSelected: false,
-      name: 'Ranh giới công trường',
-      rotation: 0
+      name: name || 'Ranh giới công trường',
+      rotation: 0,
+      isLocked: isLocked
     };
     
     handleShapesChange([...shapes, newShape]);
