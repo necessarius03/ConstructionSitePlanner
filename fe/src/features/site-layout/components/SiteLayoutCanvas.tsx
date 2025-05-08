@@ -19,6 +19,8 @@ import ShapePropertiesModal from './ShapePropertiesModal';
 import EquipmentSelectModal from './EquipmentSelectModal';
 import { Equipment } from '../../../data/equipment-data';
 import EquipmentIconShape from './EquipmentIconShape';
+import BoundaryModal from './BoundaryModal';
+import BoundaryShape from './BoundaryShape';
 
 const GRID_SIZE = 20;
 const MIN_ZOOM = 0.1;
@@ -192,7 +194,31 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [lastDist, setLastDist] = useState<number | null>(null);
   const [isHelpModalVisible, setIsHelpModalVisible] = useState(false);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
+  const [isBoundaryModalVisible, setIsBoundaryModalVisible] = useState(false);
   
+  const handleAddBoundary = () => {
+    setIsBoundaryModalVisible(true);
+  };
+
+  const createBoundary = (width: number, height: number) => {
+    const newShape: Shape = {
+      id: Date.now(),
+      x: 50,
+      y: 50,
+      width,
+      height,
+      fill: 'transparent',
+      opacity: 1,
+      type: 'boundary',
+      isSelected: false,
+      name: 'Ranh giới công trường',
+      rotation: 0
+    };
+    
+    handleShapesChange([...shapes, newShape]);
+    setIsBoundaryModalVisible(false);
+  };
+
   // Reset states when initialShapes changes (e.g., loading a new layout)
   useEffect(() => {
     setShapes(initialShapes);
@@ -683,6 +709,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       <CanvasToolbar 
         onAddShape={addShape}
         onShowEquipmentModal={() => setIsEquipmentModalVisible(true)}
+        onAddBoundary={handleAddBoundary}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={historyStep > 0}
@@ -791,6 +818,27 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                   />
                 );
               }
+
+              if (shape.type === 'boundary') {
+                return (
+                  <BoundaryShape
+                    key={shape.id}
+                    shape={shape}
+                    isSelected={shape.id === selectedId}
+                    onSelect={() => {
+                      setSelectedId(shape.id);
+                      onSelectShape?.(shape);
+                    }}
+                    onChange={updateShape}
+                    onContextMenu={(e) => {
+                      e.evt.preventDefault();
+                      setSelectedId(shape.id);
+                      onSelectShape?.(shape);
+                      setIsPropertiesModalVisible(true);
+                    }}
+                  />
+                );
+              }
               
               return (
                 <DraggableRect
@@ -837,6 +885,12 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       <CanvasControlsHelp
         visible={isHelpModalVisible}
         onClose={() => setIsHelpModalVisible(false)}
+      />
+
+      <BoundaryModal
+        visible={isBoundaryModalVisible}
+        onCancel={() => setIsBoundaryModalVisible(false)}
+        onConfirm={createBoundary}
       />
     </div>
   );

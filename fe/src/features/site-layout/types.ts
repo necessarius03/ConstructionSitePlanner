@@ -21,7 +21,7 @@ export interface BaseShape extends Point, Size {
   isSelected: boolean;
 }
 
-export type ShapeType = 'equipment' | 'material' | 'zone' | 'storage' | 'path';
+export type ShapeType = 'equipment' | 'material' | 'zone' | 'storage' | 'path' | 'boundary';
 
 export interface Shape extends BaseShape {
   id: number;
@@ -70,6 +70,7 @@ export interface SiteLayoutCanvasProps {
 export interface CanvasToolbarProps {
   onAddShape: (type: ShapeType) => void;
   onShowEquipmentModal?: () => void;
+  onAddBoundary?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;

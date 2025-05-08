@@ -59,6 +59,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
       case 'zone': return 'Khu vực';
       case 'storage': return 'Kho chứa';
       case 'path': return 'Đường đi';
+      case 'boundary': return 'Ranh giới';
       default: return type;
     }
   };

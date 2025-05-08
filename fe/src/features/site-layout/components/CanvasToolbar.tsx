@@ -9,7 +9,8 @@ import {
   InboxOutlined,
   PartitionOutlined,
   DatabaseOutlined,
-  NodeIndexOutlined
+  NodeIndexOutlined,
+  BorderOutlined
 } from '@ant-design/icons';
 import { CanvasToolbarProps, ShapeType } from '../types';
 
@@ -18,6 +19,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   onShowEquipmentModal,
   onUndo,
   onRedo,
+  onAddBoundary,
   canUndo = false,
   canRedo = false
 }) => {
@@ -52,6 +54,12 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       label: 'Đường đi', 
       icon: <NodeIndexOutlined />,
       onClick: () => onAddShape('path')
+    },
+    { 
+      type: 'boundary' as ShapeType, 
+      label: 'Ranh giới', 
+      icon: <BorderOutlined />,
+      onClick: () => onAddBoundary?.()
     }
   ];
 
