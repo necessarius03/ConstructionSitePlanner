@@ -4,6 +4,8 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
 import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
 import type { Stage as KonvaStage } from 'konva/lib/Stage';
+import { Button, Tooltip } from 'antd';
+import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, DragOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
   Shape,
   ShapeType,
@@ -12,44 +14,58 @@ import {
   SiteLayoutCanvasProps
 } from '../types';
 import { CanvasToolbar } from './CanvasToolbar';
+import CanvasControlsHelp from './CanvasControlsHelp';
 import ShapePropertiesModal from './ShapePropertiesModal';
 import EquipmentSelectModal from './EquipmentSelectModal';
 import { Equipment } from '../../../data/equipment-data';
 import EquipmentIconShape from './EquipmentIconShape';
 
 const GRID_SIZE = 20;
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 3;
+const ZOOM_FACTOR = 1.1; // Zoom in/out by 10% per step
 
-const CanvasGrid: React.FC<CanvasGridProps> = ({ 
+const CanvasGrid: React.FC<CanvasGridProps & { scale: number }> = ({ 
   width, 
   height, 
   gridSize = GRID_SIZE,
   color = '#ddd',
-  opacity = 0.5 
+  opacity = 0.5,
+  scale = 1
 }) => {
+  // Adjust grid size based on zoom level
+  const effectiveGridSize = gridSize * scale;
+  
+  // Calculate how many grid lines we need
   const gridComponents = [];
   
-  for (let i = 0; i <= width; i += gridSize) {
+  // We extend the grid slightly beyond the visible area
+  const extendedWidth = width / scale + GRID_SIZE * 2;
+  const extendedHeight = height / scale + GRID_SIZE * 2;
+  
+  // Only draw grid lines that will be visible (improves performance)
+  for (let i = 0; i <= extendedWidth; i += gridSize) {
     gridComponents.push(
       <Rect
         key={`v${i}`}
         x={i}
         y={0}
-        width={1}
-        height={height}
+        width={1 / scale} // Adjust line width based on scale
+        height={extendedHeight}
         fill={color}
         opacity={opacity}
       />
     );
   }
   
-  for (let i = 0; i <= height; i += gridSize) {
+  for (let i = 0; i <= extendedHeight; i += gridSize) {
     gridComponents.push(
       <Rect
         key={`h${i}`}
         x={0}
         y={i}
-        width={width}
-        height={1}
+        width={extendedWidth}
+        height={1 / scale} // Adjust line width based on scale
         fill={color}
         opacity={opacity}
       />
@@ -168,6 +184,14 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth - 350);
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 200);
   
+  // New state for zoom and pan
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastCenter, setLastCenter] = useState<{ x: number, y: number } | null>(null);
+  const [lastDist, setLastDist] = useState<number | null>(null);
+  const [isHelpModalVisible, setIsHelpModalVisible] = useState(false);
+  
   // Reset states when initialShapes changes (e.g., loading a new layout)
   useEffect(() => {
     setShapes(initialShapes);
@@ -222,6 +246,20 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       if (e.key === 'Escape') {
         setIsPropertiesModalVisible(false);
       }
+      
+      // Zoom controls with keyboard
+      if (e.ctrlKey && e.key === '+') {
+        e.preventDefault();
+        handleZoomIn();
+      }
+      if (e.ctrlKey && e.key === '-') {
+        e.preventDefault();
+        handleZoomOut();
+      }
+      if (e.ctrlKey && e.key === '0') {
+        e.preventDefault();
+        resetZoom();
+      }
     };
     
     window.addEventListener('keydown', handleKeyDown);
@@ -229,6 +267,21 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedId]);
+
+  useEffect(() => {
+    // Kiểm tra xem đã hiển thị trợ giúp lần nào chưa
+    const hasShownHelp = localStorage.getItem('hasShownCanvasHelp');
+    
+    if (!hasShownHelp) {
+      // Hiển thị modal trợ giúp sau 2 giây để người dùng có thời gian nhìn canvas
+      const timer = setTimeout(() => {
+        setIsHelpModalVisible(true);
+        localStorage.setItem('hasShownCanvasHelp', 'true');
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
   
   // Handle shapes change with history tracking
   const handleShapesChange = useCallback((newShapes: Shape[]) => {
@@ -379,6 +432,206 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     return shapes.find(shape => shape.id === selectedId) || null;
   }, [shapes, selectedId]);
 
+  // Zoom handlers
+  const handleZoomIn = () => {
+    if (scale < MAX_ZOOM) {
+      // Zoom in to the center of the stage
+      const newScale = Math.min(scale * ZOOM_FACTOR, MAX_ZOOM);
+      
+      // Calculate the new position to zoom toward center
+      const stage = stageRef.current;
+      if (stage) {
+        const oldScale = scale;
+        const pointer = {
+          x: stage.width() / 2,
+          y: stage.height() / 2,
+        };
+        
+        const mousePointTo = {
+          x: (pointer.x - position.x) / oldScale,
+          y: (pointer.y - position.y) / oldScale,
+        };
+        
+        const newPos = {
+          x: pointer.x - mousePointTo.x * newScale,
+          y: pointer.y - mousePointTo.y * newScale,
+        };
+        
+        setScale(newScale);
+        setPosition(newPos);
+      } else {
+        setScale(newScale);
+      }
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (scale > MIN_ZOOM) {
+      // Zoom out from the center of the stage
+      const newScale = Math.max(scale / ZOOM_FACTOR, MIN_ZOOM);
+      
+      // Calculate the new position to zoom toward center
+      const stage = stageRef.current;
+      if (stage) {
+        const oldScale = scale;
+        const pointer = {
+          x: stage.width() / 2,
+          y: stage.height() / 2,
+        };
+        
+        const mousePointTo = {
+          x: (pointer.x - position.x) / oldScale,
+          y: (pointer.y - position.y) / oldScale,
+        };
+        
+        const newPos = {
+          x: pointer.x - mousePointTo.x * newScale,
+          y: pointer.y - mousePointTo.y * newScale,
+        };
+        
+        setScale(newScale);
+        setPosition(newPos);
+      } else {
+        setScale(newScale);
+      }
+    }
+  };
+
+  const resetZoom = () => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleWheel = (e: KonvaEventObject<WheelEvent>) => {
+    e.evt.preventDefault();
+    
+    const stage = stageRef.current;
+    if (!stage) return;
+    
+    const oldScale = scale;
+    const pointer = stage.getPointerPosition();
+    
+    if (!pointer) return;
+    
+    const mousePointTo = {
+      x: (pointer.x - position.x) / oldScale,
+      y: (pointer.y - position.y) / oldScale,
+    };
+    
+    let newScale = scale;
+    if (e.evt.deltaY < 0) {
+      newScale = Math.min(oldScale * ZOOM_FACTOR, MAX_ZOOM);
+    } else {
+      newScale = Math.max(oldScale / ZOOM_FACTOR, MIN_ZOOM);
+    }
+    
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+    
+    setScale(newScale);
+    setPosition(newPos);
+  };
+
+  // Pan handlers
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
+    if (!isDragging) return;
+    
+    const stage = stageRef.current;
+    if (stage) {
+      setPosition({
+        x: e.target.x(),
+        y: e.target.y(),
+      });
+    }
+  };
+
+  // For mobile touch support
+  const handleTouch = (e: KonvaEventObject<TouchEvent>) => {
+    e.evt.preventDefault();
+    const touch1 = e.evt.touches[0];
+    const touch2 = e.evt.touches[1];
+    
+    const stage = stageRef.current;
+    if (!stage) return;
+    
+    // If we have multiple touches, it's pinch-to-zoom
+    if (touch1 && touch2) {
+      const p1 = {
+        x: touch1.clientX,
+        y: touch1.clientY,
+      };
+      const p2 = {
+        x: touch2.clientX,
+        y: touch2.clientY,
+      };
+      
+      if (!lastCenter) {
+        setLastCenter({
+          x: (p1.x + p2.x) / 2,
+          y: (p1.y + p2.y) / 2,
+        });
+        return;
+      }
+      
+      const newCenter = {
+        x: (p1.x + p2.x) / 2,
+        y: (p1.y + p2.y) / 2,
+      };
+      
+      const dist = Math.sqrt(
+        Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)
+      );
+      
+      if (!lastDist) {
+        setLastDist(dist);
+        return;
+      }
+      
+      // Calculate new scale
+      const pointTo = {
+        x: (newCenter.x - position.x) / scale,
+        y: (newCenter.y - position.y) / scale,
+      };
+      
+      const oldScale = scale;
+      let newScale = scale;
+      
+      // Adjust scale based on pinch distance
+      if (dist > lastDist) {
+        newScale = Math.min(oldScale * ZOOM_FACTOR, MAX_ZOOM);
+      } else {
+        newScale = Math.max(oldScale / ZOOM_FACTOR, MIN_ZOOM);
+      }
+      
+      // Calculate new position
+      const newPos = {
+        x: newCenter.x - pointTo.x * newScale,
+        y: newCenter.y - pointTo.y * newScale,
+      };
+      
+      // Update state
+      setScale(newScale);
+      setPosition(newPos);
+      setLastDist(dist);
+      setLastCenter(newCenter);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setLastCenter(null);
+    setLastDist(null);
+  };
+
   return (
     <div className="h-full" style={{ display: 'flex', flexDirection: 'column' }}>
       <CanvasToolbar 
@@ -392,21 +645,81 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       
       <div 
         ref={containerRef}
-        className="h-full flex-1 border rounded-lg bg-white"
+        className="h-full flex-1 border rounded-lg bg-white relative"
         style={{ width: '100%', position: 'relative' }}
       >
+        {/* Zoom Controls */}
+        <div className="absolute top-4 right-4 z-10 bg-white shadow-md rounded-md p-1 flex flex-col">
+          <Tooltip title="Phóng to (Ctrl +)">
+            <Button 
+              icon={<ZoomInOutlined />} 
+              size="small" 
+              onClick={handleZoomIn}
+              disabled={scale >= MAX_ZOOM}
+            />
+          </Tooltip>
+          <div className="text-center text-xs py-1">
+            {Math.round(scale * 100)}%
+          </div>
+          <Tooltip title="Thu nhỏ (Ctrl -)">
+            <Button 
+              icon={<ZoomOutOutlined />} 
+              size="small" 
+              onClick={handleZoomOut}
+              disabled={scale <= MIN_ZOOM}
+            />
+          </Tooltip>
+          <Tooltip title="Khớp màn hình (Ctrl 0)">
+            <Button 
+              icon={<FullscreenOutlined />} 
+              size="small" 
+              onClick={resetZoom} 
+              className="mt-1"
+            />
+          </Tooltip>
+        </div>
+
+        {/* Help Button */}
+        <div className="absolute top-4 left-4 z-10">
+          <Tooltip title="Hướng dẫn điều khiển">
+            <Button
+              icon={<QuestionCircleOutlined />}
+              size="small"
+              onClick={() => setIsHelpModalVisible(true)}
+              className="shadow-md"
+            />
+          </Tooltip>
+        </div>
+        
+        {/* Status Info */}
+        <div className="absolute bottom-4 left-4 z-10 bg-white bg-opacity-80 px-2 py-1 rounded text-xs text-gray-700">
+          {isDragging ? 'Đang di chuyển mặt bằng...' : selectedId ? 'Đã chọn 1 đối tượng' : 'Nhấp chuột để chọn đối tượng. Kéo để di chuyển mặt bằng.'}
+        </div>
+        
         <Stage
           ref={stageRef}
           width={canvasWidth}
           height={canvasHeight}
+          scaleX={scale}
+          scaleY={scale}
+          x={position.x}
+          y={position.y}
+          draggable
           onClick={checkDeselect}
           onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
+          onWheel={handleWheel}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragMove={handleDragMove}
+          onTouchMove={handleTouch}
+          onTouchEnd={handleTouchEnd}
         >
           <Layer>
             <CanvasGrid 
               width={canvasWidth} 
               height={canvasHeight}
               gridSize={gridSize}
+              scale={scale}
             />
             {shapes.map((shape) => {
               // Nếu là thiết bị, sử dụng component EquipmentIconShape
@@ -471,8 +784,14 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         onCancel={() => setIsEquipmentModalVisible(false)}
         onSelect={handleEquipmentSelect}
       />
+      
+      {/* Help Modal */}
+      <CanvasControlsHelp
+        visible={isHelpModalVisible}
+        onClose={() => setIsHelpModalVisible(false)}
+      />
     </div>
   );
-};
+}
 
 export default SiteLayoutCanvas;

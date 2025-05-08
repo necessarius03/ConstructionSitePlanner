@@ -8,7 +8,8 @@ import {
   message, 
   Modal, 
   Spin,
-  Alert
+  Alert,
+  Tooltip
 } from 'antd';
 import { 
   SaveOutlined, 
@@ -16,7 +17,10 @@ import {
   FolderOpenOutlined,
   ExclamationCircleOutlined,
   PlusOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  ZoomInOutlined,
+  ZoomOutOutlined,
+  FullscreenOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import SiteLayoutCanvas from '../components/SiteLayoutCanvas';
@@ -313,12 +317,14 @@ const SiteLayoutPage: React.FC = () => {
           </Space>
         </div>
       ) : (
-        <Card className="mt-4 relative">
-          <SiteLayoutCanvas 
-            initialShapes={shapes}
-            onShapesChange={handleShapesChange}
-            onSelectShape={handleSelectShape}
-          />
+        <Card className="mt-4 relative" bodyStyle={{ padding: '0' }}>
+          <div className="h-[calc(100vh-220px)]">
+            <SiteLayoutCanvas 
+              initialShapes={shapes}
+              onShapesChange={handleShapesChange}
+              onSelectShape={handleSelectShape}
+            />
+          </div>
         </Card>
       )}
 

@@ -1,3 +1,4 @@
+// src/features/site-layout/types.ts
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
 import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
@@ -36,6 +37,7 @@ export interface Shape extends BaseShape {
   rotation?: number;
   equipmentId?: string; 
   iconComponent?: React.ComponentType;
+  notes?: string;  // Thêm field notes
 }
 
 export interface CanvasGridProps extends Size {
@@ -60,6 +62,9 @@ export interface SiteLayoutCanvasProps {
   gridSize?: number;
   onShapesChange?: (shapes: Shape[]) => void;
   onSelectShape?: (shape: Shape | null) => void;
+  defaultScale?: number; // Thêm thuộc tính mới
+  minScale?: number;     // Thêm thuộc tính mới
+  maxScale?: number;     // Thêm thuộc tính mới
 }
 
 export interface CanvasToolbarProps {
