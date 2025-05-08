@@ -4,7 +4,7 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Rect as KonvaRect } from 'konva/lib/shapes/Rect';
 import type { Transformer as KonvaTransformer } from 'konva/lib/shapes/Transformer';
 import type { Stage as KonvaStage } from 'konva/lib/Stage';
-import { Button, Tooltip } from 'antd';
+import { Button, Tooltip, Space } from 'antd';
 import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, DragOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import {
   Shape,
@@ -181,7 +181,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [historyStep, setHistoryStep] = useState(0);
   
   // Canvas dimensions
-  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth - 350);
+  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 200);
   
   // New state for zoom and pan
@@ -191,6 +191,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   const [lastCenter, setLastCenter] = useState<{ x: number, y: number } | null>(null);
   const [lastDist, setLastDist] = useState<number | null>(null);
   const [isHelpModalVisible, setIsHelpModalVisible] = useState(false);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
   
   // Reset states when initialShapes changes (e.g., loading a new layout)
   useEffect(() => {
@@ -205,6 +206,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
+        // Sử dụng toàn bộ chiều rộng của cửa sổ
         const containerWidth = containerRef.current.clientWidth;
         const containerHeight = containerRef.current.clientHeight;
         
@@ -229,9 +231,13 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     };
   }, []);
 
-  // Handle keyboard shortcuts
+  // Track Shift key state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+      
       // Delete the selected shape when pressing Delete key
       if (e.key === 'Delete' && selectedId) {
         deleteShape(selectedId);
@@ -262,9 +268,18 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       }
     };
     
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(false);
+      }
+    };
+    
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
   }, [selectedId]);
 
@@ -535,8 +550,14 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   // Pan handlers
-  const handleDragStart = () => {
-    setIsDragging(true);
+  const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
+    // Chỉ cho phép kéo canvas khi shift được nhấn
+    if (isShiftPressed) {
+      setIsDragging(true);
+    } else {
+      // Ngăn chặn sự kiện kéo nếu không có shift
+      e.currentTarget.stopDrag();
+    }
   };
 
   const handleDragEnd = () => {
@@ -544,7 +565,14 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
-    if (!isDragging) return;
+    if (!isDragging || !isShiftPressed) {
+      // Nếu không còn nhấn shift, dừng việc kéo
+      if (!isShiftPressed) {
+        e.currentTarget.stopDrag();
+        return;
+      }
+      return;
+    }
     
     const stage = stageRef.current;
     if (stage) {
@@ -632,6 +660,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setLastDist(null);
   };
 
+  const zoomPercentage = Math.round(scale * 100);
+
   return (
     <div className="h-full" style={{ display: 'flex', flexDirection: 'column' }}>
       <CanvasToolbar 
@@ -645,41 +675,13 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       
       <div 
         ref={containerRef}
-        className="h-full flex-1 border rounded-lg bg-white relative"
-        style={{ width: '100%', position: 'relative' }}
+        className="h-full flex-1 border rounded-lg bg-white relative overflow-hidden"
+        style={{ 
+          width: '100%', 
+          position: 'relative',
+        }}
       >
-        {/* Zoom Controls */}
-        <div className="absolute top-4 right-4 z-10 bg-white shadow-md rounded-md p-1 flex flex-col">
-          <Tooltip title="Phóng to (Ctrl +)">
-            <Button 
-              icon={<ZoomInOutlined />} 
-              size="small" 
-              onClick={handleZoomIn}
-              disabled={scale >= MAX_ZOOM}
-            />
-          </Tooltip>
-          <div className="text-center text-xs py-1">
-            {Math.round(scale * 100)}%
-          </div>
-          <Tooltip title="Thu nhỏ (Ctrl -)">
-            <Button 
-              icon={<ZoomOutOutlined />} 
-              size="small" 
-              onClick={handleZoomOut}
-              disabled={scale <= MIN_ZOOM}
-            />
-          </Tooltip>
-          <Tooltip title="Khớp màn hình (Ctrl 0)">
-            <Button 
-              icon={<FullscreenOutlined />} 
-              size="small" 
-              onClick={resetZoom} 
-              className="mt-1"
-            />
-          </Tooltip>
-        </div>
-
-        {/* Help Button */}
+        {/* Help Button ở góc trên bên trái */}
         <div className="absolute top-4 left-4 z-10">
           <Tooltip title="Hướng dẫn điều khiển">
             <Button
@@ -691,9 +693,39 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
           </Tooltip>
         </div>
         
-        {/* Status Info */}
+        {/* Status Info ở phía dưới bên trái */}
         <div className="absolute bottom-4 left-4 z-10 bg-white bg-opacity-80 px-2 py-1 rounded text-xs text-gray-700">
-          {isDragging ? 'Đang di chuyển mặt bằng...' : selectedId ? 'Đã chọn 1 đối tượng' : 'Nhấp chuột để chọn đối tượng. Kéo để di chuyển mặt bằng.'}
+          {isDragging ? 
+            'Đang di chuyển mặt bằng...' : 
+            (isShiftPressed ? 
+              'Nhấn giữ chuột để di chuyển mặt bằng' : 
+              'Nhấn Shift + chuột để di chuyển mặt bằng')}
+        </div>
+        
+        {/* Zoom Controls ở phía dưới bên phải */}
+        <div className="absolute bottom-4 right-4 z-10">
+          <div className="bg-white shadow-md rounded-md px-2 py-1 flex items-center space-x-1">
+            <Button 
+              icon={<ZoomOutOutlined />} 
+              size="small" 
+              onClick={handleZoomOut}
+              disabled={scale <= MIN_ZOOM}
+            />
+            <span className="mx-1 text-xs" style={{ width: '36px', textAlign: 'center' }}>
+              {zoomPercentage}%
+            </span>
+            <Button 
+              icon={<ZoomInOutlined />} 
+              size="small" 
+              onClick={handleZoomIn}
+              disabled={scale >= MAX_ZOOM}
+            />
+            <Button 
+              icon={<FullscreenOutlined />} 
+              size="small" 
+              onClick={resetZoom}
+            />
+          </div>
         </div>
         
         <Stage
@@ -704,7 +736,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
           scaleY={scale}
           x={position.x}
           y={position.y}
-          draggable
+          draggable={isShiftPressed} // Chỉ cho phép drag khi shift được nhấn
           onClick={checkDeselect}
           onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
           onWheel={handleWheel}

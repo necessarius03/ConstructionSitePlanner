@@ -49,7 +49,7 @@ const CanvasControlsHelp: React.FC<CanvasControlsHelpProps> = ({ visible, onClos
           <Col span={8}>
             <Space direction="vertical" className="text-center w-full">
               <DragOutlined style={{ fontSize: 24 }} />
-              <Text strong>Kéo chuột</Text>
+              <Text strong>Shift + Kéo chuột</Text>
               <Text>Di chuyển mặt bằng</Text>
             </Space>
           </Col>
@@ -87,13 +87,37 @@ const CanvasControlsHelp: React.FC<CanvasControlsHelpProps> = ({ visible, onClos
           </Col>
         </Row>
 
+        <Row gutter={[16, 16]} className="mt-2">
+          <Col span={8}>
+            <Space direction="vertical" className="text-center w-full">
+              <Text strong>Shift</Text>
+              <DragOutlined style={{ fontSize: 24 }} />
+              <Text>Kích hoạt kéo mặt bằng</Text>
+            </Space>
+          </Col>
+          <Col span={8}>
+            <Space direction="vertical" className="text-center w-full">
+              <Text strong>Delete</Text>
+              <Text style={{ fontSize: 24 }}>🗑️</Text>
+              <Text>Xóa đối tượng đã chọn</Text>
+            </Space>
+          </Col>
+          <Col span={8}>
+            <Space direction="vertical" className="text-center w-full">
+              <Text strong>Enter</Text>
+              <Text style={{ fontSize: 24 }}>⏎</Text>
+              <Text>Mở thuộc tính đối tượng</Text>
+            </Space>
+          </Col>
+        </Row>
+
         <Title level={4} className="mt-4">Thiết bị cảm ứng</Title>
         <Row gutter={[16, 16]}>
           <Col span={12}>
             <Space direction="vertical" className="text-center w-full">
               <Text strong>Vuốt với 1 ngón tay</Text>
               <DragOutlined style={{ fontSize: 24 }} />
-              <Text>Di chuyển mặt bằng</Text>
+              <Text>Di chuyển mặt bằng (khi nhấn shift)</Text>
             </Space>
           </Col>
           <Col span={12}>
@@ -109,10 +133,15 @@ const CanvasControlsHelp: React.FC<CanvasControlsHelpProps> = ({ visible, onClos
         </Row>
 
         <Paragraph className="mt-4">
-          <blockquote>
-            <Text italic>
-              Lưu ý: Với các đối tượng trong mặt bằng, bạn có thể nhấp để chọn và kéo để di chuyển. 
-              Nhấp đôi để mở cửa sổ chỉnh sửa thuộc tính.
+          <blockquote className="p-3 bg-blue-50 border-l-4 border-blue-500 mt-4">
+            <Text strong>Lưu ý quan trọng:</Text>
+            <br />
+            <Text>
+              1. Để <b>di chuyển mặt bằng</b>, hãy nhấn giữ phím <b>Shift</b> và kéo chuột.
+              <br />
+              2. Để <b>di chuyển đối tượng</b>, chỉ cần nhấp chọn và kéo đối tượng đó.
+              <br />
+              3. Nhấp đôi để mở cửa sổ chỉnh sửa thuộc tính đối tượng.
             </Text>
           </blockquote>
         </Paragraph>
