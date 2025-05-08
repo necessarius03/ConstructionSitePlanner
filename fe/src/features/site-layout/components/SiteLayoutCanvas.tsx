@@ -40,8 +40,8 @@ const CanvasGrid: React.FC<CanvasGridProps & { scale: number }> = ({
   const gridComponents = [];
   
   // We extend the grid slightly beyond the visible area
-  const extendedWidth = width / scale + GRID_SIZE * 2;
-  const extendedHeight = height / scale + GRID_SIZE * 2;
+  const extendedWidth = width / scale + GRID_SIZE * 20;
+  const extendedHeight = height / scale + GRID_SIZE * 20;
   
   // Only draw grid lines that will be visible (improves performance)
   for (let i = 0; i <= extendedWidth; i += gridSize) {
@@ -551,13 +551,18 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
 
   // Pan handlers
   const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    // Chỉ cho phép kéo canvas khi shift được nhấn
-    if (isShiftPressed) {
+    // Khi click vào một đối tượng cụ thể, không phải Stage, thì không cần Shift
+    const clickedOnStage = e.target === e.target.getStage();
+    
+    // Nếu click vào stage và đang nhấn shift, cho phép kéo stage
+    if (clickedOnStage && isShiftPressed) {
       setIsDragging(true);
-    } else {
-      // Ngăn chặn sự kiện kéo nếu không có shift
+    } 
+    // Nếu click vào stage mà không nhấn shift, ngăn kéo
+    else if (clickedOnStage && !isShiftPressed) {
       e.currentTarget.stopDrag();
     }
+    // Nếu click vào đối tượng, không cần làm gì, cho phép kéo bình thường
   };
 
   const handleDragEnd = () => {
@@ -565,21 +570,32 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
-    if (!isDragging || !isShiftPressed) {
-      // Nếu không còn nhấn shift, dừng việc kéo
-      if (!isShiftPressed) {
-        e.currentTarget.stopDrag();
+    // Chỉ xử lý cho Stage, không ảnh hưởng đến kéo đối tượng
+    const clickedOnStage = e.target === e.target.getStage();
+    
+    if (clickedOnStage) {
+      if (!isDragging || !isShiftPressed) {
+        // Nếu không còn nhấn shift, dừng việc kéo stage
+        if (!isShiftPressed) {
+          e.currentTarget.stopDrag();
+          return;
+        }
         return;
       }
-      return;
-    }
-    
-    const stage = stageRef.current;
-    if (stage) {
-      setPosition({
-        x: e.target.x(),
-        y: e.target.y(),
-      });
+      
+      const stage = stageRef.current;
+      if (stage) {
+        const maxX = canvasWidth * scale * 0.5;  // Cho phép kéo tối đa một nửa kích thước stage
+        const maxY = canvasHeight * scale * 0.5;
+        
+        const newX = Math.min(Math.max(e.target.x(), -maxX), maxX);
+        const newY = Math.min(Math.max(e.target.y(), -maxY), maxY);
+        
+        setPosition({
+          x: newX,
+          y: newY,
+        });
+      }
     }
   };
 
