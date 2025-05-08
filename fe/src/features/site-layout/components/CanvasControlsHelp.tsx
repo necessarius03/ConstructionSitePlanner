@@ -6,7 +6,7 @@ import {
   ZoomOutOutlined,
   DragOutlined,
   FullscreenOutlined,
-  MouseOutlined,
+  AimOutlined,
   QuestionCircleOutlined
 } from '@ant-design/icons';
 
@@ -41,7 +41,7 @@ const CanvasControlsHelp: React.FC<CanvasControlsHelpProps> = ({ visible, onClos
         <Row gutter={[16, 16]}>
           <Col span={8}>
             <Space direction="vertical" className="text-center w-full">
-              <MouseOutlined style={{ fontSize: 24 }} />
+              <AimOutlined style={{ fontSize: 24 }} />
               <Text strong>Cuộn chuột</Text>
               <Text>Phóng to / thu nhỏ</Text>
             </Space>
@@ -55,7 +55,7 @@ const CanvasControlsHelp: React.FC<CanvasControlsHelpProps> = ({ visible, onClos
           </Col>
           <Col span={8}>
             <Space direction="vertical" className="text-center w-full">
-              <MouseOutlined style={{ fontSize: 24 }} />
+              <AimOutlined style={{ fontSize: 24 }} />
               <Text strong>Nhấp chuột</Text>
               <Text>Chọn đối tượng</Text>
             </Space>
