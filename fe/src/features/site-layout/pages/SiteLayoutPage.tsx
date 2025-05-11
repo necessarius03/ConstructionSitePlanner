@@ -126,6 +126,7 @@ const SiteLayoutPage: React.FC = () => {
           ...shapeCopy,
           id: String(shapeCopy.id),
           isLocked : shapeCopy.isLocked || false, // Ensure isLocked is set
+          equipmentId: shapeCopy.equipmentId ? String(shapeCopy.equipmentId) : shapeCopy.equipmentId
       };
       });
       
