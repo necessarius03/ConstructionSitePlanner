@@ -32,6 +32,7 @@ export interface Shape extends BaseShape {
   fill: string;
   opacity: number;
   type: ShapeType;
+  iconName?: string; // Tên icon cho thiết bị
   isSelected: boolean;
   name?: string;
   rotation?: number;
