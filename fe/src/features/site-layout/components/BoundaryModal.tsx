@@ -21,7 +21,7 @@ const BoundaryModal: React.FC<BoundaryModalProps> = ({
         values.width, 
         values.height, 
         values.name, 
-        values.isLocked
+        values.isLocked === undefined ? true : values.isLocked
       );
       form.resetFields();
     });

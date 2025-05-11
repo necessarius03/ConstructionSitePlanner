@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import { Shape } from '../types';
-import { LockOutlined } from '@ant-design/icons';
+import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Html } from 'react-konva-utils';
 
 interface BoundaryShapeProps {
@@ -31,6 +31,14 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
       ...shape,
       x: e.target.x(),
       y: e.target.y(),
+    });
+  };
+
+  const handleToggleLock = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Ngăn sự kiện lan truyền lên các phần tử khác
+    onChange({
+      ...shape,
+      isLocked: !shape.isLocked,
     });
   };
 
@@ -141,26 +149,36 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
       />
       
       {/* Lock indicator */}
-      {shape.isLocked && (
-        <Html
-          divProps={{
-            style: {
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              backgroundColor: 'rgba(255, 255, 255, 0.85)',
-              padding: '4px',
-              borderRadius: '3px',
-              boxShadow: '1px 1px 2px rgba(0,0,0,0.2)',
-            }
+      <Html
+        divProps={{
+          style: {
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 10,
+          }
+        }}
+      >
+        <div 
+          onClick={handleToggleLock}
+          style={{ 
+            cursor: 'pointer',
+            backgroundColor: 'white',
+            borderRadius: '50%',
+            width: '24px',
+            height: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <LockOutlined style={{ color: '#f5222d', fontSize: '14px' }} />
-            <span style={{ fontSize: '12px', marginLeft: '4px' }}>Đã khóa</span>
-          </div>
-        </Html>
-      )}
+          {shape.isLocked ? 
+            <LockOutlined style={{ color: '#f5222d', fontSize: '14px' }} /> : 
+            <UnlockOutlined style={{ color: '#1677ff', fontSize: '14px' }} />
+          }
+        </div>
+      </Html>
     </Group>
   );
 };

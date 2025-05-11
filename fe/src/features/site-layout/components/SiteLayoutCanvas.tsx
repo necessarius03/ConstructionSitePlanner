@@ -430,7 +430,10 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   // Handle shape modifications
   const updateShape = useCallback((updatedShape: Shape) => {
     const newShapes = shapes.map(shape => 
-      shape.id === updatedShape.id ? updatedShape : shape
+      shape.id === updatedShape.id ? {
+        ...updatedShape,
+        isLocked: updatedShape.isLocked // Đảm bảo giữ nguyên trạng thái khóa
+      } : shape
     );
     handleShapesChange(newShapes);
   }, [shapes, handleShapesChange]);

@@ -165,7 +165,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
           />
         </Form.Item> */}
 
-      {editedShape.type === 'boundary' && (
+        {editedShape.type === 'boundary' && (
           <>
             <Divider className="my-3" />
             <Form.Item label="Khóa vị trí" className="mb-3">
@@ -174,10 +174,10 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
                 unCheckedChildren={<UnlockOutlined />}
                 checked={editedShape.isLocked}
                 onChange={(checked) => updateLocalShape({ isLocked: checked })}
+                style={{ 
+                  backgroundColor: editedShape.isLocked ? '#f5222d' : '#1677ff' 
+                }}
               />
-              <div className="text-xs text-gray-500 mt-1">
-                Khi khóa, ranh giới sẽ không thể di chuyển vô tình
-              </div>
             </Form.Item>
           </>
         )}
