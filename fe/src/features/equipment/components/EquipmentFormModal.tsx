@@ -4,6 +4,8 @@ import { Modal, Form, Input, Select, InputNumber, ColorPicker, Button } from 'an
 import { Space } from 'antd';
 import * as AntdIcons from '@ant-design/icons';
 import { Equipment } from '../../../services/EquipmentService';
+import IconSelect from './IconSelect';
+import type { Color } from 'antd/es/color-picker';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -25,15 +27,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [selectedIcon, setSelectedIcon] = useState<string>('');
-  const [iconOptions, setIconOptions] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Extract icon component names from AntdIcons
-    const icons = Object.keys(AntdIcons).filter(key => 
-      key.endsWith('Outlined') && typeof AntdIcons[key as keyof typeof AntdIcons] === 'function'
-    );
-    setIconOptions(icons);
-  }, []);
+  const [colorValue, setColorValue] = useState<string>('#1677ff');
 
   useEffect(() => {
     if (visible) {
@@ -41,6 +35,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
         // For edit mode, set form values from the selected equipment
         const iconName = equipment.iconName || '';
         setSelectedIcon(iconName);
+        setColorValue(equipment.color || '#1677ff');
         
         form.setFieldsValue({
           name: equipment.name,
@@ -56,12 +51,24 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
         // For add mode, reset the form
         form.resetFields();
         setSelectedIcon('');
+        setColorValue('#1677ff');
       }
     }
   }, [visible, equipment, form, mode]);
 
   const handleFinish = (values: any) => {
-    onSave(values);
+    // Đảm bảo màu sắc được gửi đúng định dạng chuỗi
+    const formattedValues = {
+      ...values,
+      color: colorValue // Sử dụng giá trị chuỗi màu
+    };
+    
+    onSave(formattedValues);
+  };
+
+  const handleColorChange = (color: Color) => {
+    // Lưu giá trị màu dưới dạng chuỗi hex
+    setColorValue(color.toHexString());
   };
 
   const renderIconPreview = () => {
@@ -70,12 +77,10 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
     const IconComponent = AntdIcons[selectedIcon as keyof typeof AntdIcons] as React.ComponentType;
     if (!IconComponent) return null;
     
-    const color = form.getFieldValue('color') || '#1677ff';
-    
     return (
       <div className="text-center my-4">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full">
-          <IconComponent style={{ fontSize: 32, color }} />
+          <IconComponent style={{ fontSize: 32, color: colorValue }} />
         </div>
       </div>
     );
@@ -127,23 +132,9 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
           label="Biểu tượng"
           rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
         >
-          <Select
-            showSearch
-            placeholder="Chọn biểu tượng"
+          <IconSelect
             onChange={(value) => setSelectedIcon(value)}
-            filterOption={(input, option) =>
-              (option?.value as string).toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-          >
-            {iconOptions.map(icon => (
-              <Option key={icon} value={icon}>
-                <Space>
-                  {React.createElement(AntdIcons[icon as keyof typeof AntdIcons] as React.ComponentType)}
-                  {icon.replace('Outlined', '')}
-                </Space>
-              </Option>
-            ))}
-          </Select>
+          />
         </Form.Item>
 
         {renderIconPreview()}
@@ -152,7 +143,11 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
           name="color"
           label="Màu sắc"
         >
-          <ColorPicker />
+          <ColorPicker 
+            value={colorValue}
+            onChange={handleColorChange}
+            format="hex"
+          />
         </Form.Item>
 
         <div className="flex gap-4">

@@ -1,13 +1,12 @@
 // src/features/site-layout/components/EquipmentIconShape.tsx
-import React, { useRef, useEffect } from 'react';
-import { Group, Rect, Text, Image } from 'react-konva';
+import React, { useRef } from 'react';
+import { Group, Rect, Text } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Group as KonvaGroup } from 'konva/lib/Group';
 import { Shape } from '../types';
 import { FileTextOutlined } from '@ant-design/icons';
 import { Html } from '../../../lib/react-konva-utils';
-import useImage from 'use-image';
-import { getImageUrl } from '../../../constants/equipmentImages';
+import * as AntdIcons from '@ant-design/icons';
 
 interface EquipmentIconShapeProps {
   shape: Shape;
@@ -28,12 +27,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
 }) => {
   const groupRef = useRef<KonvaGroup>(null);
   
-  // Lấy URL hình ảnh từ iconName
-  const imageUrl = shape.iconName ? getImageUrl(shape.iconName) : '';
-  
-  // Load hình ảnh từ URL
-  const [image, status] = useImage(imageUrl);
-
   // Kích thước và vị trí của icon
   const iconSize = Math.min(shape.width, shape.height) * 0.6;
   const iconX = (shape.width - iconSize) / 2;
@@ -49,6 +42,11 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
       y: e.target.y(),
     });
   };
+
+  // Get Icon component from iconName
+  const IconComponent = shape.iconName 
+    ? (AntdIcons[shape.iconName as keyof typeof AntdIcons] as React.ComponentType) 
+    : undefined;
 
   return (
     <Group
@@ -75,17 +73,8 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         stroke={isSelected ? "#0096ff" : "transparent"}
       />
       
-      {/* Equipment image */}
-      {image && status === 'loaded' ? (
-        <Image
-          image={image}
-          x={iconX}
-          y={iconY}
-          width={iconSize}
-          height={iconSize}
-        />
-      ) : shape.iconComponent && (
-        // Fallback to icon component if image fails to load
+      {/* Equipment icon */}
+      {IconComponent && (
         <Html
           divProps={{
             style: {
@@ -100,7 +89,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
             }
           }}
         >
-          <shape.iconComponent style={{ fontSize: iconSize, color: '#ffffff' }} />
+          <IconComponent style={{ fontSize: iconSize, color: '#ffffff' }} />
         </Html>
       )}
       

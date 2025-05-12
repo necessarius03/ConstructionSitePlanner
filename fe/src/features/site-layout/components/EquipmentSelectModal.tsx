@@ -4,7 +4,6 @@ import { Modal, List, Card, Radio, Input, Empty, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import * as AntdIcons from '@ant-design/icons';
 import EquipmentService, { Equipment } from '../../../services/EquipmentService';
-import { getImageUrl } from '../../../constants/equipmentImages';
 
 interface EquipmentSelectModalProps {
   visible: boolean;
@@ -21,7 +20,6 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [imageLoadError, setImageLoadError] = useState<Record<string, boolean>>({});
 
   const categories = [
     { label: 'Tất cả', value: 'all' },
@@ -88,6 +86,11 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
     onSelect(selectedEquipment);
   };
 
+  // Helper function to get Icon component
+  const getIconComponent = (iconName: string) => {
+    return AntdIcons[iconName as keyof typeof AntdIcons] as React.ComponentType || AntdIcons.ToolOutlined;
+  };
+
   return (
     <Modal
       title="Chọn thiết bị"
@@ -125,8 +128,7 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
           dataSource={filteredEquipment}
           loading={loading}
           renderItem={(item) => {
-            const imageUrl = getImageUrl(item.iconName);
-            const IconComponent = AntdIcons[item.iconName as keyof typeof AntdIcons] as React.ComponentType;
+            const IconComponent = getIconComponent(item.iconName);
             return (
               <List.Item>
                 <Card
@@ -145,26 +147,8 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
                         marginRight: '12px',
                       }}
                     >
-                      {/* Sử dụng điều kiện rendering thay vì onError */}
-                      {imageLoadError[item.id] ? (
-                        // Hiển thị icon component khi hình ảnh không tải được
-                        IconComponent && (
-                          <IconComponent style={{ color: item.color, fontSize: '24px' }} />
-                        )
-                      ) : (
-                        // Hiển thị hình ảnh và xử lý lỗi
-                        <img 
-                          src={getImageUrl(item.iconName)} 
-                          alt={item.name}
-                          style={{ width: '24px', height: '24px' }}
-                          onError={() => {
-                            // Đánh dấu hình ảnh bị lỗi để chuyển sang hiển thị icon
-                            setImageLoadError(prev => ({
-                              ...prev,
-                              [item.id]: true
-                            }));
-                          }}
-                        />
+                      {IconComponent && (
+                        <IconComponent style={{ color: item.color, fontSize: '24px' }} />
                       )}
                     </div>
                     <div>
