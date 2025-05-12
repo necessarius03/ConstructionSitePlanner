@@ -1,4 +1,3 @@
-// src/features/site-layout/pages/SiteLayoutPage.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -22,6 +21,7 @@ import {
   ZoomOutOutlined,
   FullscreenOutlined
 } from '@ant-design/icons';
+import * as AntdIcons from '@ant-design/icons'; // Thêm import này
 import { useParams, useNavigate } from 'react-router-dom';
 import SiteLayoutCanvas from '../components/SiteLayoutCanvas';
 import { Shape } from '../types';
@@ -66,20 +66,47 @@ const SiteLayoutPage: React.FC = () => {
       setError(null);
       
       const layout = await SiteLayoutService.getLayoutById(layoutId);
+      console.log("Loaded layout data:", layout); // Debug log để kiểm tra dữ liệu
       
-      // Process the shapes to include icon components for equipment
+      // Xử lý các shape để đảm bảo chúng có đúng các thuộc tính cần thiết
       const processedShapes = layout.shapes.map((shape: any) => {
-        if (shape.type === 'equipment' && shape.equipmentId) {
-          const equipment = equipmentData.find(e => e.id === shape.equipmentId);
-          if (equipment) {
-            return {
-              ...shape,
-              iconComponent: equipment.icon
-            };
-          }
+        // Chuẩn bị shape cơ bản
+        const processedShape = {
+          ...shape,
+          id: Number(shape.id), // Đảm bảo id là số
+          x: Number(shape.x),
+          y: Number(shape.y),
+          width: Number(shape.width),
+          height: Number(shape.height),
+          opacity: shape.opacity !== undefined ? Number(shape.opacity) : 1,
+          rotation: shape.rotation !== undefined ? Number(shape.rotation) : 0,
+          isLocked: shape.isLocked || false,
+          isSelected: false
+        };
+        
+        // Xử lý cụ thể cho các loại shape khác nhau
+        if (shape.type === 'equipment') {
+          // Với equipment, đảm bảo có thuộc tính cần thiết cho hiển thị
+          return {
+            ...processedShape,
+            fill: shape.fill || '#1677ff',
+            equipmentId: shape.equipmentId || undefined,
+            iconName: shape.iconName || undefined,
+            // Không cần iconComponent nữa vì chúng ta hiển thị bằng Text
+          };
+        } else if (shape.type === 'boundary') {
+          // Đối với boundary, đảm bảo có các thuộc tính cần thiết
+          return {
+            ...processedShape,
+            fill: 'transparent', // Đảm bảo ranh giới luôn trong suốt
+          };
+        } else {
+          // Đối với các loại khác, giữ nguyên fill
+          return processedShape;
         }
-        return shape;
       });
+      
+      console.log("Processed shapes:", processedShapes); // Debug log các shape đã xử lý
       
       setShapes(processedShapes);
       setCurrentLayout(layout);
@@ -114,21 +141,40 @@ const SiteLayoutPage: React.FC = () => {
     setIsSaveModalVisible(true);
   };
 
+  const getIconNameForEquipment = (equipmentId: string) => {
+    const equipment = equipmentData.find(e => e.id === equipmentId);
+    if (equipment) {
+      // Lấy tên của icon component
+      return equipment.icon.displayName || 'BuildOutlined';
+    }
+    return 'BuildOutlined'; // Icon mặc định
+  };
+
   // Save layout to the API
   const handleSaveConfirm = async (values: { name: string; description: string }) => {
     try {
       setIsLoading(true);
       setError(null);
       
+      // Chuẩn bị dữ liệu để lưu
       const shapesForSaving = shapes.map(shape => {
-        const { iconComponent, ...shapeCopy } = shape as any;
+        // Chỉ lấy các thuộc tính cần thiết để lưu
         return {
-          ...shapeCopy,
-          id: String(shapeCopy.id),
-          iconName: shapeCopy.iconName,
-          isLocked : shapeCopy.isLocked || false, // Ensure isLocked is set
-          equipmentId: shapeCopy.equipmentId ? String(shapeCopy.equipmentId) : shapeCopy.equipmentId
-      };
+          id: String(shape.id),
+          x: shape.x,
+          y: shape.y,
+          width: shape.width,
+          height: shape.height,
+          fill: shape.fill,
+          opacity: shape.opacity,
+          type: shape.type,
+          name: shape.name || '',
+          notes: shape.notes || '',
+          rotation: shape.rotation || 0,
+          isLocked: shape.isLocked || false,
+          iconName: shape.iconName || '',
+          equipmentId: shape.equipmentId ? String(shape.equipmentId) : undefined
+        };
       });
       
       if (currentLayout) {

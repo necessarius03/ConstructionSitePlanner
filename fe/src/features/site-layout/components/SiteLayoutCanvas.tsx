@@ -801,8 +801,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
               scale={scale}
             />
             {shapes.map((shape) => {
-              // Nếu là thiết bị, sử dụng component EquipmentIconShape
-              if (shape.type === 'equipment' && shape.iconComponent) {
+              // Sử dụng loại shape để quyết định component hiển thị
+              if (shape.type === 'equipment') {
                 return (
                   <EquipmentIconShape
                     key={shape.id}
@@ -819,6 +819,12 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                       }
                     }}
                     onChange={updateShape}
+                    onContextMenu={(e) => {
+                      e.evt.preventDefault();
+                      setSelectedId(shape.id);
+                      onSelectShape?.(shape);
+                      setIsPropertiesModalVisible(true);
+                    }}
                   />
                 );
               }
@@ -844,6 +850,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                 );
               }
               
+              // Các loại shape khác
               return (
                 <DraggableRect
                   key={shape.id}
@@ -862,6 +869,12 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                     }
                   }}
                   onChange={updateShape}
+                  onContextMenu={(e) => {
+                    e.evt.preventDefault();
+                    setSelectedId(shape.id);
+                    onSelectShape?.(shape);
+                    setIsPropertiesModalVisible(true);
+                  }}
                 />
               );
             })}

@@ -1,10 +1,8 @@
-// Cập nhật BoundaryShape.tsx
+// src/features/site-layout/components/BoundaryShape.tsx
 import React, { useRef } from 'react';
 import { Group, Rect, Text } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import { Shape } from '../types';
-import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
-import { Html } from 'react-konva-utils';
 
 interface BoundaryShapeProps {
   shape: Shape;
@@ -34,8 +32,7 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
     });
   };
 
-  const handleToggleLock = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Ngăn sự kiện lan truyền lên các phần tử khác
+  const handleToggleLock = () => {
     onChange({
       ...shape,
       isLocked: !shape.isLocked,
@@ -65,12 +62,8 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         stroke={isSelected ? "#1677ff" : "#000"}
         strokeWidth={isSelected ? 2 : 1.5}
         dash={dashPattern}
-        strokeScaleEnabled={false}
+        hitStrokeWidth={4}
         perfectDrawEnabled={false}
-        strokeHitEnabled={true}
-        strokeDashOffset={0}
-        strokeEnabled={true}
-        strokeDashArray={dashPattern}
         cornerRadius={0}
         opacity={isSelected ? 1 : 0.8}
       />
@@ -79,13 +72,14 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
       <Rect
         x={10}
         y={10}
-        width={Math.min(shape.name?.length || 0 * 8 + 40, 300)}
+        width={Math.min((shape.name?.length || 0) * 8 + 40, 300)}
         height={30}
         fill="rgba(255, 255, 255, 0.85)"
         cornerRadius={3}
         shadowColor="rgba(0,0,0,0.2)"
         shadowBlur={2}
-        shadowOffset={{ x: 1, y: 1 }}
+        shadowOffsetX={1}
+        shadowOffsetY={1}
         perfectDrawEnabled={false}
       />
       
@@ -110,7 +104,8 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         cornerRadius={3}
         shadowColor="rgba(0,0,0,0.2)"
         shadowBlur={2}
-        shadowOffset={{ x: 1, y: 1 }}
+        shadowOffsetX={1}
+        shadowOffsetY={1}
         perfectDrawEnabled={false}
       />
       
@@ -134,7 +129,8 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         cornerRadius={3}
         shadowColor="rgba(0,0,0,0.2)"
         shadowBlur={2}
-        shadowOffset={{ x: 1, y: 1 }}
+        shadowOffsetX={1}
+        shadowOffsetY={1}
         perfectDrawEnabled={false}
       />
       
@@ -148,37 +144,33 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         align="center"
       />
       
-      {/* Lock indicator */}
-      <Html
-        divProps={{
-          style: {
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            zIndex: 10,
-          }
-        }}
+      {/* Lock indicator - sử dụng Text thay vì Html */}
+      <Group 
+        x={shape.width - 30}
+        y={10}
+        onClick={handleToggleLock}
       >
-        <div 
-          onClick={handleToggleLock}
-          style={{ 
-            cursor: 'pointer',
-            backgroundColor: 'white',
-            borderRadius: '50%',
-            width: '24px',
-            height: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-          }}
-        >
-          {shape.isLocked ? 
-            <LockOutlined style={{ color: '#f5222d', fontSize: '14px' }} /> : 
-            <UnlockOutlined style={{ color: '#1677ff', fontSize: '14px' }} />
-          }
-        </div>
-      </Html>
+        <Rect
+          width={24}
+          height={24}
+          fill="#ffffff"
+          cornerRadius={12}
+          shadowColor="rgba(0,0,0,0.2)"
+          shadowBlur={2}
+          shadowOffsetX={1}
+          shadowOffsetY={1}
+        />
+        <Text
+          x={0}
+          y={0}
+          width={24}
+          height={24}
+          text={shape.isLocked ? "🔒" : "🔓"}
+          fontSize={14}
+          align="center"
+          verticalAlign="middle"
+        />
+      </Group>
     </Group>
   );
 };

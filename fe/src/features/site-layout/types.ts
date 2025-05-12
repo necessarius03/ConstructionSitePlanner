@@ -32,14 +32,13 @@ export interface Shape extends BaseShape {
   fill: string;
   opacity: number;
   type: ShapeType;
-  iconName?: string; // Tên icon cho thiết bị
   isSelected: boolean;
   name?: string;
   rotation?: number;
   equipmentId?: string; 
-  iconComponent?: React.ComponentType;
-  notes?: string;  // Thêm field notes
-  isLocked?: boolean; // Thêm field isLocked
+  iconName?: string;
+  notes?: string;  
+  isLocked?: boolean; 
 }
 
 export interface CanvasGridProps extends Size {
