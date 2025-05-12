@@ -1,16 +1,14 @@
 // fe/src/features/equipment/components/EquipmentFormModal.tsx
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Select, InputNumber, ColorPicker, Button, Tabs } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, ColorPicker, Button, Alert } from 'antd';
 import { Space } from 'antd';
-import * as AntdIcons from '@ant-design/icons';
 import { Equipment } from '../../../services/EquipmentService';
-import IconSelect from './IconSelect';
 import ImageIconSelect from './ImageIconSelect';
 import type { Color } from 'antd/es/color-picker';
+import { getImageUrl } from '../../../constants/equipmentImages';
 
 const { Option } = Select;
 const { TextArea } = Input;
-const { TabPane } = Tabs;
 
 interface EquipmentFormModalProps {
   visible: boolean;
@@ -30,7 +28,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
   const [form] = Form.useForm();
   const [selectedIcon, setSelectedIcon] = useState<string>('');
   const [colorValue, setColorValue] = useState<string>('#1677ff');
-  const [iconType, setIconType] = useState<'text' | 'image'>('image');
+  const [debugMode, setDebugMode] = useState(false); // Thêm mode debug để kiểm tra dữ liệu
 
   useEffect(() => {
     if (visible) {
@@ -39,6 +37,10 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
         const iconName = equipment.iconName || '';
         setSelectedIcon(iconName);
         setColorValue(equipment.color || '#1677ff');
+        
+        // Log để debug
+        console.log('Editing equipment with data:', equipment);
+        console.log('Equipment iconName:', iconName);
         
         form.setFieldsValue({
           name: equipment.name,
@@ -53,7 +55,8 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
       } else {
         // For add mode, reset the form
         form.resetFields();
-        setSelectedIcon('');
+        setSelectedIcon('BuildOutlined'); // Đặt giá trị mặc định
+        form.setFieldsValue({ icon: 'BuildOutlined' }); // Đảm bảo form cũng có giá trị mặc định
         setColorValue('#1677ff');
       }
     }
@@ -66,6 +69,15 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
       color: colorValue // Sử dụng giá trị chuỗi màu
     };
     
+    // Đảm bảo luôn có iconName
+    if (!formattedValues.icon || formattedValues.icon.trim() === '') {
+      formattedValues.icon = selectedIcon || 'BuildOutlined';
+    }
+    
+    // Log dữ liệu trước khi gửi lên server
+    console.log('Submitting equipment data:', formattedValues);
+    console.log('Selected icon:', selectedIcon);
+    
     onSave(formattedValues);
   };
 
@@ -73,30 +85,47 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
     // Lưu giá trị màu dưới dạng chuỗi hex
     setColorValue(color.toHexString());
   };
-
+  
+  // Preview icon đã chọn
   const renderIconPreview = () => {
     if (!selectedIcon) return null;
     
-    const IconComponent = AntdIcons[selectedIcon as keyof typeof AntdIcons] as React.ComponentType;
-    if (!IconComponent) return null;
+    const imageUrl = getImageUrl(selectedIcon);
     
     return (
       <div className="text-center my-4">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full">
-          <IconComponent style={{ fontSize: 32, color: colorValue }} />
+          <img 
+            src={imageUrl} 
+            alt="Equipment Icon" 
+            style={{ width: '32px', height: '32px', objectFit: 'contain' }} 
+          />
         </div>
       </div>
     );
   };
 
+  const toggleDebugMode = () => {
+    setDebugMode(!debugMode);
+  };
+
   return (
     <Modal
-      title={mode === 'add' ? 'Thêm thiết bị mới' : 'Chỉnh sửa thiết bị'}
+      title={
+        <div onClick={toggleDebugMode}>
+          {mode === 'add' ? 'Thêm thiết bị mới' : 'Chỉnh sửa thiết bị'}
+        </div>
+      }
       open={visible}
       onCancel={onCancel}
       footer={null}
       width={600}
     >
+      {/* Toggle debug mode - Nhấn vào tiêu đề modal để bật/tắt */}
+      <div className="absolute top-0 right-0 p-1">
+        {debugMode && <span className="text-xs text-blue-500">Debug Mode On</span>}
+      </div>
+      
       <Form
         form={form}
         layout="vertical"
@@ -106,6 +135,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
           width: 50,
           height: 50,
           color: '#1677ff',
+          icon: 'BuildOutlined' // Đặt giá trị mặc định
         }}
       >
         <Form.Item
@@ -130,36 +160,40 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item label="Biểu tượng">
-          <Tabs 
-            defaultActiveKey={iconType} 
-            onChange={value => setIconType(value as 'text' | 'image')}
-            type="card"
-          >
-            <TabPane tab="Hình ảnh" key="image">
-              <Form.Item
-                name="icon"
-                rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
-                noStyle
-              >
-                <ImageIconSelect
-                  onChange={(value) => setSelectedIcon(value)}
-                />
-              </Form.Item>
-            </TabPane>
-            <TabPane tab="Icon text" key="text">
-              <Form.Item
-                name="icon"
-                rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
-                noStyle
-              >
-                <IconSelect
-                  onChange={(value) => setSelectedIcon(value)}
-                />
-              </Form.Item>
-            </TabPane>
-          </Tabs>
+        <Form.Item
+          name="icon"
+          label="Biểu tượng thiết bị"
+          rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
+        >
+          <ImageIconSelect
+            value={selectedIcon}
+            onChange={(value) => {
+              console.log('ImageIconSelect onChange called with:', value);
+              setSelectedIcon(value);
+              form.setFieldsValue({ icon: value });
+            }}
+          />
         </Form.Item>
+
+        {/* Hiển thị preview của icon đã chọn */}
+        {renderIconPreview()}
+
+        {/* Debug information */}
+        {debugMode && (
+          <Alert
+            message="Debug Information"
+            description={
+              <div>
+                <p>Selected Icon: {selectedIcon}</p>
+                <p>Form value for icon: {form.getFieldValue('icon')}</p>
+                <p>Image URL: {getImageUrl(selectedIcon)}</p>
+              </div>
+            }
+            type="info"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+        )}
 
         <Form.Item
           name="color"

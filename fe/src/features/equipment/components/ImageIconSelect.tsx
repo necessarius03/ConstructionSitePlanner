@@ -1,11 +1,10 @@
 // src/features/equipment/components/ImageIconSelect.tsx
 import React, { useState, useEffect } from 'react';
-import { Radio, Card, Row, Col, Typography, Modal, Input, Tabs } from 'antd';
+import { Radio, Card, Row, Col, Typography, Modal, Input } from 'antd';
 import { SearchOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons';
-import { EQUIPMENT_IMAGES, iconToImageMapping, imageToIconMapping, getImageUrl } from '../../../constants/equipmentImages';
+import { EQUIPMENT_IMAGES } from '../../../constants/equipmentImages';
 
 const { Title } = Typography;
-const { TabPane } = Tabs;
 
 interface ImageIconSelectProps {
   value?: string;
@@ -16,15 +15,29 @@ interface ImageOption {
   key: string;
   url: string;
   name: string;
-  iconName: string;
 }
+
+// Ánh xạ giữa key của hình ảnh và giá trị sẽ được lưu
+// Ở đây chúng ta lưu trực tiếp key của EQUIPMENT_IMAGES thay vì Ant Design IconName
+const EQUIPMENT_KEY_MAP: Record<string, string> = {};
+Object.keys(EQUIPMENT_IMAGES).forEach(key => {
+  EQUIPMENT_KEY_MAP[key] = key;
+});
 
 const ImageIconSelect: React.FC<ImageIconSelectProps> = ({ value, onChange }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [selectedIcon, setSelectedIcon] = useState<string>(value || '');
+  const [selectedKey, setSelectedKey] = useState<string>(value || 'BULLDOZER');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
+  useEffect(() => {
+    // Khi value prop thay đổi, cập nhật selectedKey
+    if (value) {
+      setSelectedKey(value);
+      console.log('ImageIconSelect value prop changed to:', value);
+    }
+  }, [value]);
 
   // Định nghĩa các danh mục thiết bị
   const categories = [
@@ -51,23 +64,11 @@ const ImageIconSelect: React.FC<ImageIconSelectProps> = ({ value, onChange }) =>
   };
 
   // Tạo danh sách hiển thị từ EQUIPMENT_IMAGES
-  const imageOptions: ImageOption[] = Object.entries(EQUIPMENT_IMAGES).map(([key, url]) => {
-    // Tìm iconName tương ứng
-    let iconName = '';
-    for (const [icon, imgUrl] of Object.entries(iconToImageMapping)) {
-      if (imgUrl === url) {
-        iconName = icon;
-        break;
-      }
-    }
-    
-    return {
-      key,
-      url,
-      name: key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()), // Format key thành tên hiển thị
-      iconName
-    };
-  });
+  const imageOptions: ImageOption[] = Object.entries(EQUIPMENT_IMAGES).map(([key, url]) => ({
+    key,
+    url,
+    name: key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) // Format key thành tên hiển thị
+  }));
 
   // Lọc danh sách theo từ khóa tìm kiếm và danh mục
   const filteredOptions = imageOptions
@@ -76,27 +77,30 @@ const ImageIconSelect: React.FC<ImageIconSelectProps> = ({ value, onChange }) =>
 
   // Xử lý khi chọn một hình ảnh
   const handleSelectImage = (option: ImageOption) => {
-    setSelectedIcon(option.key);
+    setSelectedKey(option.key);
     
-    if (onChange && option.iconName) {
-      onChange(option.iconName);
+    if (onChange) {
+      // Sử dụng key của hình ảnh làm giá trị trả về
+      onChange(option.key);
     }
     
     setIsModalVisible(false);
   };
 
-  // Tìm option được chọn dựa trên iconName
+  // Tìm option được chọn dựa trên key
   const getSelectedOption = (): ImageOption | undefined => {
-    if (!value) return undefined;
-    
-    const imageUrl = getImageUrl(value);
-    return imageOptions.find(option => option.url === imageUrl);
+    return imageOptions.find(option => option.key === selectedKey);
   };
 
   // Hiển thị tên thiết bị được chọn
   const getSelectedName = (): string => {
     const option = getSelectedOption();
     return option ? option.name : 'Chưa chọn biểu tượng';
+  };
+
+  // Lấy URL hình ảnh từ key
+  const getImageUrlByKey = (key: string): string => {
+    return EQUIPMENT_IMAGES[key as keyof typeof EQUIPMENT_IMAGES] || EQUIPMENT_IMAGES.DEFAULT;
   };
 
   return (
@@ -109,7 +113,7 @@ const ImageIconSelect: React.FC<ImageIconSelectProps> = ({ value, onChange }) =>
       >
         <div className="flex items-center justify-center">
           <img 
-            src={getImageUrl(value || '')} 
+            src={getImageUrlByKey(selectedKey)} 
             alt="Equipment Icon" 
             style={{ width: '48px', height: '48px', marginRight: '12px' }} 
           />
@@ -171,7 +175,7 @@ const ImageIconSelect: React.FC<ImageIconSelectProps> = ({ value, onChange }) =>
                     width: '100%', 
                     textAlign: 'center',
                     cursor: 'pointer',
-                    border: option.iconName === value ? '2px solid #1890ff' : '1px solid #f0f0f0'
+                    border: option.key === selectedKey ? '2px solid #1890ff' : '1px solid #f0f0f0'
                   }}
                   bodyStyle={{ padding: '12px' }}
                   onClick={() => handleSelectImage(option)}
@@ -200,8 +204,8 @@ const ImageIconSelect: React.FC<ImageIconSelectProps> = ({ value, onChange }) =>
                 key={option.key}
                 className="flex items-center p-3 border-b cursor-pointer hover:bg-gray-50"
                 style={{
-                  backgroundColor: option.iconName === value ? '#e6f7ff' : undefined,
-                  borderLeft: option.iconName === value ? '3px solid #1890ff' : undefined
+                  backgroundColor: option.key === selectedKey ? '#e6f7ff' : undefined,
+                  borderLeft: option.key === selectedKey ? '3px solid #1890ff' : undefined
                 }}
                 onClick={() => handleSelectImage(option)}
               >

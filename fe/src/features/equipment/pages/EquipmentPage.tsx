@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Space, Typography, Popconfirm, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import * as AntdIcons from '@ant-design/icons';
 import EquipmentService, { Equipment } from '../../../services/EquipmentService';
 import EquipmentFormModal from '../components/EquipmentFormModal';
+import { getImageUrl } from '../../../constants/equipmentImages';
 
 const { Title } = Typography;
 
@@ -64,7 +64,7 @@ const EquipmentPage: React.FC = () => {
       
       const equipmentData = {
         name: values.name,
-        iconName: values.icon,
+        iconName: values.icon, // Giữ nguyên giá trị iconName
         width: values.width,
         height: values.height,
         description: values.description || '',
@@ -91,21 +91,26 @@ const EquipmentPage: React.FC = () => {
     }
   };
 
-  // Function to get the icon component based on the iconName string
-  const getIconComponent = (iconName: string) => {
-    return AntdIcons[iconName as keyof typeof AntdIcons] as React.ComponentType || AntdIcons.ToolOutlined;
-  };
-
   const columns = [
     {
       title: 'Tên thiết bị',
       dataIndex: 'name',
       key: 'name',
       render: (text: string, record: Equipment) => {
-        const IconComponent = getIconComponent(record.iconName);
+        // Lấy URL hình ảnh từ iconName
+        const imageUrl = getImageUrl(record.iconName);
+        
         return (
           <Space>
-            {IconComponent && <IconComponent style={{ color: record.color }} />}
+            <img 
+              src={imageUrl} 
+              alt={text}
+              style={{ 
+                width: '24px', 
+                height: '24px',
+                objectFit: 'contain'
+              }} 
+            />
             {text}
           </Space>
         );
@@ -199,4 +204,4 @@ const EquipmentPage: React.FC = () => {
   );
 };
 
-export default EquipmentPage;// src/features/equipment/pages/EquipmentPage.tsx
+export default EquipmentPage;

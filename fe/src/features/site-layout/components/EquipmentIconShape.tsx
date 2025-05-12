@@ -1,11 +1,11 @@
 // src/features/site-layout/components/EquipmentIconShape.tsx
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Group, Rect, Text, Image as KonvaImage } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Group as KonvaGroup } from 'konva/lib/Group';
 import { Shape } from '../types';
 import { getImageUrl } from '../../../constants/equipmentImages';
-import useImage from 'use-image'; // Cần cài đặt package này: npm install use-image
+import useImage from 'use-image';
 
 interface EquipmentIconShapeProps {
   shape: Shape;
@@ -27,7 +27,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
   const groupRef = useRef<KonvaGroup>(null);
   
   // Lấy URL hình ảnh dựa trên iconName
-  const imageUrl = shape.iconName ? getImageUrl(shape.iconName) : getImageUrl('DEFAULT');
+  const imageUrl = getImageUrl(shape.iconName);
   
   // Load hình ảnh
   const [image, status] = useImage(imageUrl);
@@ -112,7 +112,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
       )}
       
       {/* Equipment icon - sử dụng KonvaImage để hiển thị hình ảnh */}
-      {status === 'loaded' && (
+      {status === 'loaded' && image && (
         <KonvaImage
           image={image}
           x={iconX}
@@ -123,7 +123,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
       )}
       
       {/* Fallback khi không load được hình ảnh */}
-      {status !== 'loaded' && (
+      {(status !== 'loaded' || !image) && (
         <Text
           x={0}
           y={iconY}

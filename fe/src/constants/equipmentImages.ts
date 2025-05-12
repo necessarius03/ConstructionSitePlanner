@@ -28,43 +28,30 @@ export const EQUIPMENT_IMAGES = {
   DEFAULT: 'https://cdn-icons-png.flaticon.com/512/4947/4947484.png'
 };
 
-// Mapping từ iconName sang URL hình ảnh
-export const iconToImageMapping: Record<string, string> = {
-  'BuildOutlined': EQUIPMENT_IMAGES.BULLDOZER,
-  'RocketOutlined': EQUIPMENT_IMAGES.GENERATOR,
-  'CarOutlined': EQUIPMENT_IMAGES.DUMP_TRUCK,
-  'ToolOutlined': EQUIPMENT_IMAGES.COMPACTOR,
-  'LoadingOutlined': EQUIPMENT_IMAGES.CONCRETE_MIXER,
-  'ApartmentOutlined': EQUIPMENT_IMAGES.TOWER_CRANE,
-  'DeploymentUnitOutlined': EQUIPMENT_IMAGES.MOBILE_CRANE,
-  'ControlOutlined': EQUIPMENT_IMAGES.CEMENT_PUMP,
-  'RobotOutlined': EQUIPMENT_IMAGES.EXCAVATOR,
-  'ForkOutlined': EQUIPMENT_IMAGES.FORKLIFT,
-  'SlackOutlined': EQUIPMENT_IMAGES.SCAFFOLD,
-  'FormatPainterOutlined': EQUIPMENT_IMAGES.HAMMER_DRILL,
-  'CompassOutlined': EQUIPMENT_IMAGES.ROAD_ROLLER,
-  'EnvironmentOutlined': EQUIPMENT_IMAGES.CRANE_HOOK,
-  'BoxPlotOutlined': EQUIPMENT_IMAGES.CEMENT_TRUCK,
-  'ColumnWidthOutlined': EQUIPMENT_IMAGES.LADDER,
-  'BulbOutlined': EQUIPMENT_IMAGES.SHOVEL,
-  'SwitcherOutlined': EQUIPMENT_IMAGES.CONTAINER,
-  'GroupOutlined': EQUIPMENT_IMAGES.TOOLBOX,
-  'FlagOutlined': EQUIPMENT_IMAGES.WELDING
-};
-
-// Reverse mapping - từ URL hình ảnh sang iconName
-export const imageToIconMapping: Record<string, string> = 
-  Object.entries(iconToImageMapping).reduce((acc, [iconName, imageUrl]) => {
-    acc[imageUrl] = iconName;
-    return acc;
-  }, {} as Record<string, string>);
-
-// Helper function để lấy URL hình ảnh từ iconName
-export const getImageUrl = (iconName: string): string => {
-  return iconToImageMapping[iconName] || EQUIPMENT_IMAGES.DEFAULT;
-};
-
-// Helper function để lấy iconName từ URL hình ảnh
-export const getIconName = (imageUrl: string): string => {
-  return imageToIconMapping[imageUrl] || 'BuildOutlined';
+/**
+ * Lấy URL hình ảnh từ key
+ * @param key Key của hình ảnh hoặc tên thiết bị
+ * @returns URL hình ảnh
+ */
+export const getImageUrl = (key?: string): string => {
+  if (!key) return EQUIPMENT_IMAGES.DEFAULT;
+  
+  // Kiểm tra nếu key trực tiếp khớp với một key trong EQUIPMENT_IMAGES
+  if (key in EQUIPMENT_IMAGES) {
+    return EQUIPMENT_IMAGES[key as keyof typeof EQUIPMENT_IMAGES];
+  }
+  
+  // Kiểm tra nếu key có trong special mappings
+  const lowerKey = key.toLowerCase();
+  
+  // Xử lý trường hợp key là một key của EQUIPMENT_IMAGES nhưng khác về chữ hoa/thường
+  for (const equipmentKey of Object.keys(EQUIPMENT_IMAGES)) {
+    if (equipmentKey.toLowerCase() === lowerKey) {
+      return EQUIPMENT_IMAGES[equipmentKey as keyof typeof EQUIPMENT_IMAGES];
+    }
+  }
+  
+  // Mặc định trả về hình ảnh DEFAULT
+  console.warn(`No image found for key: ${key}, using default image`);
+  return EQUIPMENT_IMAGES.DEFAULT;
 };

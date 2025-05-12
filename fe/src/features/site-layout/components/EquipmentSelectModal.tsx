@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, List, Card, Radio, Input, Empty, Tag, Spin } from 'antd';
 import { SearchOutlined, LoadingOutlined } from '@ant-design/icons';
-import * as AntdIcons from '@ant-design/icons';
 import EquipmentService, { Equipment } from '../../../services/EquipmentService';
 import { getImageUrl } from '../../../constants/equipmentImages';
 
@@ -67,21 +66,23 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
   };
 
   const handleSelectEquipment = (item: Equipment) => {
-    // Get the icon component from the icon name
-    const IconComponent = AntdIcons[item.iconName as keyof typeof AntdIcons] as React.ComponentType;
-    
     const selectedEquipment = {
       id: Date.now(),
       name: item.name,
-      icon: IconComponent,
-      iconName: item.iconName,
+      iconName: item.iconName, // Giữ nguyên iconName
       width: item.width,
       height: item.height,
       description: item.description,
       category: item.category,
       color: item.color,
       notes: item.notes,
-      equipmentId: item.id
+      equipmentId: item.id,
+      fill: item.color, // Thêm fill để hỗ trợ hiển thị trong canvas
+      type: 'equipment',
+      opacity: 1,
+      x: 100,
+      y: 100,
+      isSelected: false
     };
     
     onSelect(selectedEquipment);
