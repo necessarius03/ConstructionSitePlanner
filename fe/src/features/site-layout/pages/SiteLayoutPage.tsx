@@ -16,12 +16,8 @@ import {
   FolderOpenOutlined,
   ExclamationCircleOutlined,
   PlusOutlined,
-  LoadingOutlined,
-  ZoomInOutlined,
-  ZoomOutOutlined,
-  FullscreenOutlined
+  LoadingOutlined
 } from '@ant-design/icons';
-import * as AntdIcons from '@ant-design/icons'; // Thêm import này
 import { useParams, useNavigate } from 'react-router-dom';
 import SiteLayoutCanvas from '../components/SiteLayoutCanvas';
 import { Shape } from '../types';
@@ -29,7 +25,7 @@ import html2canvas from 'html2canvas';
 import SiteLayoutService from '../../../services/SiteLayoutService';
 import SaveLayoutModal from '../components/SaveLayoutModal';
 import LoadLayoutModal from '../components/LoadLayoutModal';
-import { equipmentData } from '../../../data/equipment-data';
+import { getImageUrl } from '../../../constants/equipmentImages';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -66,7 +62,7 @@ const SiteLayoutPage: React.FC = () => {
       setError(null);
       
       const layout = await SiteLayoutService.getLayoutById(layoutId);
-      console.log("Loaded layout data:", layout); // Debug log để kiểm tra dữ liệu
+      console.log("Loaded layout data:", layout);
       
       // Xử lý các shape để đảm bảo chúng có đúng các thuộc tính cần thiết
       const processedShapes = layout.shapes.map((shape: any) => {
@@ -91,8 +87,7 @@ const SiteLayoutPage: React.FC = () => {
             ...processedShape,
             fill: shape.fill || '#1677ff',
             equipmentId: shape.equipmentId || undefined,
-            iconName: shape.iconName || undefined,
-            // Không cần iconComponent nữa vì chúng ta hiển thị bằng Text
+            iconName: shape.iconName || undefined
           };
         } else if (shape.type === 'boundary') {
           // Đối với boundary, đảm bảo có các thuộc tính cần thiết
@@ -106,7 +101,7 @@ const SiteLayoutPage: React.FC = () => {
         }
       });
       
-      console.log("Processed shapes:", processedShapes); // Debug log các shape đã xử lý
+      console.log("Processed shapes:", processedShapes);
       
       setShapes(processedShapes);
       setCurrentLayout(layout);
@@ -139,15 +134,6 @@ const SiteLayoutPage: React.FC = () => {
   // Open save modal
   const handleSaveLayout = () => {
     setIsSaveModalVisible(true);
-  };
-
-  const getIconNameForEquipment = (equipmentId: string) => {
-    const equipment = equipmentData.find(e => e.id === equipmentId);
-    if (equipment) {
-      // Lấy tên của icon component
-      return equipment.icon.displayName || 'BuildOutlined';
-    }
-    return 'BuildOutlined'; // Icon mặc định
   };
 
   // Save layout to the API
@@ -386,6 +372,7 @@ const SiteLayoutPage: React.FC = () => {
         }}
         onCancel={() => setIsSaveModalVisible(false)}
         onSave={handleSaveConfirm}
+        isLoading={isLoading}
       />
 
       {/* Modal to load layout */}

@@ -1,9 +1,10 @@
 // fe/src/features/site-layout/components/EquipmentSelectModal.tsx
 import React, { useState, useEffect } from 'react';
-import { Modal, List, Card, Radio, Input, Empty, Tag } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Modal, List, Card, Radio, Input, Empty, Tag, Spin } from 'antd';
+import { SearchOutlined, LoadingOutlined } from '@ant-design/icons';
 import * as AntdIcons from '@ant-design/icons';
 import EquipmentService, { Equipment } from '../../../services/EquipmentService';
+import { getImageUrl } from '../../../constants/equipmentImages';
 
 interface EquipmentSelectModalProps {
   visible: boolean;
@@ -86,11 +87,6 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
     onSelect(selectedEquipment);
   };
 
-  // Helper function to get Icon component
-  const getIconComponent = (iconName: string) => {
-    return AntdIcons[iconName as keyof typeof AntdIcons] as React.ComponentType || AntdIcons.ToolOutlined;
-  };
-
   return (
     <Modal
       title="Chọn thiết bị"
@@ -122,13 +118,19 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
         </Radio.Group>
       </div>
 
-      {filteredEquipment.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-10">
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+          <span className="ml-2">Đang tải danh sách thiết bị...</span>
+        </div>
+      ) : filteredEquipment.length > 0 ? (
         <List
           grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 3 }}
           dataSource={filteredEquipment}
-          loading={loading}
           renderItem={(item) => {
-            const IconComponent = getIconComponent(item.iconName);
+            // Lấy URL hình ảnh từ iconName
+            const imageUrl = getImageUrl(item.iconName);
+            
             return (
               <List.Item>
                 <Card
@@ -147,9 +149,15 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
                         marginRight: '12px',
                       }}
                     >
-                      {IconComponent && (
-                        <IconComponent style={{ color: item.color, fontSize: '24px' }} />
-                      )}
+                      <img 
+                        src={imageUrl} 
+                        alt={item.name}
+                        style={{ 
+                          width: '32px', 
+                          height: '32px',
+                          objectFit: 'contain'
+                        }}
+                      />
                     </div>
                     <div>
                       <div className="font-medium">{item.name}</div>

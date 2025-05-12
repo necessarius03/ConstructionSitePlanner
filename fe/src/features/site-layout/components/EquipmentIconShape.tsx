@@ -1,5 +1,5 @@
 // src/features/site-layout/components/EquipmentIconShape.tsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Group, Rect, Text, Image as KonvaImage } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Group as KonvaGroup } from 'konva/lib/Group';
@@ -48,6 +48,29 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
     });
   };
 
+  // Xử lý transform
+  const handleTransformEnd = (e: KonvaEventObject<Event>) => {
+    if (!groupRef.current) return;
+    
+    const node = groupRef.current;
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+    const rotation = node.rotation();
+    
+    // Reset scale sau khi đã áp dụng
+    node.scaleX(1);
+    node.scaleY(1);
+    
+    onChange({
+      ...shape,
+      x: node.x(),
+      y: node.y(),
+      rotation: rotation,
+      width: Math.max(5, shape.width * scaleX),
+      height: Math.max(5, shape.height * scaleY),
+    });
+  };
+
   return (
     <Group
       ref={groupRef}
@@ -58,6 +81,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
       rotation={shape.rotation || 0}
       draggable={!isLocked}
       onDragEnd={handleDragEnd}
+      onTransformEnd={handleTransformEnd}
       onClick={onSelect}
       onTap={onSelect}
       onContextMenu={onContextMenu}
@@ -69,7 +93,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         fill="transparent"
         opacity={1}
         cornerRadius={5}
-        stroke="#000000"
+        stroke={shape.fill || "#000000"}
         strokeWidth={1.5}
         hitStrokeWidth={4}
       />

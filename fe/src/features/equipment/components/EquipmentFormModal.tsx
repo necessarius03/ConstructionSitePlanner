@@ -1,14 +1,16 @@
 // fe/src/features/equipment/components/EquipmentFormModal.tsx
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Select, InputNumber, ColorPicker, Button } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, ColorPicker, Button, Tabs } from 'antd';
 import { Space } from 'antd';
 import * as AntdIcons from '@ant-design/icons';
 import { Equipment } from '../../../services/EquipmentService';
 import IconSelect from './IconSelect';
+import ImageIconSelect from './ImageIconSelect';
 import type { Color } from 'antd/es/color-picker';
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { TabPane } = Tabs;
 
 interface EquipmentFormModalProps {
   visible: boolean;
@@ -28,6 +30,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
   const [form] = Form.useForm();
   const [selectedIcon, setSelectedIcon] = useState<string>('');
   const [colorValue, setColorValue] = useState<string>('#1677ff');
+  const [iconType, setIconType] = useState<'text' | 'image'>('image');
 
   useEffect(() => {
     if (visible) {
@@ -127,17 +130,36 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
           </Select>
         </Form.Item>
 
-        <Form.Item
-          name="icon"
-          label="Biểu tượng"
-          rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
-        >
-          <IconSelect
-            onChange={(value) => setSelectedIcon(value)}
-          />
+        <Form.Item label="Biểu tượng">
+          <Tabs 
+            defaultActiveKey={iconType} 
+            onChange={value => setIconType(value as 'text' | 'image')}
+            type="card"
+          >
+            <TabPane tab="Hình ảnh" key="image">
+              <Form.Item
+                name="icon"
+                rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
+                noStyle
+              >
+                <ImageIconSelect
+                  onChange={(value) => setSelectedIcon(value)}
+                />
+              </Form.Item>
+            </TabPane>
+            <TabPane tab="Icon text" key="text">
+              <Form.Item
+                name="icon"
+                rules={[{ required: true, message: 'Vui lòng chọn biểu tượng' }]}
+                noStyle
+              >
+                <IconSelect
+                  onChange={(value) => setSelectedIcon(value)}
+                />
+              </Form.Item>
+            </TabPane>
+          </Tabs>
         </Form.Item>
-
-        {renderIconPreview()}
 
         <Form.Item
           name="color"
