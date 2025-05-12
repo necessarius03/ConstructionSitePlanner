@@ -1,11 +1,11 @@
-// Cập nhật trong EquipmentIconShape.tsx
-
-import React, { useRef } from 'react';
-import { Group, Rect, Text } from 'react-konva';
+// src/features/site-layout/components/EquipmentIconShape.tsx
+import React, { useRef, useEffect } from 'react';
+import { Group, Rect, Text, Image as KonvaImage } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Group as KonvaGroup } from 'konva/lib/Group';
 import { Shape } from '../types';
-import * as AntdIcons from '@ant-design/icons';
+import { getImageUrl } from '../../../constants/equipmentImages';
+import useImage from 'use-image'; // Cần cài đặt package này: npm install use-image
 
 interface EquipmentIconShapeProps {
   shape: Shape;
@@ -26,6 +26,12 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
 }) => {
   const groupRef = useRef<KonvaGroup>(null);
   
+  // Lấy URL hình ảnh dựa trên iconName
+  const imageUrl = shape.iconName ? getImageUrl(shape.iconName) : getImageUrl('DEFAULT');
+  
+  // Load hình ảnh
+  const [image, status] = useImage(imageUrl);
+  
   // Kích thước và vị trí của icon
   const iconSize = Math.min(shape.width, shape.height) * 0.7;
   const iconX = (shape.width - iconSize) / 2;
@@ -42,8 +48,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
     });
   };
 
-  // Thay vì dùng Html component từ react-konva-utils, chúng ta sẽ
-  // sử dụng cách khác để hiển thị nội dung equipment
   return (
     <Group
       ref={groupRef}
@@ -67,7 +71,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         cornerRadius={5}
         stroke="#000000"
         strokeWidth={1.5}
-        // Thay strokeHitEnabled bằng hitStrokeWidth
         hitStrokeWidth={4}
       />
       
@@ -84,18 +87,31 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         />
       )}
       
-      {/* Equipment icon - thay vì dùng Html, chúng ta dùng Text để hiển thị một chữ cái đại diện */}
-      <Text
-        x={0}
-        y={iconY}
-        width={shape.width}
-        height={iconSize}
-        text={getIconLetter(shape)}
-        fontSize={iconSize * 0.8}
-        fill={shape.fill}
-        align="center"
-        verticalAlign="middle"
-      />
+      {/* Equipment icon - sử dụng KonvaImage để hiển thị hình ảnh */}
+      {status === 'loaded' && (
+        <KonvaImage
+          image={image}
+          x={iconX}
+          y={iconY}
+          width={iconSize}
+          height={iconSize}
+        />
+      )}
+      
+      {/* Fallback khi không load được hình ảnh */}
+      {status !== 'loaded' && (
+        <Text
+          x={0}
+          y={iconY}
+          width={shape.width}
+          height={iconSize}
+          text={shape.name?.charAt(0) || 'E'}
+          fontSize={iconSize * 0.8}
+          fill={shape.fill}
+          align="center"
+          verticalAlign="middle"
+        />
+      )}
       
       {/* Notes indicator */}
       {hasNotes && (
@@ -121,27 +137,5 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
     </Group>
   );
 };
-
-// Helper function để lấy chữ cái đại diện cho icon
-function getIconLetter(shape: Shape): string {
-  if (shape.name && shape.name.length > 0) {
-    return shape.name.charAt(0).toUpperCase();
-  }
-  
-  switch (shape.type) {
-    case 'equipment':
-      return 'E';
-    case 'material':
-      return 'M';
-    case 'zone':
-      return 'Z';
-    case 'storage':
-      return 'S';
-    case 'path':
-      return 'P';
-    default:
-      return '?';
-  }
-}
 
 export default EquipmentIconShape;
