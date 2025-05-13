@@ -15,4 +15,5 @@ public class Shape
     public double? Rotation { get; set; }
     public string? EquipmentId { get; set; }
     public string? Notes { get; set; }
+    public string? IconName { get; set; }
 }
