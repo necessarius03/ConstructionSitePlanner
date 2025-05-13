@@ -24,15 +24,11 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
   onContextMenu
 }) => {
   const groupRef = useRef<KonvaGroup>(null);
-  console.log("Equipment shape in canvas:", shape);
-  console.log("iconName in canvas:", shape.iconName);
   
   const imageUrl = getImageUrl(shape.iconName);
-  console.log("Image URL:", imageUrl);
-  
   const [image, status] = useImage(imageUrl);
   
-  const iconSize = Math.min(shape.width, shape.height) * 0.7;
+  const iconSize = Math.min(shape.width, shape.height) * 0.8; 
   const iconX = (shape.width - iconSize) / 2;
   const iconY = (shape.height - iconSize) / 2 - 10;
   const textY = shape.height / 2 + iconSize / 2 - 5;
@@ -87,11 +83,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         width={shape.width}
         height={shape.height}
         fill="transparent"
-        opacity={1}
-        cornerRadius={5}
-        stroke={shape.fill || "#000000"}
-        strokeWidth={1.5}
-        hitStrokeWidth={4}
+        perfectDrawEnabled={false}
       />
       
       {isSelected && (
@@ -99,9 +91,9 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
           width={shape.width}
           height={shape.height}
           fill="transparent"
-          cornerRadius={5}
-          strokeWidth={2}
+          strokeWidth={1.5}
           stroke="#0096ff"
+          dash={[3, 3]}
           hitStrokeWidth={4}
         />
       )}
@@ -132,10 +124,10 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
       
       {hasNotes && (
         <Text
-          x={shape.width - 20}
-          y={5}
+          x={shape.width - 18}
+          y={0}
           text="📝"
-          fontSize={16}
+          fontSize={14}
           fill="#000"
         />
       )}
@@ -146,7 +138,8 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         width={shape.width}
         text={shape.name || ''}
         fontSize={12}
-        fill="#000000"
+        fill="#333333"
+        fontStyle="bold"
         align="center"
       />
     </Group>
