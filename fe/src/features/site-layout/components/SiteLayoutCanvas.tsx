@@ -463,7 +463,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       isSelected: false,
       name: equipment.name,
       equipmentId: equipment.id,
-      iconComponent: equipment.icon,
+      iconName: equipment.iconName,
       rotation: 0
     };
     

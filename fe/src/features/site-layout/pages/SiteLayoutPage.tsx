@@ -144,6 +144,7 @@ const SiteLayoutPage: React.FC = () => {
       
       // Chuẩn bị dữ liệu để lưu
       const shapesForSaving = shapes.map(shape => {
+        console.log("Saving shape with iconName:", shape.iconName);
         // Chỉ lấy các thuộc tính cần thiết để lưu
         return {
           id: String(shape.id),

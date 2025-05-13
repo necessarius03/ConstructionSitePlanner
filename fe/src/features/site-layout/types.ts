@@ -37,7 +37,7 @@ export interface Shape extends BaseShape {
   rotation?: number;
   equipmentId?: string; 
   iconName?: string;
-  notes?: string;  
+  notes?: string;
   isLocked?: boolean; 
 }
 

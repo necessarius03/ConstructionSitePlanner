@@ -66,6 +66,9 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
   };
 
   const handleSelectEquipment = (item: Equipment) => {
+    console.log("Selected equipment:", item);
+    console.log("iconName from API:", item.iconName);
+
     const selectedEquipment = {
       id: Date.now(),
       name: item.name,

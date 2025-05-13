@@ -25,9 +25,12 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
   onContextMenu
 }) => {
   const groupRef = useRef<KonvaGroup>(null);
+  console.log("Equipment shape in canvas:", shape);
+  console.log("iconName in canvas:", shape.iconName);
   
   // Lấy URL hình ảnh dựa trên iconName
   const imageUrl = getImageUrl(shape.iconName);
+  console.log("Image URL:", imageUrl);
   
   // Load hình ảnh
   const [image, status] = useImage(imageUrl);

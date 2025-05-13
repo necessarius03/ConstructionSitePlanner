@@ -20,6 +20,7 @@ export interface Equipment {
   description: string;
   category: 'heavy' | 'transport' | 'lifting' | 'concrete' | 'other';
   color: string;
+  iconName?: string;
   notes?: string;
 }
 
