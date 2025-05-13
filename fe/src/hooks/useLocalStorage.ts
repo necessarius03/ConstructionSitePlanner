@@ -1,20 +1,9 @@
 import { useState, useEffect } from 'react';
 
 export interface UseLocalStorageOptions {
-  /**
-   * Xử lý lỗi khi đọc/ghi dữ liệu
-   */
   onError?: (error: Error) => void;
 }
 
-/**
- * Hook quản lý dữ liệu trong localStorage với TypeScript
- * 
- * @param key - Khóa để lưu trữ trong localStorage
- * @param initialValue - Giá trị mặc định khi không có dữ liệu
- * @param options - Tùy chọn cấu hình bổ sung
- * @returns [value, setValue] - Giá trị hiện tại và hàm cập nhật
- */
 export function useLocalStorage<T>(
   key: string, 
   initialValue: T, 

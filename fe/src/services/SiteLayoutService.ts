@@ -25,7 +25,6 @@ export interface UpdateSiteLayoutRequest {
 }
 
 class SiteLayoutService {
-  // Get all layouts
   async getAllLayouts(): Promise<SiteLayout[]> {
     try {
       const response = await axios.get<SiteLayout[]>(`${API_URL}/site-layouts`);
@@ -36,7 +35,6 @@ class SiteLayoutService {
     }
   }
 
-  // Get layout by ID
   async getLayoutById(id: string): Promise<SiteLayout> {
     try {
       const response = await axios.get<SiteLayout>(`${API_URL}/site-layouts/${id}`);
@@ -47,7 +45,6 @@ class SiteLayoutService {
     }
   }
 
-  // Create a new layout
   async createLayout(data: CreateSiteLayoutRequest): Promise<SiteLayout> {
     try {
       const response = await axios.post<SiteLayout>(`${API_URL}/site-layouts`, data);
@@ -58,7 +55,6 @@ class SiteLayoutService {
     }
   }
 
-  // Update an existing layout
   async updateLayout(id: string, data: UpdateSiteLayoutRequest): Promise<SiteLayout> {
     try {
       const response = await axios.put<SiteLayout>(`${API_URL}/site-layouts/${id}`, data);
@@ -69,7 +65,6 @@ class SiteLayoutService {
     }
   }
 
-  // Delete a layout
   async deleteLayout(id: string): Promise<boolean> {
     try {
       await axios.delete(`${API_URL}/site-layouts/${id}`);

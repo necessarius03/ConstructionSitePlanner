@@ -39,7 +39,6 @@ export interface UpdateEquipmentRequest {
 }
 
 class EquipmentService {
-  // Get all equipment
   async getAllEquipment(): Promise<Equipment[]> {
     try {
       const response = await axios.get<Equipment[]>(`${API_URL}/equipment`);
@@ -50,7 +49,6 @@ class EquipmentService {
     }
   }
 
-  // Get equipment by ID
   async getEquipmentById(id: string): Promise<Equipment> {
     try {
       const response = await axios.get<Equipment>(`${API_URL}/equipment/${id}`);
@@ -61,7 +59,6 @@ class EquipmentService {
     }
   }
 
-  // Create a new equipment
   async createEquipment(data: CreateEquipmentRequest): Promise<Equipment> {
     try {
       const response = await axios.post<Equipment>(`${API_URL}/equipment`, data);
@@ -72,7 +69,6 @@ class EquipmentService {
     }
   }
 
-  // Update an existing equipment
   async updateEquipment(id: string, data: UpdateEquipmentRequest): Promise<Equipment> {
     try {
       const response = await axios.put<Equipment>(`${API_URL}/equipment/${id}`, data);
@@ -83,7 +79,6 @@ class EquipmentService {
     }
   }
 
-  // Delete an equipment
   async deleteEquipment(id: string): Promise<boolean> {
     try {
       await axios.delete(`${API_URL}/equipment/${id}`);

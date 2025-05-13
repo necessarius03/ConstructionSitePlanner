@@ -25,7 +25,7 @@ import BoundaryShape from './BoundaryShape';
 const GRID_SIZE = 20;
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
-const ZOOM_FACTOR = 1.1; // Zoom in/out by 10% per step
+const ZOOM_FACTOR = 1.1;
 
 const CanvasGrid: React.FC<CanvasGridProps & { scale: number }> = ({ 
   width, 
@@ -35,24 +35,20 @@ const CanvasGrid: React.FC<CanvasGridProps & { scale: number }> = ({
   opacity = 0.5,
   scale = 1
 }) => {
-  // Adjust grid size based on zoom level
   const effectiveGridSize = gridSize * scale;
   
-  // Calculate how many grid lines we need
   const gridComponents = [];
   
-  // We extend the grid slightly beyond the visible area
   const extendedWidth = width / scale + GRID_SIZE * 20;
   const extendedHeight = height / scale + GRID_SIZE * 20;
   
-  // Only draw grid lines that will be visible (improves performance)
   for (let i = 0; i <= extendedWidth; i += gridSize) {
     gridComponents.push(
       <Rect
         key={`v${i}`}
         x={i}
         y={0}
-        width={1 / scale} // Adjust line width based on scale
+        width={1 / scale}
         height={extendedHeight}
         fill={color}
         opacity={opacity}
@@ -67,7 +63,7 @@ const CanvasGrid: React.FC<CanvasGridProps & { scale: number }> = ({
         x={0}
         y={i}
         width={extendedWidth}
-        height={1 / scale} // Adjust line width based on scale
+        height={1 / scale}
         fill={color}
         opacity={opacity}
       />
@@ -168,25 +164,16 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   onShapesChange,
   onSelectShape
 }) => {
-  // Basic state
   const [shapes, setShapes] = useState<Shape[]>(initialShapes);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isPropertiesModalVisible, setIsPropertiesModalVisible] = useState(false);
   const [isEquipmentModalVisible, setIsEquipmentModalVisible] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // References
-  const stageRef = useRef<KonvaStage>(null);
-  
-  // History state for undo/redo
+  const containerRef = useRef<HTMLDivElement>(null); 
+  const stageRef = useRef<KonvaStage>(null); 
   const [history, setHistory] = useState<Shape[][]>([initialShapes]);
-  const [historyStep, setHistoryStep] = useState(0);
-  
-  // Canvas dimensions
+  const [historyStep, setHistoryStep] = useState(0); 
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight - 200);
-  
-  // New state for zoom and pan
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -220,7 +207,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setIsBoundaryModalVisible(false);
   };
 
-  // Reset states when initialShapes changes (e.g., loading a new layout)
   useEffect(() => {
     setShapes(initialShapes);
     setHistory([initialShapes]);
@@ -229,11 +215,9 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setIsPropertiesModalVisible(false);
   }, [initialShapes]);
   
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
-        // Sử dụng toàn bộ chiều rộng của cửa sổ
         const containerWidth = containerRef.current.clientWidth;
         const containerHeight = containerRef.current.clientHeight;
         
@@ -247,10 +231,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       }
     };
 
-    // Initial calculation
     handleResize();
     
-    // Add event listener
     window.addEventListener('resize', handleResize);
     
     return () => {
@@ -258,29 +240,24 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     };
   }, []);
 
-  // Track Shift key state
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Shift') {
         setIsShiftPressed(true);
       }
       
-      // Delete the selected shape when pressing Delete key
       if (e.key === 'Delete' && selectedId) {
         deleteShape(selectedId);
       }
       
-      // Open properties modal when pressing Enter on a selected shape
       if (e.key === 'Enter' && selectedId) {
         setIsPropertiesModalVisible(true);
       }
       
-      // Close properties modal when pressing Escape
       if (e.key === 'Escape') {
         setIsPropertiesModalVisible(false);
       }
       
-      // Zoom controls with keyboard
       if (e.ctrlKey && e.key === '+') {
         e.preventDefault();
         handleZoomIn();
@@ -311,11 +288,9 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   }, [selectedId]);
 
   useEffect(() => {
-    // Kiểm tra xem đã hiển thị trợ giúp lần nào chưa
     const hasShownHelp = localStorage.getItem('hasShownCanvasHelp');
     
     if (!hasShownHelp) {
-      // Hiển thị modal trợ giúp sau 2 giây để người dùng có thời gian nhìn canvas
       const timer = setTimeout(() => {
         setIsHelpModalVisible(true);
         localStorage.setItem('hasShownCanvasHelp', 'true');
@@ -325,30 +300,24 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   }, []);
   
-  // Handle shapes change with history tracking
   const handleShapesChange = useCallback((newShapes: Shape[]) => {
     setShapes(newShapes);
     
-    // Update history for undo/redo
     if (historyStep < history.length - 1) {
-      // If we're in the middle of the history, truncate it
       const newHistory = history.slice(0, historyStep + 1);
       newHistory.push([...newShapes]);
       setHistory(newHistory);
       setHistoryStep(newHistory.length - 1);
     } else {
-      // Just add to the end of history
       setHistory(prev => [...prev, [...newShapes]]);
       setHistoryStep(history.length);
     }
     
-    // Notify parent component
     if (onShapesChange) {
       onShapesChange(newShapes);
     }
   }, [history, historyStep, onShapesChange]);
   
-  // Undo/redo functions
   const handleUndo = useCallback(() => {
     if (historyStep > 0) {
       const newStep = historyStep - 1;
@@ -375,7 +344,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   }, [history, historyStep, onShapesChange]);
   
-  // Handle shape selection
   const checkDeselect = (e: KonvaEventObject<MouseEvent>) => {
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) {
@@ -384,7 +352,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   };
   
-  // Create a new shape
   const addShape = (type: ShapeType) => {
     if (type !== 'equipment') {
       const newShape: Shape = {
@@ -404,7 +371,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   };
   
-  // Helper functions for shape creation
   const getShapeName = (type: ShapeType): string => {
     switch (type) {
       case 'equipment': return 'Thiết bị mới';
@@ -427,12 +393,11 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   };
   
-  // Handle shape modifications
   const updateShape = useCallback((updatedShape: Shape) => {
     const newShapes = shapes.map(shape => 
       shape.id === updatedShape.id ? {
         ...updatedShape,
-        isLocked: updatedShape.isLocked // Đảm bảo giữ nguyên trạng thái khóa
+        isLocked: updatedShape.isLocked
       } : shape
     );
     handleShapesChange(newShapes);
@@ -449,7 +414,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   }, [shapes, selectedId, handleShapesChange, onSelectShape]);
   
-  // Handle equipment selection
   const handleEquipmentSelect = useCallback((equipment: Equipment) => {
     const newShape: Shape = {
       id: Date.now(),
@@ -471,19 +435,15 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setIsEquipmentModalVisible(false);
   }, [shapes, handleShapesChange]);
   
-  // Get the selected shape
   const getSelectedShape = useCallback(() => {
     if (!selectedId) return null;
     return shapes.find(shape => shape.id === selectedId) || null;
   }, [shapes, selectedId]);
 
-  // Zoom handlers
   const handleZoomIn = () => {
     if (scale < MAX_ZOOM) {
-      // Zoom in to the center of the stage
       const newScale = Math.min(scale * ZOOM_FACTOR, MAX_ZOOM);
       
-      // Calculate the new position to zoom toward center
       const stage = stageRef.current;
       if (stage) {
         const oldScale = scale;
@@ -512,10 +472,8 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
 
   const handleZoomOut = () => {
     if (scale > MIN_ZOOM) {
-      // Zoom out from the center of the stage
       const newScale = Math.max(scale / ZOOM_FACTOR, MIN_ZOOM);
       
-      // Calculate the new position to zoom toward center
       const stage = stageRef.current;
       if (stage) {
         const oldScale = scale;
@@ -579,20 +537,15 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     setPosition(newPos);
   };
 
-  // Pan handlers
   const handleDragStart = (e: KonvaEventObject<DragEvent>) => {
-    // Khi click vào một đối tượng cụ thể, không phải Stage, thì không cần Shift
     const clickedOnStage = e.target === e.target.getStage();
     
-    // Nếu click vào stage và đang nhấn shift, cho phép kéo stage
     if (clickedOnStage && isShiftPressed) {
       setIsDragging(true);
     } 
-    // Nếu click vào stage mà không nhấn shift, ngăn kéo
     else if (clickedOnStage && !isShiftPressed) {
       e.currentTarget.stopDrag();
     }
-    // Nếu click vào đối tượng, không cần làm gì, cho phép kéo bình thường
   };
 
   const handleDragEnd = () => {
@@ -600,12 +553,10 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
   };
 
   const handleDragMove = (e: KonvaEventObject<DragEvent>) => {
-    // Chỉ xử lý cho Stage, không ảnh hưởng đến kéo đối tượng
     const clickedOnStage = e.target === e.target.getStage();
     
     if (clickedOnStage) {
       if (!isDragging || !isShiftPressed) {
-        // Nếu không còn nhấn shift, dừng việc kéo stage
         if (!isShiftPressed) {
           e.currentTarget.stopDrag();
           return;
@@ -615,7 +566,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       
       const stage = stageRef.current;
       if (stage) {
-        const maxX = canvasWidth * scale * 0.5;  // Cho phép kéo tối đa một nửa kích thước stage
+        const maxX = canvasWidth * scale * 0.5;
         const maxY = canvasHeight * scale * 0.5;
         
         const newX = Math.min(Math.max(e.target.x(), -maxX), maxX);
@@ -629,7 +580,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     }
   };
 
-  // For mobile touch support
   const handleTouch = (e: KonvaEventObject<TouchEvent>) => {
     e.evt.preventDefault();
     const touch1 = e.evt.touches[0];
@@ -638,7 +588,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
     const stage = stageRef.current;
     if (!stage) return;
     
-    // If we have multiple touches, it's pinch-to-zoom
     if (touch1 && touch2) {
       const p1 = {
         x: touch1.clientX,
@@ -671,7 +620,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         return;
       }
       
-      // Calculate new scale
       const pointTo = {
         x: (newCenter.x - position.x) / scale,
         y: (newCenter.y - position.y) / scale,
@@ -680,20 +628,17 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
       const oldScale = scale;
       let newScale = scale;
       
-      // Adjust scale based on pinch distance
       if (dist > lastDist) {
         newScale = Math.min(oldScale * ZOOM_FACTOR, MAX_ZOOM);
       } else {
         newScale = Math.max(oldScale / ZOOM_FACTOR, MIN_ZOOM);
       }
       
-      // Calculate new position
       const newPos = {
         x: newCenter.x - pointTo.x * newScale,
         y: newCenter.y - pointTo.y * newScale,
       };
       
-      // Update state
       setScale(newScale);
       setPosition(newPos);
       setLastDist(dist);
@@ -728,7 +673,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
           position: 'relative',
         }}
       >
-        {/* Help Button ở góc trên bên trái */}
         <div className="absolute top-4 left-4 z-10">
           <Tooltip title="Hướng dẫn điều khiển">
             <Button
@@ -740,7 +684,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
           </Tooltip>
         </div>
         
-        {/* Status Info ở phía dưới bên trái */}
         <div className="absolute bottom-4 left-4 z-10 bg-white bg-opacity-80 px-2 py-1 rounded text-xs text-gray-700">
           {isDragging ? 
             'Đang di chuyển mặt bằng...' : 
@@ -749,7 +692,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
               'Nhấn Shift + chuột để di chuyển mặt bằng')}
         </div>
         
-        {/* Zoom Controls ở phía dưới bên phải */}
         <div className="absolute bottom-4 right-4 z-10">
           <div className="bg-white shadow-md rounded-md px-2 py-1 flex items-center space-x-1">
             <Button 
@@ -783,7 +725,7 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
           scaleY={scale}
           x={position.x}
           y={position.y}
-          draggable={isShiftPressed} // Chỉ cho phép drag khi shift được nhấn
+          draggable={isShiftPressed}
           onClick={checkDeselect}
           onTap={checkDeselect as unknown as (e: KonvaEventObject<TouchEvent>) => void}
           onWheel={handleWheel}
@@ -801,7 +743,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
               scale={scale}
             />
             {shapes.map((shape) => {
-              // Sử dụng loại shape để quyết định component hiển thị
               if (shape.type === 'equipment') {
                 return (
                   <EquipmentIconShape
@@ -813,7 +754,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                       setSelectedId(shape.id);
                       onSelectShape?.(shape);
                       
-                      // Double click to open properties modal (simulated with timeout)
                       if (selectedId === shape.id) {
                         setIsPropertiesModalVisible(true);
                       }
@@ -850,7 +790,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                 );
               }
               
-              // Các loại shape khác
               return (
                 <DraggableRect
                   key={shape.id}
@@ -863,7 +802,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
                     setSelectedId(shape.id);
                     onSelectShape?.(shape);
                     
-                    // Double click to open properties modal (simulated with timeout)
                     if (selectedId === shape.id) {
                       setIsPropertiesModalVisible(true);
                     }
@@ -882,7 +820,6 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         </Stage>
       </div>
       
-      {/* Modal for shape properties */}
       <ShapePropertiesModal
         visible={isPropertiesModalVisible}
         shape={getSelectedShape()}
@@ -891,14 +828,12 @@ const SiteLayoutCanvas: React.FC<SiteLayoutCanvasProps> = ({
         onCancel={() => setIsPropertiesModalVisible(false)}
       />
       
-      {/* Modal for equipment selection */}
       <EquipmentSelectModal
         visible={isEquipmentModalVisible}
         onCancel={() => setIsEquipmentModalVisible(false)}
         onSelect={handleEquipmentSelect}
       />
       
-      {/* Help Modal */}
       <CanvasControlsHelp
         visible={isHelpModalVisible}
         onClose={() => setIsHelpModalVisible(false)}

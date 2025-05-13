@@ -22,7 +22,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
   const [isHovered, setIsHovered] = useState(false);
   const [collapsed, setCollapsed] = useState(propCollapsed);
 
-  // When prop changes, update state
   useEffect(() => {
     setCollapsed(propCollapsed && !isHovered);
   }, [propCollapsed, isHovered]);

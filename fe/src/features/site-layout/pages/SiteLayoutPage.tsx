@@ -36,26 +36,22 @@ const SiteLayoutPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // State for layout data
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
   const [currentLayout, setCurrentLayout] = useState<any | null>(null);
   
-  // UI state
   const [isSaveModalVisible, setIsSaveModalVisible] = useState(false);
   const [isLoadModalVisible, setIsLoadModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load layout when component mounts or id changes
   useEffect(() => {
     if (id) {
       fetchLayout(id);
     }
   }, [id]);
 
-  // Fetch layout data from the API
   const fetchLayout = async (layoutId: string) => {
     try {
       setIsLoading(true);
@@ -64,12 +60,10 @@ const SiteLayoutPage: React.FC = () => {
       const layout = await SiteLayoutService.getLayoutById(layoutId);
       console.log("Loaded layout data:", layout);
       
-      // Xử lý các shape để đảm bảo chúng có đúng các thuộc tính cần thiết
       const processedShapes = layout.shapes.map((shape: any) => {
-        // Chuẩn bị shape cơ bản
         const processedShape = {
           ...shape,
-          id: Number(shape.id), // Đảm bảo id là số
+          id: Number(shape.id),
           x: Number(shape.x),
           y: Number(shape.y),
           width: Number(shape.width),
@@ -80,9 +74,7 @@ const SiteLayoutPage: React.FC = () => {
           isSelected: false
         };
         
-        // Xử lý cụ thể cho các loại shape khác nhau
         if (shape.type === 'equipment') {
-          // Với equipment, đảm bảo có thuộc tính cần thiết cho hiển thị
           return {
             ...processedShape,
             fill: shape.fill || '#1677ff',
@@ -90,13 +82,11 @@ const SiteLayoutPage: React.FC = () => {
             iconName: shape.iconName || undefined
           };
         } else if (shape.type === 'boundary') {
-          // Đối với boundary, đảm bảo có các thuộc tính cần thiết
           return {
             ...processedShape,
-            fill: 'transparent', // Đảm bảo ranh giới luôn trong suốt
+            fill: 'transparent',
           };
         } else {
-          // Đối với các loại khác, giữ nguyên fill
           return processedShape;
         }
       });
@@ -111,7 +101,6 @@ const SiteLayoutPage: React.FC = () => {
       setError('Không thể tải mặt bằng. Vui lòng thử lại sau.');
       message.error('Không tìm thấy bản thiết kế');
       
-      // Navigate back to main page if there's an error
       if (id) {
         navigate('/site-layout');
       }
@@ -120,32 +109,26 @@ const SiteLayoutPage: React.FC = () => {
     }
   };
 
-  // Handle shape changes
   const handleShapesChange = (newShapes: Shape[]) => {
     setShapes(newShapes);
     setHasUnsavedChanges(true);
   };
 
-  // Handle shape selection
   const handleSelectShape = (shape: Shape | null) => {
     setSelectedShape(shape);
   };
 
-  // Open save modal
   const handleSaveLayout = () => {
     setIsSaveModalVisible(true);
   };
 
-  // Save layout to the API
   const handleSaveConfirm = async (values: { name: string; description: string }) => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Chuẩn bị dữ liệu để lưu
       const shapesForSaving = shapes.map(shape => {
         console.log("Saving shape with iconName:", shape.iconName);
-        // Chỉ lấy các thuộc tính cần thiết để lưu
         return {
           id: String(shape.id),
           x: shape.x,
@@ -165,7 +148,6 @@ const SiteLayoutPage: React.FC = () => {
       });
       
       if (currentLayout) {
-        // Update existing layout
         const updated = await SiteLayoutService.updateLayout(currentLayout.id, {
           name: values.name,
           description: values.description,
@@ -175,7 +157,6 @@ const SiteLayoutPage: React.FC = () => {
         setCurrentLayout(updated);
         message.success('Đã cập nhật bản thiết kế');
       } else {
-        // Create new layout
         const newLayout = await SiteLayoutService.createLayout({
           name: values.name,
           description: values.description,
@@ -198,12 +179,10 @@ const SiteLayoutPage: React.FC = () => {
     }
   };
 
-  // Open load modal
   const handleLoadLayout = () => {
     setIsLoadModalVisible(true);
   };
 
-  // Handle selection from load modal
   const handleLoadConfirm = (selectedLayoutId: string) => {
     if (hasUnsavedChanges) {
       confirm({
@@ -213,7 +192,7 @@ const SiteLayoutPage: React.FC = () => {
         okText: 'Lưu',
         cancelText: 'Không lưu',
         onOk() {
-          setIsSaveModalVisible(true); // Open save modal
+          setIsSaveModalVisible(true);
         },
         onCancel() {
           navigateToLayout(selectedLayoutId);
@@ -226,12 +205,10 @@ const SiteLayoutPage: React.FC = () => {
     setIsLoadModalVisible(false);
   };
 
-  // Navigate to a specific layout
   const navigateToLayout = (layoutId: string) => {
     navigate(`/site-layout/${layoutId}`);
   };
 
-  // Export canvas as image
   const exportAsImage = async () => {
     const element = document.querySelector('.konvajs-content canvas') as HTMLElement;
     if (!element) {
@@ -259,7 +236,6 @@ const SiteLayoutPage: React.FC = () => {
     }
   };
 
-  // Create a new layout
   const createNewLayout = () => {
     if (hasUnsavedChanges) {
       confirm({
@@ -280,7 +256,6 @@ const SiteLayoutPage: React.FC = () => {
     }
   };
 
-  // Reset to a blank layout
   const resetLayout = () => {
     setShapes([]);
     setCurrentLayout(null);
@@ -364,7 +339,6 @@ const SiteLayoutPage: React.FC = () => {
         </Card>
       )}
 
-      {/* Modal to save layout */}
       <SaveLayoutModal
         visible={isSaveModalVisible}
         initialValues={{
@@ -376,7 +350,6 @@ const SiteLayoutPage: React.FC = () => {
         isLoading={isLoading}
       />
 
-      {/* Modal to load layout */}
       <LoadLayoutModal
         visible={isLoadModalVisible}
         onCancel={() => setIsLoadModalVisible(false)}

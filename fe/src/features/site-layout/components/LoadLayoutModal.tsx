@@ -1,4 +1,3 @@
-// src/features/site-layout/components/LoadLayoutModal.tsx
 import React, { useState, useEffect } from 'react';
 import { Modal, List, Button, Empty, Space, Popconfirm, Input, Tooltip, Spin } from 'antd';
 import { 
@@ -40,7 +39,6 @@ const LoadLayoutModal: React.FC<LoadLayoutModalProps> = ({
       setIsLoading(true);
       setError(null);
       const allLayouts = await SiteLayoutService.getAllLayouts();
-      // Sort by updated date, newest first
       allLayouts.sort((a, b) => 
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );

@@ -1,4 +1,3 @@
-// src/pages/site-layout/components/index.ts
 export { default as SiteLayoutCanvas } from './SiteLayoutCanvas';
 // export { default as ShapeProperties } from './ShapeProperties';
 export { default as CanvasToolbar } from './CanvasToolbar';

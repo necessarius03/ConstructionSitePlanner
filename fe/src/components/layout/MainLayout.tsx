@@ -10,16 +10,14 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(true); // Default to collapsed
-  const [contentMargin, setContentMargin] = useState(80); // Default to collapsed width
+  const [collapsed, setCollapsed] = useState(true);
+  const [contentMargin, setContentMargin] = useState(80);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
 
-  // Update content margin based on sidebar state
   useEffect(() => {
-    // Small delay to match the transition effect
     const timer = setTimeout(() => {
       setContentMargin(collapsed ? 80 : 250);
     }, 50);

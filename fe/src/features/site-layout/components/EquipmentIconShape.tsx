@@ -1,5 +1,4 @@
-// src/features/site-layout/components/EquipmentIconShape.tsx
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Group, Rect, Text, Image as KonvaImage } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Group as KonvaGroup } from 'konva/lib/Group';
@@ -28,14 +27,11 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
   console.log("Equipment shape in canvas:", shape);
   console.log("iconName in canvas:", shape.iconName);
   
-  // Lấy URL hình ảnh dựa trên iconName
   const imageUrl = getImageUrl(shape.iconName);
   console.log("Image URL:", imageUrl);
   
-  // Load hình ảnh
   const [image, status] = useImage(imageUrl);
   
-  // Kích thước và vị trí của icon
   const iconSize = Math.min(shape.width, shape.height) * 0.7;
   const iconX = (shape.width - iconSize) / 2;
   const iconY = (shape.height - iconSize) / 2 - 10;
@@ -51,8 +47,7 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
     });
   };
 
-  // Xử lý transform
-  const handleTransformEnd = (e: KonvaEventObject<Event>) => {
+  const handleTransformEnd = () => {
     if (!groupRef.current) return;
     
     const node = groupRef.current;
@@ -60,7 +55,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
     const scaleY = node.scaleY();
     const rotation = node.rotation();
     
-    // Reset scale sau khi đã áp dụng
     node.scaleX(1);
     node.scaleY(1);
     
@@ -89,7 +83,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
       onTap={onSelect}
       onContextMenu={onContextMenu}
     >
-      {/* Background rectangle - transparent with border */}
       <Rect
         width={shape.width}
         height={shape.height}
@@ -101,7 +94,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         hitStrokeWidth={4}
       />
       
-      {/* Highlight when selected */}
       {isSelected && (
         <Rect
           width={shape.width}
@@ -114,7 +106,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         />
       )}
       
-      {/* Equipment icon - sử dụng KonvaImage để hiển thị hình ảnh */}
       {status === 'loaded' && image && (
         <KonvaImage
           image={image}
@@ -125,7 +116,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         />
       )}
       
-      {/* Fallback khi không load được hình ảnh */}
       {(status !== 'loaded' || !image) && (
         <Text
           x={0}
@@ -140,7 +130,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         />
       )}
       
-      {/* Notes indicator */}
       {hasNotes && (
         <Text
           x={shape.width - 20}
@@ -151,7 +140,6 @@ const EquipmentIconShape: React.FC<EquipmentIconShapeProps> = ({
         />
       )}
       
-      {/* Name text */}
       <Text
         x={0}
         y={textY}

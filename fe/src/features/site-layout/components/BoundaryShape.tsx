@@ -21,7 +21,6 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
 }) => {
   const groupRef = useRef<any>(null);
 
-  // Dash line style for boundary
   const dashPattern = [10, 5];
   
   const handleDragEnd = (e: KonvaEventObject<DragEvent>) => {
@@ -54,7 +53,6 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
       onTap={onSelect}
       onContextMenu={onContextMenu}
     >
-      {/* Boundary rectangle with dashed stroke */}
       <Rect
         width={shape.width}
         height={shape.height}
@@ -68,7 +66,6 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         opacity={isSelected ? 1 : 0.8}
       />
       
-      {/* Name label at top */}
       <Rect
         x={10}
         y={10}
@@ -94,7 +91,6 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         ellipsis={true}
       />
       
-      {/* Width indicator at bottom */}
       <Rect
         x={shape.width / 2 - 50}
         y={shape.height - 30}
@@ -119,7 +115,6 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         align="center"
       />
       
-      {/* Height indicator at right */}
       <Rect
         x={shape.width - 90}
         y={shape.height / 2 - 12}
@@ -144,7 +139,6 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         align="center"
       />
       
-      {/* Lock indicator - sử dụng Text thay vì Html */}
       <Group 
         x={shape.width - 30}
         y={10}

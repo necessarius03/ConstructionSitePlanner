@@ -1,4 +1,3 @@
-// src/features/site-layout/components/CanvasControlsHelp.tsx
 import React from 'react';
 import { Modal, Typography, Space, Row, Col } from 'antd';
 import {

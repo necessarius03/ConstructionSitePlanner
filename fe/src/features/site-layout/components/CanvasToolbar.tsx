@@ -1,8 +1,6 @@
-// src/pages/site-layout/components/CanvasToolbar.tsx
 import React from 'react';
 import { Button, Space } from 'antd';
 import { 
-  // PlusOutlined, 
   UndoOutlined, 
   RedoOutlined, 
   BuildOutlined,
@@ -23,7 +21,6 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   canUndo = false,
   canRedo = false
 }) => {
-  // Định nghĩa các nút cho các loại hình khác nhau
   const shapeButtons = [
     { 
       type: 'equipment' as ShapeType, 

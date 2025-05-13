@@ -21,10 +21,8 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
   onDelete,
   onCancel
 }) => {
-  // Local state to track changes without affecting the original shape
   const [editedShape, setEditedShape] = useState<Shape | null>(null);
   
-  // Initialize local state when the modal becomes visible or shape changes
   useEffect(() => {
     if (visible && shape) {
       setEditedShape({ ...shape });
@@ -49,7 +47,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
     if (editedShape) {
       onUpdate(editedShape);
       message.success('Đã lưu thay đổi');
-      onCancel(); // Close the modal after saving
+      onCancel();
     }
   };
 
@@ -65,7 +63,6 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
     }
   };
   
-  // Update local state without affecting the original shape
   const updateLocalShape = (updates: Partial<Shape>) => {
     setEditedShape(prev => prev ? { ...prev, ...updates } : null);
   };
@@ -107,23 +104,6 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
         
         <Divider className="my-3" />
         
-        {/* <Form.Item label="Vị trí" className="mb-3">
-          <div className="flex gap-2">
-            <InputNumber
-              addonBefore="X"
-              value={Math.round(editedShape.x)}
-              onChange={(value) => updateLocalShape({ x: Number(value) })}
-              style={{ width: '100%' }}
-            />
-            <InputNumber
-              addonBefore="Y"
-              value={Math.round(editedShape.y)}
-              onChange={(value) => updateLocalShape({ y: Number(value) })}
-              style={{ width: '100%' }}
-            />
-          </div>
-        </Form.Item> */}
-
         <Form.Item label="Kích thước" className="mb-3">
           <div className="flex gap-2">
             <InputNumber
@@ -140,30 +120,6 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
             />
           </div>
         </Form.Item>
-
-        {/* <Form.Item label="Góc xoay" className="mb-3">
-          <Slider
-            min={0}
-            max={360}
-            value={editedShape.rotation || 0}
-            onChange={(value) => updateLocalShape({ rotation: Number(value) })}
-          />
-          <InputNumber
-            value={editedShape.rotation || 0}
-            onChange={(value) => updateLocalShape({ rotation: Number(value) })}
-            style={{ width: '100%' }}
-          />
-        </Form.Item>
-
-        <Form.Item label="Độ mờ" className="mb-3">
-          <Slider
-            min={0.1}
-            max={1}
-            step={0.1}
-            value={editedShape.opacity}
-            onChange={(value) => updateLocalShape({ opacity: Number(value) })}
-          />
-        </Form.Item> */}
 
         {editedShape.type === 'boundary' && (
           <>
@@ -195,7 +151,6 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
           </div>
         </Form.Item>
         
-        {/* Add the notes field here */}
         <Form.Item label="Ghi chú" className="mb-3">
           <TextArea
             value={editedShape.notes || ''}
@@ -203,19 +158,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
             rows={4}
             placeholder="Nhập ghi chú cho đối tượng này"
           />
-        </Form.Item>
-        
-        {/* {editedShape.type === 'equipment' && (
-          <Form.Item className="mb-0">
-            <Button
-              type="default"
-              icon={<EditOutlined />}
-              style={{ width: '100%' }}
-            >
-              Thay đổi thiết bị
-            </Button>
-          </Form.Item>
-        )} */}
+        </Form.Item>  
       </Form>
     </Modal>
   );

@@ -1,4 +1,3 @@
-// Cập nhật BoundaryModal.tsx
 import React from 'react';
 import { Modal, Form, InputNumber, Input, Button, Checkbox } from 'antd';
 

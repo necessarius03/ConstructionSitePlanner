@@ -1,4 +1,3 @@
-// fe/src/features/site-layout/components/EquipmentSelectModal.tsx
 import React, { useState, useEffect } from 'react';
 import { Modal, List, Card, Radio, Input, Empty, Tag, Spin } from 'antd';
 import { SearchOutlined, LoadingOutlined } from '@ant-design/icons';
@@ -72,7 +71,7 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
     const selectedEquipment = {
       id: Date.now(),
       name: item.name,
-      iconName: item.iconName, // Giữ nguyên iconName
+      iconName: item.iconName,
       width: item.width,
       height: item.height,
       description: item.description,
@@ -80,7 +79,7 @@ const EquipmentSelectModal: React.FC<EquipmentSelectModalProps> = ({
       color: item.color,
       notes: item.notes,
       equipmentId: item.id,
-      fill: item.color, // Thêm fill để hỗ trợ hiển thị trong canvas
+      fill: item.color,
       type: 'equipment',
       opacity: 1,
       x: 100,
