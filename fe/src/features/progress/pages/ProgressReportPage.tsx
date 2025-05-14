@@ -1,48 +1,80 @@
+// fe/src/features/progress/pages/ProgressReportPage.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Select, DatePicker, Card, Typography, Row, Col, Spin, Empty, Progress as AntProgress, Table } from 'antd';
+import { Button, Select, DatePicker, Card, Typography, Row, Col, Spin, Empty, Progress as AntProgress, Table, message } from 'antd';
 import { 
   FileExcelOutlined, 
   FilePdfOutlined, 
   PrinterOutlined,
   BarChartOutlined,
-  PieChartOutlined
+  PieChartOutlined,
+  ArrowLeftOutlined
 } from '@ant-design/icons';
-import { Bar, Pie } from 'recharts';
+import { useParams, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useReactToPrint } from 'react-to-print';
-import { Progress, ProgressStatus } from '../../../services/ProgressService';
-import { BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Cell } from 'recharts';
+import ProgressService, { Progress, ProgressStatus } from '../../../services/ProgressService';
+import SiteLayoutService from '../../../services/SiteLayoutService';
+import { BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Cell, Pie, Bar } from 'recharts';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-interface ProgressReportPageProps {
-  progress: Progress[];
-  siteLayoutName: string;
-  loading: boolean;
-}
-
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-const ProgressReportPage: React.FC<ProgressReportPageProps> = ({
-  progress,
-  siteLayoutName,
-  loading
-}) => {
+const ProgressReportPage: React.FC = () => {
+  const { siteLayoutId } = useParams<{ siteLayoutId: string }>();
+  const navigate = useNavigate();
+  
+  const [progress, setProgress] = useState<Progress[]>([]);
   const [filteredProgress, setFilteredProgress] = useState<Progress[]>([]);
+  const [siteLayoutName, setSiteLayoutName] = useState<string>('');
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
   const [statusFilter, setStatusFilter] = useState<ProgressStatus | 'all'>('all');
   const [completionFilter, setCompletionFilter] = useState<string>('all');
+  const [loading, setLoading] = useState<boolean>(true);
   const reportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (siteLayoutId) {
+      fetchProgressData();
+      fetchSiteLayoutData();
+    } else {
+      message.error('Không tìm thấy mã mặt bằng');
+      navigate('/progress');
+    }
+  }, [siteLayoutId]);
 
   useEffect(() => {
     if (progress) {
       applyFilters();
     }
   }, [progress, dateRange, statusFilter, completionFilter]);
+
+  const fetchProgressData = async () => {
+    try {
+      setLoading(true);
+      const data = await ProgressService.getProgressBySiteLayout(siteLayoutId!);
+      setProgress(data);
+    } catch (error) {
+      console.error('Error fetching progress data:', error);
+      message.error('Không thể tải dữ liệu tiến độ');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchSiteLayoutData = async () => {
+    try {
+      const layout = await SiteLayoutService.getLayoutById(siteLayoutId!);
+      setSiteLayoutName(layout.name);
+    } catch (error) {
+      console.error('Error fetching site layout data:', error);
+      message.error('Không thể tải thông tin mặt bằng');
+    }
+  };
 
   const applyFilters = () => {
     let filtered = [...progress];
@@ -218,16 +250,27 @@ const ProgressReportPage: React.FC<ProgressReportPageProps> = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <Spin size="large" />
+      <div className="p-6">
+        <div className="flex justify-center items-center py-20">
+          <Spin size="large" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <Title level={3}>Báo cáo tiến độ: {siteLayoutName}</Title>
+        <div className="flex items-center">
+          <Button 
+            icon={<ArrowLeftOutlined />} 
+            onClick={() => navigate(`/site-layout/${siteLayoutId}`)}
+            style={{ marginRight: 12 }}
+          >
+            Quay lại mặt bằng
+          </Button>
+          <Title level={3}>Báo cáo tiến độ: {siteLayoutName}</Title>
+        </div>
         <div className="flex space-x-2">
           <Button 
             icon={<PrinterOutlined />} 

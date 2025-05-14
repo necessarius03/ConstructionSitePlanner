@@ -15,6 +15,21 @@ interface GanttTask extends Task {
   status?: string;
 }
 
+// Create a React component for the tooltip instead of a string template
+const TooltipContent = ({ task }: { task: GanttTask }) => {
+  const statusLabel = getStatusLabel(task.status);
+  
+  return (
+    <div className="gantt-tooltip" style={{ padding: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
+      <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>{task.name}</div>
+      <div>Tiến độ: {Math.round(task.progress * 100)}%</div>
+      <div>Bắt đầu: {task.start.toLocaleDateString()}</div>
+      <div>Kết thúc: {task.end.toLocaleDateString()}</div>
+      {task.status && <div>Trạng thái: {statusLabel}</div>}
+    </div>
+  );
+};
+
 export const GanttChart: React.FC<GanttChartProps> = ({
   data,
   viewMode = ViewMode.Month,
@@ -115,34 +130,6 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     },
   ];
 
-  const getTaskTooltipContent = (task: GanttTask) => {
-    const statusLabel = getStatusLabel(task.status);
-    return `
-      <div class="gantt-tooltip">
-        <div style="font-weight: bold; margin-bottom: 5px;">${task.name}</div>
-        <div>Tiến độ: ${task.progress * 100}%</div>
-        <div>Bắt đầu: ${task.start.toLocaleDateString()}</div>
-        <div>Kết thúc: ${task.end.toLocaleDateString()}</div>
-        ${task.status ? `<div>Trạng thái: ${statusLabel}</div>` : ''}
-      </div>
-    `;
-  };
-
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case 'not_started':
-        return 'Chưa bắt đầu';
-      case 'in_progress':
-        return 'Đang thực hiện';
-      case 'completed':
-        return 'Hoàn thành';
-      case 'delayed':
-        return 'Bị trễ';
-      default:
-        return status;
-    }
-  };
-
   return (
     <div className="gantt-wrapper" ref={containerRef}>
       <div className="flex justify-between items-center mb-3">
@@ -179,7 +166,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             onDoubleClick={handleTaskClick}
             listCellWidth="250px"
             columnWidth={currentViewMode === ViewMode.Day ? 50 : 65}
-            TooltipContent={getTaskTooltipContent as any}
+            TooltipContent={TooltipContent}
           />
         ) : (
           <div className="text-center py-12 text-gray-500">
@@ -189,6 +176,22 @@ export const GanttChart: React.FC<GanttChartProps> = ({
       </div>
     </div>
   );
+};
+
+// Helper function to get status label text
+const getStatusLabel = (status?: string) => {
+  switch (status) {
+    case 'not_started':
+      return 'Chưa bắt đầu';
+    case 'in_progress':
+      return 'Đang thực hiện';
+    case 'completed':
+      return 'Hoàn thành';
+    case 'delayed':
+      return 'Bị trễ';
+    default:
+      return status;
+  }
 };
 
 export default GanttChart;
