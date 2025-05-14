@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { MainLayout } from './components/layout';
 import SiteLayoutPage from './features/site-layout/pages/SiteLayoutPage';
 import EquipmentPage from './features/equipment/pages/EquipmentPage';
+import { ProgressListPage, ProgressDashboardPage, ProgressReportPage } from './features/progress';
 
 // Import pages
 // Uncomment as they become available
@@ -25,6 +26,11 @@ function App() {
           
           {/* Equipment Management */}
           <Route path="/equipment" element={<EquipmentPage/>} />
+
+          {/* Progress Management */}
+          <Route path="/progress" element={<ProgressListPage />} />
+          <Route path="/progress/dashboard/:siteLayoutId" element={<ProgressDashboardPage />} />
+          <Route path="/progress/report/:siteLayoutId" element={<ProgressReportPage />} />
           
           {/* Materials Management */}
           <Route path="/materials" element={<div>Materials Management (Coming Soon)</div>} />

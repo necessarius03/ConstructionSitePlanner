@@ -7,7 +7,8 @@ import {
   ToolOutlined, 
   InboxOutlined, 
   NodeIndexOutlined, 
-  BarChartOutlined
+  BarChartOutlined,
+  FieldTimeOutlined
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -49,6 +50,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
       key: 'dashboard',
       icon: <DashboardOutlined />,
       label: <Link to="/">Tổng quan</Link>,
+    },
+    {
+      key: 'progress',
+      icon: <FieldTimeOutlined />,
+      label: <Link to="/progress">Quản lý tiến độ</Link>,
     },
     {
       key: 'site-layout',

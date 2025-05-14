@@ -26,6 +26,8 @@ import SiteLayoutService from '../../../services/SiteLayoutService';
 import SaveLayoutModal from '../components/SaveLayoutModal';
 import LoadLayoutModal from '../components/LoadLayoutModal';
 import { getImageUrl } from '../../../constants/equipmentImages';
+import ProgressSidebar from '../../progress/components/ProgressSidebar';
+import { FieldTimeOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -45,6 +47,8 @@ const SiteLayoutPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [isProgressSidebarVisible, setIsProgressSidebarVisible] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -306,6 +310,14 @@ const SiteLayoutPage: React.FC = () => {
           >
             Xuất ảnh
           </Button>
+          {currentLayout && (
+            <Button
+              icon={<FieldTimeOutlined />}
+              onClick={() => setIsProgressSidebarVisible(true)}
+            >
+              Tiến độ
+            </Button>
+          )}
         </Space>
       </div>
       
@@ -356,6 +368,15 @@ const SiteLayoutPage: React.FC = () => {
         onSelect={handleLoadConfirm}
         currentLayoutId={currentLayout?.id}
       />
+
+      {currentLayout && (
+        <ProgressSidebar
+          visible={isProgressSidebarVisible}
+          onClose={() => setIsProgressSidebarVisible(false)}
+          shapes={shapes}
+          onShapesUpdate={handleShapesChange}
+        />
+      )}
     </div>
   );
 };
