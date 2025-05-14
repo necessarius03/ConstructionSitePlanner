@@ -135,4 +135,77 @@ equipmentGroup.MapDelete("/{id}", async (Guid id, IEquipmentService equipmentSer
     return result ? Results.NoContent() : Results.NotFound();
 });
 
+// Progress endpoints
+var progressGroup = apiGroup.MapGroup("/progress");
+
+// GET: api/progress
+progressGroup.MapGet("/", async (IProgressService progressService) =>
+{
+    var progresses = await progressService.GetAllAsync();
+    return Results.Ok(progresses);
+});
+
+// GET: api/progress/{id}
+progressGroup.MapGet("/{id}", async (Guid id, IProgressService progressService) =>
+{
+    var progress = await progressService.GetByIdAsync(id);
+    return progress != null ? Results.Ok(progress) : Results.NotFound();
+});
+
+// GET: api/progress/site-layout/{siteLayoutId}
+progressGroup.MapGet("/site-layout/{siteLayoutId}", async (Guid siteLayoutId, IProgressService progressService) =>
+{
+    var progresses = await progressService.GetBySiteLayoutIdAsync(siteLayoutId);
+    return Results.Ok(progresses);
+});
+
+// POST: api/progress
+progressGroup.MapPost("/", async (CreateProgressDto createDto, IProgressService progressService) =>
+{
+    try
+    {
+        var progress = await progressService.CreateAsync(createDto);
+        return Results.Created($"/api/progress/{progress.Id}", progress);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+// PUT: api/progress/{id}
+progressGroup.MapPut("/{id}", async (Guid id, UpdateProgressDto updateDto, IProgressService progressService) =>
+{
+    try
+    {
+        var progress = await progressService.UpdateAsync(id, updateDto);
+        return progress != null ? Results.Ok(progress) : Results.NotFound();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+// DELETE: api/progress/{id}
+progressGroup.MapDelete("/{id}", async (Guid id, IProgressService progressService) =>
+{
+    var result = await progressService.DeleteAsync(id);
+    return result ? Results.NoContent() : Results.NotFound();
+});
+
+// PATCH: api/progress/{id}/completion/{percentage}
+progressGroup.MapPatch("/{id}/completion/{percentage}", async (Guid id, int percentage, IProgressService progressService) =>
+{
+    var progress = await progressService.UpdateCompletionPercentageAsync(id, percentage);
+    return progress != null ? Results.Ok(progress) : Results.NotFound();
+});
+
+// PATCH: api/progress/{id}/status/{status}
+progressGroup.MapPatch("/{id}/status/{status}", async (Guid id, string status, IProgressService progressService) =>
+{
+    var progress = await progressService.UpdateStatusAsync(id, status);
+    return progress != null ? Results.Ok(progress) : Results.NotFound();
+});
+
 app.Run();

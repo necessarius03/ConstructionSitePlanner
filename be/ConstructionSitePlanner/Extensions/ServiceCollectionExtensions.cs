@@ -17,10 +17,12 @@ public static class ServiceCollectionExtensions
         // Register repositories
         services.AddScoped<ISiteLayoutRepository, SiteLayoutRepository>();
         services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+        services.AddScoped<IProgressRepository, ProgressRepository>();
 
         // Register services
         services.AddScoped<IEquipmentService, EquipmentService>();
         services.AddScoped<ISiteLayoutService, SiteLayoutService>();
+        services.AddScoped<IProgressService, ProgressService>();
 
         return services;
     }
