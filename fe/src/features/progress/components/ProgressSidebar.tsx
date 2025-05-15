@@ -119,7 +119,10 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
     }
   };
 
-  const handleLinkToZone = () => {
+  const handleLinkToZone = (selectedProgress?: Progress) => {
+    if (selectedProgress) {
+      setSelectedProgress(selectedProgress);
+    }
     setIsLinkModalVisible(true);
   };
 
@@ -200,7 +203,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
               Thêm tiến độ
             </Button>
             <Button 
-              onClick={handleLinkToZone}
+              onClick={() => handleLinkToZone()}
               icon={<LinkOutlined />}
             >
               Liên kết khu vực
@@ -228,6 +231,14 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
                       type="text" 
                       icon={<EditOutlined />} 
                       onClick={() => handleEditProgress(item)} 
+                    />
+                  </Tooltip>,
+                  <Tooltip title={item.zoneShapeId ? "Thay đổi liên kết khu vực" : "Liên kết với khu vực"} key="link">
+                    <Button 
+                      type="text" 
+                      icon={<LinkOutlined />} 
+                      onClick={() => handleLinkToZone(item)} 
+                      style={{ color: item.zoneShapeId ? "#1677ff" : undefined }}
                     />
                   </Tooltip>,
                   <Tooltip title="Xóa" key="delete">
@@ -268,7 +279,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
 
                       {item.zoneShapeId ? (
                         <Tag color="blue" icon={<LinkOutlined />}>
-                          Đã liên kết với khu vực
+                          Đã liên kết với khu vực {shapes.find(s => s.id.toString() === item.zoneShapeId)?.name || item.zoneShapeId}
                         </Tag>
                       ) : (
                         <Tag color="default">Chưa liên kết</Tag>
@@ -318,6 +329,7 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
         progress={progressList}
         shapes={shapes}
         loading={loading}
+        preselectedProgressId={selectedProgress?.id}
       />
     </>
   );

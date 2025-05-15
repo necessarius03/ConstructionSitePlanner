@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Card, 
   Typography, 
@@ -16,18 +16,20 @@ import {
   FolderOpenOutlined,
   ExclamationCircleOutlined,
   PlusOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  FieldTimeOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import SiteLayoutCanvas from '../components/SiteLayoutCanvas';
 import { Shape } from '../types';
 import html2canvas from 'html2canvas';
 import SiteLayoutService from '../../../services/SiteLayoutService';
+import ProgressService, { Progress } from '../../../services/ProgressService';
 import SaveLayoutModal from '../components/SaveLayoutModal';
 import LoadLayoutModal from '../components/LoadLayoutModal';
-import { getImageUrl } from '../../../constants/equipmentImages';
 import ProgressSidebar from '../../progress/components/ProgressSidebar';
-import { FieldTimeOutlined } from '@ant-design/icons';
+import ProgressZoneLinkModal from '../../progress/components/ProgressZoneLinkModal';
+import ShapePropertiesModal from '../components/ShapePropertiesModal';
 
 const { Title } = Typography;
 const { confirm } = Modal;
@@ -49,10 +51,15 @@ const SiteLayoutPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [isProgressSidebarVisible, setIsProgressSidebarVisible] = useState(false);
+  const [isProgressLinkModalVisible, setIsProgressLinkModalVisible] = useState(false);
+  const [progressData, setProgressData] = useState<Progress[]>([]);
+  const [linkedProgress, setLinkedProgress] = useState<{[key: string]: Progress[]}>({});
+  const [isShapePropertiesModalVisible, setIsShapePropertiesModalVisible] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchLayout(id);
+      fetchProgressData(id);
     }
   }, [id]);
 
@@ -113,6 +120,28 @@ const SiteLayoutPage: React.FC = () => {
     }
   };
 
+  const fetchProgressData = async (layoutId: string) => {
+    try {
+      const progress = await ProgressService.getProgressBySiteLayout(layoutId);
+      setProgressData(progress);
+      
+      // Group progress by zone
+      const progressByZone: {[key: string]: Progress[]} = {};
+      progress.forEach(item => {
+        if (item.zoneShapeId) {
+          if (!progressByZone[item.zoneShapeId]) {
+            progressByZone[item.zoneShapeId] = [];
+          }
+          progressByZone[item.zoneShapeId].push(item);
+        }
+      });
+      
+      setLinkedProgress(progressByZone);
+    } catch (error) {
+      console.error('Error fetching progress data:', error);
+    }
+  };
+
   const handleShapesChange = (newShapes: Shape[]) => {
     setShapes(newShapes);
     setHasUnsavedChanges(true);
@@ -120,6 +149,9 @@ const SiteLayoutPage: React.FC = () => {
 
   const handleSelectShape = (shape: Shape | null) => {
     setSelectedShape(shape);
+    if (shape) {
+      setIsShapePropertiesModalVisible(true);
+    }
   };
 
   const handleSaveLayout = () => {
@@ -268,6 +300,49 @@ const SiteLayoutPage: React.FC = () => {
     navigate('/site-layout');
   };
 
+  const handleLinkProgress = (shapeId: string) => {
+    setIsProgressLinkModalVisible(true);
+  };
+
+  const handleSaveProgressLink = async (progressId: string, zoneId: string) => {
+    try {
+      const progress = progressData.find(p => p.id === progressId);
+      if (!progress) return;
+      
+      const updateData = {
+        ...progress,
+        zoneShapeId: zoneId
+      };
+      
+      // Convert dates back to ISO strings
+      updateData.startDate = new Date(progress.startDate).toISOString();
+      updateData.endDate = new Date(progress.endDate).toISOString();
+      if (updateData.actualStartDate) {
+        updateData.actualStartDate = new Date(progress.actualStartDate!).toISOString();
+      }
+      if (updateData.actualEndDate) {
+        updateData.actualEndDate = new Date(progress.actualEndDate!).toISOString();
+      }
+      
+      await ProgressService.updateProgress(progressId, updateData as any);
+      
+      setIsProgressLinkModalVisible(false);
+      if (id) {
+        fetchProgressData(id);
+      }
+      
+      message.success('Đã liên kết tiến độ với khu vực thành công');
+    } catch (error) {
+      console.error('Error linking progress to zone:', error);
+      message.error('Lỗi khi liên kết tiến độ với khu vực');
+    }
+  };
+
+  const getLinkedProgressForShape = (shapeId: string | number): Progress[] => {
+    const shapeIdStr = shapeId.toString();
+    return linkedProgress[shapeIdStr] || [];
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -377,6 +452,35 @@ const SiteLayoutPage: React.FC = () => {
           onShapesUpdate={handleShapesChange}
         />
       )}
+
+      <ProgressZoneLinkModal
+        visible={isProgressLinkModalVisible}
+        onCancel={() => setIsProgressLinkModalVisible(false)}
+        onSave={handleSaveProgressLink}
+        progress={progressData}
+        shapes={shapes}
+        preselectedZoneId={selectedShape?.id.toString()}
+      />
+
+      <ShapePropertiesModal
+        visible={isShapePropertiesModalVisible}
+        shape={selectedShape}
+        onUpdate={(updatedShape) => {
+          const newShapes = shapes.map(shape => 
+            shape.id === updatedShape.id ? updatedShape : shape
+          );
+          handleShapesChange(newShapes);
+        }}
+        onDelete={(shapeId) => {
+          const newShapes = shapes.filter(shape => shape.id !== shapeId);
+          handleShapesChange(newShapes);
+          setIsShapePropertiesModalVisible(false);
+          setSelectedShape(null);
+        }}
+        onCancel={() => setIsShapePropertiesModalVisible(false)}
+        onLinkProgress={handleLinkProgress}
+        linkedProgress={selectedShape ? getLinkedProgressForShape(selectedShape.id) : []}
+      />
     </div>
   );
 };

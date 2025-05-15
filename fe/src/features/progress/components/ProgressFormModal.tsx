@@ -195,12 +195,12 @@ const ProgressFormModal: React.FC<ProgressFormModalProps> = ({
           <Input placeholder="Nhập tên người phụ trách" />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           name="zoneShapeId"
           label="Khu vực trên mặt bằng (ID)"
         >
           <Input placeholder="Nhập ID ranh giới trên mặt bằng (nếu có)" />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item
           name="notes"

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Slider, message, Divider, Button, Space, Switch } from 'antd';
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined, SaveOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, InputNumber, Slider, message, Divider, Button, Space, Switch, Typography, Tag, Progress as AntProgress } from 'antd';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined, SaveOutlined, FieldTimeOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { Shape } from '../types';
-import { LockOutlined, UnlockOutlined } from '@ant-design/icons';
+import { Progress } from '../../../services/ProgressService';
 
 const { TextArea } = Input;
+const { Text } = Typography;
 
 interface ShapePropertiesModalProps {
   visible: boolean;
@@ -12,6 +13,8 @@ interface ShapePropertiesModalProps {
   onUpdate: (shape: Shape) => void;
   onDelete: (shapeId: number) => void;
   onCancel: () => void;
+  onLinkProgress?: (shapeId: string) => void;
+  linkedProgress?: Progress[];
 }
 
 const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
@@ -19,7 +22,9 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
   shape,
   onUpdate,
   onDelete,
-  onCancel
+  onCancel,
+  onLinkProgress,
+  linkedProgress = []
 }) => {
   const [editedShape, setEditedShape] = useState<Shape | null>(null);
   
@@ -65,6 +70,21 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
   
   const updateLocalShape = (updates: Partial<Shape>) => {
     setEditedShape(prev => prev ? { ...prev, ...updates } : null);
+  };
+
+  const getStatusTag = (status: string) => {
+    switch (status) {
+      case 'not_started':
+        return <Tag color="default">Chưa bắt đầu</Tag>;
+      case 'in_progress':
+        return <Tag color="processing">Đang thực hiện</Tag>;
+      case 'completed':
+        return <Tag color="success">Hoàn thành</Tag>;
+      case 'delayed':
+        return <Tag color="error">Bị trễ</Tag>;
+      default:
+        return <Tag>{status}</Tag>;
+    }
   };
 
   return (
@@ -159,6 +179,47 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
             placeholder="Nhập ghi chú cho đối tượng này"
           />
         </Form.Item>  
+
+        {editedShape.type === 'boundary' && (
+          <>
+            <Divider className="my-3" />
+            <Form.Item label="Tiến độ liên kết" className="mb-3">
+              {linkedProgress && linkedProgress.length > 0 ? (
+                <div className="space-y-2">
+                  {linkedProgress.map(progress => (
+                    <div key={progress.id} className="p-2 border rounded-md">
+                      <div className="flex justify-between">
+                        <Text strong>{progress.name}</Text>
+                        {getStatusTag(progress.status)}
+                      </div>
+                      <div className="mt-1">
+                        <Text type="secondary" className="text-xs">{progress.description}</Text>
+                      </div>
+                      <div className="mt-2">
+                        <div className="flex justify-between mb-1">
+                          <Text className="text-xs">Tiến độ:</Text>
+                          <Text className="text-xs">{progress.completionPercentage}%</Text>
+                        </div>
+                        <AntProgress 
+                          percent={progress.completionPercentage} 
+                          status={progress.status === 'delayed' ? 'exception' : undefined} 
+                          size="small"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Button 
+                  icon={<FieldTimeOutlined />} 
+                  onClick={() => onLinkProgress && onLinkProgress(editedShape.id.toString())}
+                >
+                  Liên kết tiến độ
+                </Button>
+              )}
+            </Form.Item>
+          </>
+        )}
       </Form>
     </Modal>
   );

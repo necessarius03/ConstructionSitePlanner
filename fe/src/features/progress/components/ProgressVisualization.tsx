@@ -22,6 +22,7 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
   const [stageWidth, setStageWidth] = useState(800);
   const [stageHeight, setStageHeight] = useState(600);
   const [scale, setScale] = useState(1);
+  const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
 
   useEffect(() => {
     if (siteLayout && siteLayout.shapes) {
@@ -36,38 +37,38 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
     }
   }, [siteLayout]);
 
-    useEffect(() => {
-        if (progress && progress.length > 0 && shapes && shapes.length > 0) {
-        // Group progress by zone
-        const progressMap: { [key: string]: Progress[] } = {};
-        
-        progress.forEach(item => {
-            if (item.zoneShapeId) {
-            if (!progressMap[item.zoneShapeId]) {
-                progressMap[item.zoneShapeId] = [];
-            }
-            progressMap[item.zoneShapeId].push(item);
-            }
-        });
-        
-        setProgressByZone(progressMap);
+  useEffect(() => {
+    if (progress && progress.length > 0 && shapes && shapes.length > 0) {
+      // Group progress by zone
+      const progressMap: { [key: string]: Progress[] } = {};
+      
+      progress.forEach(item => {
+        if (item.zoneShapeId) {
+          if (!progressMap[item.zoneShapeId]) {
+            progressMap[item.zoneShapeId] = [];
+          }
+          progressMap[item.zoneShapeId].push(item);
         }
-    }, [progress, shapes]);
+      });
+      
+      setProgressByZone(progressMap);
+    }
+  }, [progress, shapes]);
 
-    const renderShapes = () => {
+  const renderShapes = () => {
     if (!shapes || shapes.length === 0) return null;
 
     return shapes.map((shape: any, index: number) => {
-        if (shape.type === 'boundary') {
+      if (shape.type === 'boundary') {
         const shapeId = shape.id.toString();
         const hasProgress = progressByZone[shapeId] && progressByZone[shapeId].length > 0;
         const progressItems = hasProgress ? progressByZone[shapeId] : [];
         
         // Calculate overall progress for this boundary
         const overallProgress = progressItems.length > 0
-            ? Math.round(progressItems.reduce((sum, item) => sum + item.completionPercentage, 0) / progressItems.length)
-            : 0;
-            
+          ? Math.round(progressItems.reduce((sum, item) => sum + item.completionPercentage, 0) / progressItems.length)
+          : 0;
+          
         // Check if boundary has delayed tasks
         const hasDelayed = progressItems.some(item => item.status === 'delayed');
         
@@ -76,73 +77,77 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
         let strokeWidth = 1.5;
         
         if (hasProgress) {
-            if (hasDelayed) {
+          if (hasDelayed) {
             strokeColor = '#ff4d4f'; // Red for delayed
             strokeWidth = 2;
-            } else if (overallProgress === 100) {
+          } else if (overallProgress === 100) {
             strokeColor = '#52c41a'; // Green for completed
             strokeWidth = 2;
-            } else if (overallProgress > 0) {
+          } else if (overallProgress > 0) {
             strokeColor = '#1677ff'; // Blue for in progress
             strokeWidth = 2;
-            }
+          }
         }
         
         return (
-            <Group key={`shape-${index}`}>
+          <Group 
+            key={`shape-${index}`}
+            onMouseEnter={() => setHoveredZoneId(shapeId)}
+            onMouseLeave={() => setHoveredZoneId(null)}
+          >
             <Rect
-                x={shape.x}
-                y={shape.y}
-                width={shape.width}
-                height={shape.height}
-                stroke={strokeColor}
-                strokeWidth={strokeWidth}
-                dash={[10, 5]}
-                fill="transparent"
+              x={shape.x}
+              y={shape.y}
+              width={shape.width}
+              height={shape.height}
+              stroke={hoveredZoneId === shapeId ? "#1677ff" : strokeColor}
+              strokeWidth={hoveredZoneId === shapeId ? 3 : strokeWidth}
+              dash={[10, 5]}
+              fill={hoveredZoneId === shapeId ? "rgba(24, 144, 255, 0.1)" : "transparent"}
             />
             {shape.name && (
-                <KonvaText
+              <KonvaText
                 x={shape.x + 15}
                 y={shape.y + 15}
                 text={shape.name}
                 fontSize={14}
                 fill="#000"
-                />
+              />
             )}
             
             {hasProgress && (
-                <>
-                <Rect
-                    x={shape.x + 5}
-                    y={shape.y + shape.height - 25}
-                    width={shape.width - 10}
-                    height={15}
-                    fill="#eee"
-                    cornerRadius={2}
-                />
-                <Rect
-                    x={shape.x + 5}
-                    y={shape.y + shape.height - 25}
-                    width={(shape.width - 10) * (overallProgress / 100)}
-                    height={15}
-                    fill={hasDelayed ? "#ff4d4f" : "#1677ff"}
-                    cornerRadius={2}
-                />
-                <KonvaText
-                    x={shape.x + 5}
-                    y={shape.y + shape.height - 45}
-                    text={`${progressItems.length} công việc (${overallProgress}%)`}
-                    fontSize={11}
-                    fill="#000"
-                />
-                </>
+              <>
+              <Rect
+                x={shape.x + 5}
+                y={shape.y + shape.height - 25}
+                width={shape.width - 10}
+                height={15}
+                fill="#eee"
+                cornerRadius={2}
+              />
+              <Rect
+                x={shape.x + 5}
+                y={shape.y + shape.height - 25}
+                width={(shape.width - 10) * (overallProgress / 100)}
+                height={15}
+                fill={hasDelayed ? "#ff4d4f" : "#1677ff"}
+                cornerRadius={2}
+              />
+              <KonvaText
+                x={shape.x + 5}
+                y={shape.y + shape.height - 45}
+                text={`${progressItems.length} công việc (${overallProgress}%)`}
+                fontSize={11}
+                fill="#000"
+              />
+              </>
             )}
-            </Group>
+          </Group>
         );
-        } else {
+      } else {
         // Render other shapes normally without progress indicators
         return (
-            <Rect
+          <Rect
             key={`shape-${index}`}
             x={shape.x}
             y={shape.y}
@@ -152,74 +157,80 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
             opacity={shape.opacity || 0.6}
             stroke="#ddd"
             strokeWidth={1}
-            />
+          />
         );
-        }
+      }
     });
-    };
+  };
 
-    const renderZoneProgress = () => {
+  const renderZoneProgress = () => {
     if (!progressByZone || Object.keys(progressByZone).length === 0) {
-        return (
+      return (
         <Empty
-            description="Chưa có ranh giới nào được gán tiến độ"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="Chưa có ranh giới nào được gán tiến độ"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
-        );
+      );
     }
 
     return Object.entries(progressByZone).map(([zoneId, zoneProgress]) => {
-        const zone = shapes.find((shape: any) => 
+      const zone = shapes.find((shape: any) => 
         shape.id.toString() === zoneId && shape.type === 'boundary'
-        );
-        if (!zone) return null;
+      );
+      if (!zone) return null;
 
-        const overallProgress = Math.round(
+      const overallProgress = Math.round(
         zoneProgress.reduce((sum, item) => sum + item.completionPercentage, 0) / zoneProgress.length
-        );
+      );
 
-        const hasDelayed = zoneProgress.some(item => item.status === 'delayed');
-        const allCompleted = zoneProgress.every(item => item.status === 'completed');
+      const hasDelayed = zoneProgress.some(item => item.status === 'delayed');
+      const allCompleted = zoneProgress.every(item => item.status === 'completed');
 
-        return (
+      return (
         <Col span={12} key={zoneId} className="mb-4">
-            <Card size="small" title={zone.name || `Ranh giới ${zoneId}`}>
-                <div>
-                    <div className="flex justify-between items-center mb-2">
-                    <Text>{zoneProgress.length} công việc</Text>
-                    <Text strong>{overallProgress}%</Text>
-                    </div>
-                    <AntProgress 
-                    percent={overallProgress} 
-                    status={hasDelayed ? 'exception' : (allCompleted ? 'success' : 'active')}
-                    size="small"
+          <Card 
+            size="small" 
+            title={zone.name || `Ranh giới ${zoneId}`}
+            className={hoveredZoneId === zoneId ? "border-primary border-2" : ""}
+            onMouseEnter={() => setHoveredZoneId(zoneId)}
+            onMouseLeave={() => setHoveredZoneId(null)}
+          >
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <Text>{zoneProgress.length} công việc</Text>
+                <Text strong>{overallProgress}%</Text>
+              </div>
+              <AntProgress 
+                percent={overallProgress} 
+                status={hasDelayed ? 'exception' : (allCompleted ? 'success' : 'active')}
+                size="small"
+              />
+            </div>
+            
+            <div className="mt-3">
+              {zoneProgress.map(item => (
+                <div key={item.id} className="flex justify-between items-center mb-1 text-sm">
+                  <div className="truncate" style={{ maxWidth: '60%' }}>{item.name}</div>
+                  <div className="flex items-center">
+                    <AntProgress
+                      percent={item.completionPercentage}
+                      steps={5}
+                      size="small"
+                      strokeColor={item.status === 'delayed' ? '#ff4d4f' : '#1677ff'}
+                      style={{ width: 60, marginRight: 8 }}
                     />
+                    {item.status === 'delayed' && <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />}
+                    {item.status === 'completed' && <CheckCircleOutlined style={{ color: '#52c41a' }} />}
+                    {item.status === 'in_progress' && <ClockCircleOutlined style={{ color: '#1677ff' }} />}
+                  </div>
                 </div>
-                
-                <div className="mt-3">
-                    {zoneProgress.map(item => (
-                    <div key={item.id} className="flex justify-between items-center mb-1 text-sm">
-                        <div className="truncate" style={{ maxWidth: '60%' }}>{item.name}</div>
-                        <div className="flex items-center">
-                        <AntProgress
-                            percent={item.completionPercentage}
-                            steps={5}
-                            size="small"
-                            strokeColor={item.status === 'delayed' ? '#ff4d4f' : '#1677ff'}
-                            style={{ width: 60, marginRight: 8 }}
-                        />
-                        {item.status === 'delayed' && <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />}
-                        {item.status === 'completed' && <CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                        {item.status === 'in_progress' && <ClockCircleOutlined style={{ color: '#1677ff' }} />}
-                        </div>
-                    </div>
-                    ))}
-                </div>
-            </Card>
+              ))}
+            </div>
+          </Card>
         </Col>
-        );
+      );
     });
-    };
+  };
 
   if (loading) {
     return (
