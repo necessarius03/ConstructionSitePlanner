@@ -23,6 +23,8 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
   const [stageHeight, setStageHeight] = useState(600);
   const [scale, setScale] = useState(1);
   const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{x: number, y: number} | null>(null);
+  const [tooltipContent, setTooltipContent] = useState<string>('');
 
   useEffect(() => {
     if (siteLayout && siteLayout.shapes) {
@@ -92,8 +94,40 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
         return (
           <Group 
             key={`shape-${index}`}
-            onMouseEnter={() => setHoveredZoneId(shapeId)}
-            onMouseLeave={() => setHoveredZoneId(null)}
+            onMouseEnter={(e) => {
+              setHoveredZoneId(shapeId);
+              // Lấy vị trí chuột tương đối với stage
+              const stage = e.target.getStage();
+              if (stage) {
+                const position = stage.getPointerPosition();
+                if (position) {
+                  setTooltipPosition({
+                    x: position.x + 10,
+                    y: position.y + 10
+                  });
+                  setTooltipContent(shape.name || 'Ranh giới');
+                }
+              }
+            }}
+            onMouseLeave={() => {
+              setHoveredZoneId(null);
+              setTooltipPosition(null);
+            }}
+            onMouseMove={(e) => {
+              // Cập nhật vị trí tooltip khi di chuyển chuột
+              if (hoveredZoneId === shapeId) {
+                const stage = e.target.getStage();
+                if (stage) {
+                  const position = stage.getPointerPosition();
+                  if (position) {
+                    setTooltipPosition({
+                      x: position.x + 10,
+                      y: position.y + 10
+                    });
+                  }
+                }
+              }
+            }}
           >
             <Rect
               x={shape.x}
@@ -105,15 +139,6 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
               dash={[10, 5]}
               fill={hoveredZoneId === shapeId ? "rgba(24, 144, 255, 0.1)" : "transparent"}
             />
-            {shape.name && (
-              <KonvaText
-                x={shape.x + 15}
-                y={shape.y + 15}
-                text={shape.name}
-                fontSize={14}
-                fill="#000"
-              />
-            )}
             
             {hasProgress && (
               <>
@@ -248,12 +273,33 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
             <div className="mb-3 text-sm text-gray-500">
               Các khu vực có tiến độ được hiển thị với màu tương ứng: xanh lá (hoàn thành), xanh dương (đang thực hiện), đỏ (bị trễ)
             </div>
-            <div className="border rounded-md p-2 bg-gray-50" style={{ overflow: 'auto' }}>
+            <div className="border rounded-md p-2 bg-gray-50 relative" style={{ overflow: 'auto' }}>
               <Stage width={stageWidth} height={stageHeight} scale={{ x: scale, y: scale }}>
                 <Layer>
                   {renderShapes()}
                 </Layer>
               </Stage>
+              
+              {/* Tooltip HTML hiển thị bên ngoài Canvas */}
+              {tooltipPosition && (
+                <div 
+                  className="tooltip"
+                  style={{
+                    position: 'absolute',
+                    left: tooltipPosition.x,
+                    top: tooltipPosition.y,
+                    background: 'white',
+                    padding: '5px 10px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    zIndex: 1000,
+                    pointerEvents: 'none',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                  }}
+                >
+                  {tooltipContent}
+                </div>
+              )}
             </div>
             <div className="mt-3 flex justify-end">
               <Button onClick={() => setScale(scale + 0.1)}>Phóng to</Button>

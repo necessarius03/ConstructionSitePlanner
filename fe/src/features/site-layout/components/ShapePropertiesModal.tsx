@@ -158,7 +158,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
           </>
         )}
 
-        <Form.Item label="Màu sắc" className="mb-3">
+        {/* <Form.Item label="Màu sắc" className="mb-3">
           <div className="flex items-center gap-2">
             <div
               className="w-6 h-6 rounded-full border"
@@ -169,7 +169,7 @@ const ShapePropertiesModal: React.FC<ShapePropertiesModalProps> = ({
               onChange={(e) => updateLocalShape({ fill: e.target.value })}
             />
           </div>
-        </Form.Item>
+        </Form.Item> */}
         
         <Form.Item label="Ghi chú" className="mb-3">
           <TextArea

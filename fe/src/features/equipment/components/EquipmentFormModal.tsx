@@ -195,7 +195,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
           />
         )}
 
-        <Form.Item
+        {/* <Form.Item
           name="color"
           label="Màu sắc"
         >
@@ -204,7 +204,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
             onChange={handleColorChange}
             format="hex"
           />
-        </Form.Item>
+        </Form.Item> */}
 
         <div className="flex gap-4">
           <Form.Item
