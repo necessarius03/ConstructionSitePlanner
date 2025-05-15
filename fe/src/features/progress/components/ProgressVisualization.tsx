@@ -222,7 +222,7 @@ const ProgressVisualization: React.FC<ProgressVisualizationProps> = ({
           >
             <div>
               <div className="flex justify-between items-center mb-2">
-                <Text>{zoneProgress.length} công việc</Text>
+                <Text>{zoneProgress.length} công việc </Text>
                 <Text strong>{overallProgress}%</Text>
               </div>
               <AntProgress 

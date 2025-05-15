@@ -176,39 +176,39 @@ const ProgressZoneLinkModal: React.FC<ProgressZoneLinkModalProps> = ({
           </Form.Item>
 
           {validZones.length > 0 && (
-            <div className="mb-4 p-2 border rounded bg-gray-50 overflow-auto" style={{ height: '200px' }}>
-              <Stage width={600} height={400} scale={{ x: 0.5, y: 0.5 }}>
-                <Layer>
-                  {validZones.map((zone, index) => (
-                    <Group key={index}>
-                      <Rect
-                        x={zone.x}
-                        y={zone.y}
-                        width={zone.width}
-                        height={zone.height}
-                        stroke={selectedZone === zone.id.toString() ? "#1677ff" : "#000"}
-                        strokeWidth={selectedZone === zone.id.toString() ? 2 : 1}
-                        dash={[10, 5]}
-                        fill="transparent"
-                        onClick={() => {
-                          setSelectedZone(zone.id.toString());
-                          form.setFieldsValue({ zoneId: zone.id.toString() });
-                        }}
-                      />
-                      {zone.name && (
-                        <KonvaText
-                          x={zone.x + 10}
-                          y={zone.y + 10}
-                          text={zone.name}
-                          fontSize={12}
-                          fill="#000"
+            <div className="mb-4 p-2 border rounded-lg bg-gray-50 overflow-auto" style={{ height: '300px' }}> 
+                <Stage width={600} height={400} scale={{ x: 0.4, y: 0.4 }} draggable>
+                    <Layer>
+                    {validZones.map((zone, index) => (
+                        <Group key={index}>
+                        <Rect
+                            x={zone.x}
+                            y={zone.y}
+                            width={zone.width}
+                            height={zone.height}
+                            stroke={selectedZone === zone.id.toString() ? "#1677ff" : "#000"}
+                            strokeWidth={selectedZone === zone.id.toString() ? 2 : 1}
+                            dash={[10, 5]}
+                            fill="transparent"
+                            onClick={() => {
+                            setSelectedZone(zone.id.toString());
+                            form.setFieldsValue({ zoneId: zone.id.toString() });
+                            }}
                         />
-                      )}
-                    </Group>
-                  ))}
-                </Layer>
-              </Stage>
-            </div>
+                        {zone.name && (
+                            <KonvaText
+                            x={zone.x + 10}
+                            y={zone.y + 10}
+                            text={zone.name}
+                            fontSize={12}
+                            fill="#000"
+                            />
+                        )}
+                        </Group>
+                    ))}
+                    </Layer>
+                </Stage>
+                </div>
           )}
 
           {selectedProgress && selectedZone && (
