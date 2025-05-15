@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Gantt, Task, ViewMode, TaskType } from 'gantt-task-react';
+import { Gantt, Task, ViewMode } from 'gantt-task-react';
 import 'gantt-task-react/dist/index.css';
 import { Button, Tooltip, Dropdown, Divider } from 'antd';
-import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, MenuOutlined } from '@ant-design/icons';
+import { ZoomInOutlined, ZoomOutOutlined, MenuOutlined } from '@ant-design/icons';
 
 interface GanttChartProps {
   data: any[];
@@ -10,12 +10,10 @@ interface GanttChartProps {
   onTaskClick?: (task: Task) => void;
 }
 
-// Định nghĩa type cho Task
 interface GanttTask extends Task {
   status?: string;
 }
 
-// Create a React component for the tooltip instead of a string template
 const TooltipContent = ({ task }: { task: GanttTask }) => {
   const statusLabel = getStatusLabel(task.status);
   
@@ -52,7 +50,7 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             start: new Date(item.startDate),
             end: new Date(item.endDate),
             progress: item.progress,
-            type: 'task' as TaskType,
+            type: 'task',
             styles: { 
             progressColor: taskColor,
             progressSelectedColor: taskColor, 
@@ -61,10 +59,10 @@ export const GanttChart: React.FC<GanttChartProps> = ({
             },
             status: item.status,
             dependencies: item.dependencies || []
-        };
+        } as GanttTask;
         });
         
-        setTasks(formattedTasks as GanttTask[]);
+        setTasks(formattedTasks);
     } else {
         setTasks([]);
     }
@@ -149,7 +147,7 @@ const handleZoomOut = () => {
             tasks={tasks}
             viewMode={currentViewMode}
             onDoubleClick={handleTaskClick}
-            listCellWidth="250px"
+            listCellWidth="200px"
             columnWidth={currentViewMode === ViewMode.Day ? 50 : 65}
             TooltipContent={TooltipContent}
           />
@@ -163,7 +161,6 @@ const handleZoomOut = () => {
   );
 };
 
-// Helper function to get status label text
 const getStatusLabel = (status?: string) => {
   switch (status) {
     case 'not_started':
