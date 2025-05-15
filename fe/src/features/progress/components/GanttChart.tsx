@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Gantt, Task, ViewMode } from 'gantt-task-react';
+import { Gantt, Task, ViewMode, TaskType } from 'gantt-task-react';
 import 'gantt-task-react/dist/index.css';
 import { Button, Tooltip, Dropdown, Divider } from 'antd';
 import { ZoomInOutlined, ZoomOutOutlined, FullscreenOutlined, MenuOutlined } from '@ant-design/icons';
@@ -42,60 +42,57 @@ export const GanttChart: React.FC<GanttChartProps> = ({
 
   useEffect(() => {
     if (data && data.length > 0) {
-      const formattedTasks = data.map(item => ({
-        id: item.id,
-        name: item.name,
-        start: new Date(item.startDate),
-        end: new Date(item.endDate),
-        progress: item.progress,
-        type: 'task',
-        styles: { 
-          progressColor: item.color || '#1677ff',
-          progressSelectedColor: item.color || '#1677ff', 
-          backgroundColor: (item.status === 'delayed' ? '#fff1f0' : 'white'),
-          backgroundSelectedColor: (item.status === 'delayed' ? '#fff1f0' : '#fff7e6'),
-        },
-        status: item.status,
-        dependencies: item.dependencies || []
-      }));
-      
-      setTasks(formattedTasks);
+        const formattedTasks = data.map(item => {
+        const taskColor = item.color || '#1677ff';
+        const isDelayed = item.status === 'delayed';
+        
+        return {
+            id: item.id,
+            name: item.name,
+            start: new Date(item.startDate),
+            end: new Date(item.endDate),
+            progress: item.progress,
+            type: 'task' as TaskType,
+            styles: { 
+            progressColor: taskColor,
+            progressSelectedColor: taskColor, 
+            backgroundColor: isDelayed ? '#fff1f0' : `${taskColor}30`,
+            backgroundSelectedColor: isDelayed ? '#fff1f0' : `${taskColor}40`,
+            },
+            status: item.status,
+            dependencies: item.dependencies || []
+        };
+        });
+        
+        setTasks(formattedTasks as GanttTask[]);
     } else {
-      setTasks([]);
+        setTasks([]);
     }
-  }, [data]);
+    }, [data]);
 
   const handleViewChange = (mode: ViewMode) => {
     setCurrentViewMode(mode);
   };
 
   const handleZoomIn = () => {
-    if (currentViewMode === ViewMode.Year) {
-      setCurrentViewMode(ViewMode.HalfYear);
-    } else if (currentViewMode === ViewMode.HalfYear) {
-      setCurrentViewMode(ViewMode.Quarter);
-    } else if (currentViewMode === ViewMode.Quarter) {
-      setCurrentViewMode(ViewMode.Month);
-    } else if (currentViewMode === ViewMode.Month) {
-      setCurrentViewMode(ViewMode.Week);
-    } else if (currentViewMode === ViewMode.Week) {
-      setCurrentViewMode(ViewMode.Day);
-    }
-  };
+  if (currentViewMode === ViewMode.Day) {
+    setCurrentViewMode(ViewMode.HalfDay);
+  } else if (currentViewMode === ViewMode.HalfDay) {
+    setCurrentViewMode(ViewMode.QuarterDay);
+  } else if (currentViewMode === ViewMode.QuarterDay) {
+    setCurrentViewMode(ViewMode.Hour);
+  }
+};
 
-  const handleZoomOut = () => {
-    if (currentViewMode === ViewMode.Day) {
-      setCurrentViewMode(ViewMode.Week);
-    } else if (currentViewMode === ViewMode.Week) {
-      setCurrentViewMode(ViewMode.Month);
-    } else if (currentViewMode === ViewMode.Month) {
-      setCurrentViewMode(ViewMode.Quarter);
-    } else if (currentViewMode === ViewMode.Quarter) {
-      setCurrentViewMode(ViewMode.HalfYear);
-    } else if (currentViewMode === ViewMode.HalfYear) {
-      setCurrentViewMode(ViewMode.Year);
-    }
-  };
+const handleZoomOut = () => {
+  if (currentViewMode === ViewMode.Day) {
+    setCurrentViewMode(ViewMode.Week);
+  } else if (currentViewMode === ViewMode.Week) {
+    setCurrentViewMode(ViewMode.Month);
+  } else if (currentViewMode === ViewMode.Month) {
+    setCurrentViewMode(ViewMode.Year);
+  }
+};
 
   const handleTaskClick = (task: Task) => {
     if (onTaskClick) {
@@ -115,18 +112,6 @@ export const GanttChart: React.FC<GanttChartProps> = ({
     {
       key: ViewMode.Month,
       label: 'Tháng',
-    },
-    {
-      key: ViewMode.Quarter,
-      label: 'Quý',
-    },
-    {
-      key: ViewMode.HalfYear,
-      label: 'Nửa năm',
-    },
-    {
-      key: ViewMode.Year,
-      label: 'Năm',
     },
   ];
 
