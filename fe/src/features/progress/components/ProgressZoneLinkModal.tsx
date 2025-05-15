@@ -35,13 +35,8 @@ const ProgressZoneLinkModal: React.FC<ProgressZoneLinkModalProps> = ({
       setSelectedZone(null);
       setProgressInfo(null);
       
-      // Filter only zone, material, storage types
-      const zones = shapes.filter(shape => 
-        shape.type === 'zone' || 
-        shape.type === 'material' || 
-        shape.type === 'storage'
-      );
-      setValidZones(zones);
+      const boundaries = shapes.filter(shape => shape.type === 'boundary');
+      setValidZones(boundaries);
     }
   }, [visible, form, shapes]);
 
@@ -86,48 +81,49 @@ const ProgressZoneLinkModal: React.FC<ProgressZoneLinkModalProps> = ({
 
   return (
     <Modal
-      title="Liên kết tiến độ với khu vực"
-      open={visible}
-      onCancel={onCancel}
-      footer={[
-        <Button key="back" onClick={onCancel}>
-          Hủy
-        </Button>,
-        <Button 
-          key="submit" 
-          type="primary" 
-          onClick={handleSubmit}
-          disabled={!selectedProgress || !selectedZone}
+        title="Liên kết tiến độ với ranh giới công trường"
+        open={visible}
+        onCancel={onCancel}
+        footer={[
+            <Button key="back" onClick={onCancel}>
+            Hủy
+            </Button>,
+            <Button 
+            key="submit" 
+            type="primary" 
+            onClick={handleSubmit}
+            disabled={!selectedProgress || !selectedZone}
+            >
+            Liên kết
+            </Button>
+        ]}
+        width={600}
         >
-          Liên kết
-        </Button>
-      ]}
-      width={600}
-    >
       {loading ? (
         <div className="flex justify-center py-6">
           <Spin />
         </div>
       ) : (
         <Form form={form} layout="vertical">
-          <Form.Item
-            name="progressId"
-            label="Chọn tiến độ"
-            rules={[{ required: true, message: 'Vui lòng chọn tiến độ' }]}
-          >
-            <Select
-              placeholder="Chọn tiến độ cần liên kết"
-              onChange={handleProgressChange}
-              showSearch
-              optionFilterProp="children"
-            >
-              {progress.map(item => (
-                <Option key={item.id} value={item.id}>
-                  {item.name} {item.zoneShapeId && ' (Đã liên kết)'}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+            <Form.Item
+                name="zoneId"
+                label="Chọn ranh giới"
+                rules={[{ required: true, message: 'Vui lòng chọn ranh giới' }]}
+                >
+                <Select
+                    placeholder="Chọn ranh giới công trường"
+                    onChange={handleZoneChange}
+                    showSearch
+                    optionFilterProp="children"
+                    disabled={!selectedProgress}
+                >
+                    {validZones.map(zone => (
+                    <Option key={zone.id} value={zone.id.toString()}>
+                        {zone.name || `Ranh giới ${zone.id}`}
+                    </Option>
+                    ))}
+                </Select>
+            </Form.Item>
 
           {progressInfo && (
             <Card size="small" className="mb-4">
@@ -172,7 +168,7 @@ const ProgressZoneLinkModal: React.FC<ProgressZoneLinkModalProps> = ({
 
           {validZones.length === 0 && (
             <Empty 
-              description="Không tìm thấy khu vực phù hợp trên mặt bằng" 
+              description="Không tìm thấy ranh giới trên mặt bằng" 
               image={Empty.PRESENTED_IMAGE_SIMPLE}
             />
           )}
