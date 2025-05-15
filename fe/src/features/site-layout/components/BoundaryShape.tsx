@@ -39,7 +39,7 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
   };
 
   const formatDimension = (size: number) => {
-    return `${size}px`;
+    return `${Math.round(size)}px`;
   };
 
   return (
@@ -54,6 +54,16 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
       onContextMenu={onContextMenu}
     >
       <Rect
+        x={10}
+        y={-9}
+        width={Math.min((shape.name?.length || 0) * 7 + 20, 300)}
+        height={18}
+        fill="white"
+        cornerRadius={0}
+        perfectDrawEnabled={false}
+      />
+      
+      <Rect
         width={shape.width}
         height={shape.height}
         fill="transparent"
@@ -66,80 +76,61 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
         opacity={isSelected ? 1 : 0.8}
       />
       
-      <Rect
-        x={10}
-        y={10}
-        width={Math.min((shape.name?.length || 0) * 8 + 40, 300)}
-        height={30}
-        fill="rgba(255, 255, 255, 0.85)"
-        cornerRadius={3}
-        shadowColor="rgba(0,0,0,0.2)"
-        shadowBlur={2}
-        shadowOffsetX={1}
-        shadowOffsetY={1}
-        perfectDrawEnabled={false}
-      />
-      
       <Text
-        x={15}
-        y={18}
+        x={14}
+        y={-7}
         text={shape.name || 'Ranh giới'}
-        fontSize={14}
+        fontSize={11}
         fontFamily="Arial"
         fill="#000"
         width={290}
         ellipsis={true}
+        align="left"
       />
       
       <Rect
         x={shape.width / 2 - 50}
-        y={shape.height - 30}
-        width={100}
-        height={24}
-        fill="rgba(255, 255, 255, 0.85)"
-        cornerRadius={3}
-        shadowColor="rgba(0,0,0,0.2)"
-        shadowBlur={2}
-        shadowOffsetX={1}
-        shadowOffsetY={1}
+        y={shape.height -5}
+        width={80}
+        height={18}
+        fill="white"
+        cornerRadius={0}
         perfectDrawEnabled={false}
       />
       
       <Text
-        x={shape.width / 2 - 45}
-        y={shape.height - 25}
-        text={`Rộng: ${formatDimension(shape.width)}`}
-        fontSize={12}
+        x={shape.width / 2 - 20}
+        y={shape.height - 5}
+        text={formatDimension(shape.width)}
+        fontSize={10}
         fontFamily="Arial"
         fill="#333"
         align="center"
       />
       
       <Rect
-        x={shape.width - 90}
-        y={shape.height / 2 - 12}
-        width={80}
-        height={24}
-        fill="rgba(255, 255, 255, 0.85)"
-        cornerRadius={3}
-        shadowColor="rgba(0,0,0,0.2)"
-        shadowBlur={2}
-        shadowOffsetX={1}
-        shadowOffsetY={1}
+        x={shape.width - 5}
+        y={shape.height / 2 - 30}
+        width={18}
+        height={50}
+        fill="white"
+        cornerRadius={0}
         perfectDrawEnabled={false}
       />
       
       <Text
-        x={shape.width - 85}
-        y={shape.height / 2 - 7}
-        text={`Dài: ${formatDimension(shape.height)}`}
-        fontSize={12}
+        x={shape.width - 5}
+        y={shape.height / 2 + 5}
+        text={formatDimension(shape.height)}
+        fontSize={10}
         fontFamily="Arial"
         fill="#333"
+        rotation={-90}
         align="center"
       />
       
-      <Group 
+      {/* Lock/unlock button */}
+      {/* <Group 
         x={shape.width - 30}
         y={10}
         onClick={handleToggleLock}
@@ -164,7 +155,7 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
           align="center"
           verticalAlign="middle"
         />
-      </Group>
+      </Group> */}
     </Group>
   );
 };
