@@ -26,7 +26,7 @@ const ProgressFormModal: React.FC<ProgressFormModalProps> = ({
   siteLayoutId
 }) => {
   const [form] = Form.useForm();
-  const [colorValue, setColorValue] = useState<string>('#1677ff');
+  const [colorValue, setColorValue] = useState<string>('#ffffff');
 
   useEffect(() => {
     if (visible) {
@@ -175,7 +175,7 @@ const ProgressFormModal: React.FC<ProgressFormModalProps> = ({
             />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             name="color"
             label="Màu sắc"
             rules={[{ required: true, message: 'Vui lòng chọn màu' }]}
@@ -185,7 +185,7 @@ const ProgressFormModal: React.FC<ProgressFormModalProps> = ({
               onChange={handleColorChange}
               format="hex"
             />
-          </Form.Item>
+          </Form.Item> */}
         </div>
 
         <Form.Item

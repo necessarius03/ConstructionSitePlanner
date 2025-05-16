@@ -90,10 +90,10 @@ const ProgressList: React.FC<ProgressListProps> = ({
           <List.Item
             key={item.id}
             className="mb-4 border rounded-md p-4"
-            style={{ 
-              borderLeft: `4px solid ${item.color}`,
-              backgroundColor: item.status === 'delayed' ? '#fff1f0' : 'white'
-            }}
+            // style={{ 
+            //   borderLeft: `4px solid ${item.color}`,
+            //   backgroundColor: item.status === 'delayed' ? '#fff1f0' : 'white'
+            // }}
             actions={[
               <AntProgress 
                 key="progress" 

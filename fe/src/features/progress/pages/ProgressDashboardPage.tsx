@@ -76,11 +76,9 @@ const ProgressDashboardPage: React.FC = () => {
     try {
       setLoading(true);
       await ProgressService.deleteProgress(id);
-      message.success('Đã xóa tiến độ thành công');
       fetchProgressList();
     } catch (error) {
       console.error('Error deleting progress:', error);
-      message.error('Không thể xóa tiến độ');
     } finally {
       setLoading(false);
     }

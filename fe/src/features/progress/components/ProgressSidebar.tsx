@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Space, Tooltip, Drawer, List, Typography, Tag, Progress as AntProgress, Empty, Spin, Modal } from 'antd';
+import { Button, Space, Tooltip, Drawer, List, Typography, Tag, Progress as AntProgress, Empty, Spin, Modal, message } from 'antd';
 import { 
   FieldTimeOutlined, 
   LinkOutlined, 
@@ -73,23 +73,28 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
     setIsFormModalVisible(true);
   };
 
-  const handleDeleteProgress = (progress: Progress) => {
+  const handleDeleteProgress = (progress: Progress) => { 
     confirm({
-      title: 'Bạn có chắc chắn muốn xóa tiến độ này?',
-      content: 'Hành động này không thể hoàn tác.',
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          await ProgressService.deleteProgress(progress.id);
-          fetchProgressList();
+        title: 'Bạn có chắc chắn muốn xóa tiến độ này?',
+        content: 'Hành động này không thể hoàn tác.',
+        okText: 'Xóa',
+        okType: 'danger',
+        cancelText: 'Hủy',
+        onOk: async () => {
+        try { 
+            setLoading(true);
+            await ProgressService.deleteProgress(progress.id);
+            message.success('Đã xóa tiến độ thành công');
+            await fetchProgressList();
         } catch (error) {
-          console.error('Error deleting progress:', error);
+            console.error('Error deleting progress:', error);
+            message.error('Không thể xóa tiến độ');
+        } finally {
+            setLoading(false);
         }
-      }
+        }
     });
-  };
+    }
 
   const handleSaveProgress = async (values: any) => {
     if (!siteLayoutId) return;
@@ -221,10 +226,10 @@ const ProgressSidebar: React.FC<ProgressSidebarProps> = ({
             renderItem={(item) => (
               <List.Item
                 className="mb-3 border rounded-md p-3"
-                style={{ 
-                  borderLeft: `4px solid ${item.color}`,
-                  backgroundColor: item.status === 'delayed' ? '#fff1f0' : 'white'
-                }}
+                // style={{ 
+                //   borderLeft: `4px solid ${item.color}`,
+                //   backgroundColor: item.status === 'delayed' ? '#fff1f0' : 'white'
+                // }}
                 actions={[
                   <Tooltip title="Chỉnh sửa" key="edit">
                     <Button 
