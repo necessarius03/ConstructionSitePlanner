@@ -109,6 +109,12 @@ dotnet run
 2. View project Gantt charts
 3. Export reports and layout images
 
-## 👥 Authors
+## Future features
+
+- [] 3D view mode for site planning
+- [] Auto generate optimal transportation
+- and more...
+
+## Authors
 
 - Nguyen Trung Hieu
