@@ -111,8 +111,8 @@ dotnet run
 
 ## Future features
 
-- [] 3D view mode for site planning
-- [] Auto generate optimal transportation
+- [ ] 3D view mode for site planning
+- [ ] Auto generate optimal transportation
 - and more...
 
 ## Authors
