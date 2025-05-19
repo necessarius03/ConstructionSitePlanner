@@ -2,6 +2,10 @@
 
 A web application for optimizing construction site layout - efficiently managing space, equipment, and progress tracking for construction projects.
 
+![{4556FA5D-6A7C-46BD-9A0E-53EFEF1AD785}](https://github.com/user-attachments/assets/a8974b44-157e-4ddd-b216-4764cfb2a294)
+![{2C1944CD-3A88-4486-9B43-DEF749460FD0}](https://github.com/user-attachments/assets/8b8e5bf3-110a-423b-9094-455d23f753f7)
+![{0821AC24-13DA-4BC8-8117-9BE75A5BE372}](https://github.com/user-attachments/assets/e0133dde-3d8e-4c01-835d-4bb860bf547f)
+
 ## Overview
 
 The Construction Site Layout Planning web application is a tool designed to help construction engineers and project managers optimize workspace arrangement, track progress, and manage equipment efficiently. The application provides several key functionalities:
