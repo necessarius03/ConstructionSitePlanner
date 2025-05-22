@@ -1,3 +1,4 @@
+import './lib/three-devtools-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ConfigProvider } from 'antd';

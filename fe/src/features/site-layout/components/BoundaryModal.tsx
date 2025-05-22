@@ -60,7 +60,7 @@ const BoundaryModal: React.FC<BoundaryModalProps> = ({
         
         <Form.Item
           name="width"
-          label="Chiều rộng (px)"
+          label="Chiều rộng (cm)"
           rules={[{ required: true, message: 'Vui lòng nhập chiều rộng' }]}
         >
           <InputNumber min={200} max={2000} style={{ width: '100%' }} />
@@ -68,7 +68,7 @@ const BoundaryModal: React.FC<BoundaryModalProps> = ({
         
         <Form.Item
           name="height"
-          label="Chiều dài (px)"
+          label="Chiều dài (cm)"
           rules={[{ required: true, message: 'Vui lòng nhập chiều dài' }]}
         >
           <InputNumber min={200} max={2000} style={{ width: '100%' }} />

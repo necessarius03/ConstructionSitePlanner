@@ -1,3 +1,4 @@
+// fe/src/features/site-layout/pages/SiteLayoutPage.tsx - Updated with 3D support
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Card, 
@@ -8,7 +9,9 @@ import {
   Modal, 
   Spin,
   Alert,
-  Tooltip
+  Tooltip,
+  Radio,
+  Badge
 } from 'antd';
 import { 
   SaveOutlined, 
@@ -17,10 +20,13 @@ import {
   ExclamationCircleOutlined,
   PlusOutlined,
   LoadingOutlined,
-  FieldTimeOutlined
+  FieldTimeOutlined,
+  EyeOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import SiteLayoutCanvas from '../components/SiteLayoutCanvas';
+import SiteLayout3DCanvas from '../components/SiteLayout3DCanvas';
 import { Shape } from '../types';
 import html2canvas from 'html2canvas';
 import SiteLayoutService from '../../../services/SiteLayoutService';
@@ -36,6 +42,8 @@ const { confirm } = Modal;
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
+type ViewMode = '2d' | '3d';
+
 const SiteLayoutPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -43,6 +51,7 @@ const SiteLayoutPage: React.FC = () => {
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [selectedShape, setSelectedShape] = useState<Shape | null>(null);
   const [currentLayout, setCurrentLayout] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('2d');
   
   const [isSaveModalVisible, setIsSaveModalVisible] = useState(false);
   const [isLoadModalVisible, setIsLoadModalVisible] = useState(false);
@@ -55,6 +64,10 @@ const SiteLayoutPage: React.FC = () => {
   const [progressData, setProgressData] = useState<Progress[]>([]);
   const [linkedProgress, setLinkedProgress] = useState<{[key: string]: Progress[]}>({});
   const [isShapePropertiesModalVisible, setIsShapePropertiesModalVisible] = useState(false);
+  
+  // 3D specific states
+  const [is3DLoading, setIs3DLoading] = useState(false);
+  const [show3DPerformanceWarning, setShow3DPerformanceWarning] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -62,6 +75,15 @@ const SiteLayoutPage: React.FC = () => {
       fetchProgressData(id);
     }
   }, [id]);
+
+  // Check if should show 3D performance warning
+  useEffect(() => {
+    if (viewMode === '3d' && shapes.length > 50) {
+      setShow3DPerformanceWarning(true);
+    } else {
+      setShow3DPerformanceWarning(false);
+    }
+  }, [viewMode, shapes.length]);
 
   const fetchLayout = async (layoutId: string) => {
     try {
@@ -152,6 +174,16 @@ const SiteLayoutPage: React.FC = () => {
     if (shape) {
       setIsShapePropertiesModalVisible(true);
     }
+  };
+
+  const handleViewModeChange = async (newViewMode: ViewMode) => {
+    if (newViewMode === '3d') {
+      setIs3DLoading(true);
+      // Simulate loading time for 3D assets
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setIs3DLoading(false);
+    }
+    setViewMode(newViewMode);
   };
 
   const handleSaveLayout = () => {
@@ -246,7 +278,11 @@ const SiteLayoutPage: React.FC = () => {
   };
 
   const exportAsImage = async () => {
-    const element = document.querySelector('.konvajs-content canvas') as HTMLElement;
+    const elementSelector = viewMode === '3d' 
+      ? '.r3f-canvas' 
+      : '.konvajs-content canvas';
+    const element = document.querySelector(elementSelector) as HTMLElement;
+    
     if (!element) {
       message.error('Không tìm thấy phần tử canvas');
       return;
@@ -259,11 +295,12 @@ const SiteLayoutPage: React.FC = () => {
       
       const link = document.createElement('a');
       const layoutName = currentLayout?.name || 'site-layout';
-      link.download = `${layoutName}-${new Date().toISOString().slice(0, 10)}.png`;
+      const modePrefix = viewMode === '3d' ? '3D-' : '2D-';
+      link.download = `${modePrefix}${layoutName}-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
 
-      message.success('Đã xuất ảnh thành công');
+      message.success(`Đã xuất ảnh ${viewMode.toUpperCase()} thành công`);
     } catch (error) {
       console.error('Error exporting image:', error);
       message.error('Lỗi khi xuất ảnh');
@@ -297,6 +334,7 @@ const SiteLayoutPage: React.FC = () => {
     setCurrentLayout(null);
     setSelectedShape(null);
     setHasUnsavedChanges(false);
+    setViewMode('2d'); // Reset to 2D when creating new
     navigate('/site-layout');
   };
 
@@ -343,6 +381,10 @@ const SiteLayoutPage: React.FC = () => {
     return linkedProgress[shapeIdStr] || [];
   };
 
+  const getViewModeColor = (mode: ViewMode) => {
+    return mode === '3d' ? '#722ed1' : '#1677ff';
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -358,6 +400,29 @@ const SiteLayoutPage: React.FC = () => {
           )}
         </div>
         <Space>
+          {/* View Mode Toggle */}
+          <div>
+            <Radio.Group 
+              value={viewMode} 
+              onChange={(e) => handleViewModeChange(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value="2d">
+                <Space>
+                  <EyeOutlined />
+                  <span>2D</span>
+                </Space>
+              </Radio.Button>
+              <Radio.Button value="3d">
+                <Space>
+                  <ThunderboltOutlined />
+                  <span>3D</span>
+                  {shapes.length > 20 && <Badge color="orange" />}
+                </Space>
+              </Radio.Button>
+            </Radio.Group>
+          </div>
+
           <Button 
             icon={<PlusOutlined />} 
             onClick={createNewLayout}
@@ -383,7 +448,7 @@ const SiteLayoutPage: React.FC = () => {
             onClick={exportAsImage}
             disabled={isLoading || shapes.length === 0}
           >
-            Xuất ảnh
+            Xuất ảnh {viewMode.toUpperCase()}
           </Button>
           {currentLayout && (
             <Button
@@ -406,6 +471,19 @@ const SiteLayoutPage: React.FC = () => {
           onClose={() => setError(null)}
         />
       )}
+
+      {/* 3D Performance Warning */}
+      {show3DPerformanceWarning && (
+        <Alert
+          message="Cảnh báo hiệu suất"
+          description={`Mặt bằng có ${shapes.length} đối tượng. Chế độ 3D có thể chạy chậm trên thiết bị yếu.`}
+          type="warning"
+          showIcon
+          closable
+          className="mb-4"
+          onClose={() => setShow3DPerformanceWarning(false)}
+        />
+      )}
       
       {isLoading && id ? (
         <div className="flex justify-center items-center h-96">
@@ -414,14 +492,31 @@ const SiteLayoutPage: React.FC = () => {
             <p>Đang tải mặt bằng...</p>
           </Space>
         </div>
+      ) : is3DLoading ? (
+        <div className="flex justify-center items-center h-96">
+          <Space direction="vertical" align="center">
+            <Spin indicator={antIcon} />
+            <p>Đang tải mô hình 3D...</p>
+            <p className="text-sm text-gray-500">Lần đầu có thể mất vài giây...</p>
+          </Space>
+        </div>
       ) : (
         <Card className="mt-4 relative" bodyStyle={{ padding: '0' }}>
           <div className="h-[calc(100vh-220px)]">
-            <SiteLayoutCanvas 
-              initialShapes={shapes}
-              onShapesChange={handleShapesChange}
-              onSelectShape={handleSelectShape}
-            />
+            {viewMode === '2d' ? (
+              <SiteLayoutCanvas 
+                initialShapes={shapes}
+                onShapesChange={handleShapesChange}
+                onSelectShape={handleSelectShape}
+              />
+            ) : (
+              <SiteLayout3DCanvas
+                initialShapes={shapes}
+                progress={progressData}
+                onShapesChange={handleShapesChange}
+                onSelectShape={handleSelectShape}
+              />
+            )}
           </div>
         </Card>
       )}

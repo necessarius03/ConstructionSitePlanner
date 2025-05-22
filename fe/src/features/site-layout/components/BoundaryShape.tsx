@@ -39,7 +39,7 @@ const BoundaryShape: React.FC<BoundaryShapeProps> = ({
   };
 
   const formatDimension = (size: number) => {
-    return `${Math.round(size)}px`;
+    return `${Math.round(size)}`;
   };
 
   return (
