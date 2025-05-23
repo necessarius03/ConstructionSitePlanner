@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Shape } from '../types';
 import { Progress } from '../../../services/ProgressService';
+import { convert2DTo3D, convert2DDimensionsTo3D, convert2DRotationTo3D } from '../utils/coordinateUtils';
 
 interface ProgressZone3DProps {
   shape: Shape;
@@ -27,17 +28,9 @@ const ProgressZone3D: React.FC<ProgressZone3DProps> = ({
   const progressBarRef = useRef<THREE.Mesh>(null);
 
   // Convert 2D coordinates to 3D
-  const position3D: [number, number, number] = [
-    shape.x / 10,
-    0,
-    shape.y / 10
-  ];
-
-  const size3D = {
-    width: shape.width / 10,
-    height: progress ? (progress.completionPercentage / 100) * 8 : 2, // Dynamic height based on progress
-    depth: shape.height / 10
-  };
+  const position3D = convert2DTo3D({ x: shape.x, y: shape.y });
+  const size3D = convert2DDimensionsTo3D(shape.width, shape.height);
+  const rotation3D = convert2DRotationTo3D(shape.rotation || 0);
 
   // Animate progress bar growth
   useFrame((state, delta) => {

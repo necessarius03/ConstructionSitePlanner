@@ -170,7 +170,7 @@ const SiteLayout3DCanvas: React.FC<SiteLayout3DCanvasProps> = ({
               </Select>
             </div>
 
-            <Space wrap>
+            {/* <Space wrap>
               <Tooltip title="Góc nhìn từ trên">
                 <Button 
                   size="small" 
@@ -207,7 +207,7 @@ const SiteLayout3DCanvas: React.FC<SiteLayout3DCanvasProps> = ({
                   ISO
                 </Button>
               </Tooltip>
-            </Space>
+            </Space> */}
 
             <Button 
               size="small" 
@@ -230,7 +230,13 @@ const SiteLayout3DCanvas: React.FC<SiteLayout3DCanvasProps> = ({
           near: 0.1,
           far: 2000
         }}
-        style={{ height: '100%' }}
+        style={{ 
+          height: 'calc(80vh - 100px)',
+          width: '100%',
+          position: 'absolute',
+          top: '80px',
+          left: 0
+        }}
       >
         <Suspense fallback={null}>
           {/* Lighting */}

@@ -1,0 +1,33 @@
+Chi tiết:
+
+1/ Dự án:
+
+Các hệ thống web tạo báo giá cho các sản phẩm gỗ về nội thất/ngoại thất như sàn gỗ, hàng rào,...
+
+2/ Công việc:
+
+Triển khai các tính năng trực quan hóa 3D bằng Three.js để cho phép người dùng tương tác và xem trước các mô hình sản phẩm thực tế.
+Xây dựng các công cụ tùy chỉnh 2D với HTML5 Canvas để tuỳ chỉnh chi tiết về kích thước, hình dạng và bố cục của các sản phẩm.
+Áp dụng các công thức toán học để tính toán sử dụng vật liệu và ước tính chi phí.
+Hợp tác với Back-end để tích hợp API và xử lý việc lấy dữ liệu cho chi tiết sản phẩm và giá cả.
+Yêu cầu:
+
+1/ Kinh nghiệm:
+
+Kinh nghiệm thực tế (2-4 năm) làm việc trong các dự án liên quan đến 2D/3D.
+Bắt buộc có kinh nghiệm thực tế phát triển ứng dụng với Three.js và HTML5 Canvas.
+Ưu tiên: Có portfolio hoặc case studies thể hiện kinh nghiệm làm việc thực tế với các dự án 2D/3D trước đó.
+2/ Kỹ năng chuyên môn:
+
+Thành thạo JavaScript/TypeScript và quen thuộc với các framework như React (hoặc Angular).
+Nắm vững kiến thức toán học (hình học, lượng giác và đại số tuyến tính) để hỗ trợ transformations, scaling, và tuỳ chỉnh các toạ độ trong mô hình 2D/3D.
+Kinh nghiệm tối ưu hoá hiệu suất render các mô hình 3D cho các ứng dụng web.
+Có kiến thức làm việc với textures, lighting, material trong môi trường 3D.
+3/ Kỹ năng mềm:
+
+Khả năng giải quyết vấn đề và phân tích mạnh mẽ, với sự chú ý đến từng chi tiết.
+Khả năng giao tiếp hiệu quả và làm việc nhóm.
+Tự giác, chủ động trong việc học hỏi và áp dụng công nghệ mới.
+Quyền lợi:
+
+Mức lương: Thỏa thuận theo năng lực và kinh nghiệm của ứng viên.
